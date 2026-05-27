@@ -1,0 +1,24 @@
+<div class="login-wrap">
+    <div class="login-logo">POMPA</div>
+    <div class="login-sub">ბეტონის პომპის ოპერატორების სისტემა</div>
+
+    <div id="phase-otp">
+        <div style="font-size:14px;color:var(--muted);margin-bottom:16px">კოდი გაიგზავნა <span id="sent-to"
+                style="color:var(--text)">577711704</span></div>
+        <div class="otp-inputs">
+            <input type="text" maxlength="1" class="otp-digit" #otpInput (input)="onOtpInput($event, 0)"
+                (keydown)="onKeyDown($event, 0)" (paste)="onPaste($event)">
+
+            <input type="text" maxlength="1" class="otp-digit" #otpInput (input)="onOtpInput($event, 1)"
+                (keydown)="onKeyDown($event, 1)">
+
+            <input type="text" maxlength="1" class="otp-digit" #otpInput (input)="onOtpInput($event, 2)"
+                (keydown)="onKeyDown($event, 2)">
+
+            <input type="text" maxlength="1" class="otp-digit" #otpInput (input)="onOtpInput($event, 3)"
+                (keydown)="onKeyDown($event, 3)">
+        </div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:16px">შესვლა</button>
+        <button class="btn btn-secondary" style="width:100%;justify-content:center;margin-top:8px" routerLink="/login">← უკან</button>
+    </div>
+</div>
