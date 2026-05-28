@@ -1,5 +1,7 @@
+using Data;
 using DotNetEnv;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace API
 {
@@ -19,10 +21,11 @@ namespace API
                       .AllowAnyMethod());
             });
 
-            //builder.Services.AddDbContext<RestaurantContext>(options => {
-            //    options.UseSqlServer(builder.Configuration.GetConnectionString("RestaurantDBConnection"));
-            //});
-            //builder.Services.AddScoped<DbContext, RestaurantContext>();
+            builder.Services.AddDbContext<ProjectContext>(options =>
+            {
+                options.UseSqlServer(builder.Configuration.GetConnectionString("PompaDBConnection"));
+            });
+            builder.Services.AddScoped<DbContext, ProjectContext>();
 
             // Add repositories to the container
             // builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
