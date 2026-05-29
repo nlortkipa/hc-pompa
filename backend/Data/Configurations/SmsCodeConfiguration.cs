@@ -15,6 +15,8 @@ namespace Data.Configurations
                 .HasKey(sc => sc.Id);
             builder.Property(sc => sc.UserId)
                 .IsRequired();
+            builder.HasIndex(sc => sc.UserId)
+                .IsUnique();
             builder.Property(sc => sc.Code)
                 .IsRequired()
                 .HasMaxLength(4);

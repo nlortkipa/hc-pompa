@@ -8,3 +8,15 @@
 
     padding: var(--padding);
 }
+
+.field-error {
+    border-color: var(--danger) !important;
+}
+
+.field-error-msg {
+    color: var(--danger);
+    font-size: 11px;
+    font-family: var(--mono);
+    margin-top: 5px;
+    letter-spacing: 0.3px;
+}

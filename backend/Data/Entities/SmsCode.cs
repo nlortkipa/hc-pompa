@@ -19,6 +19,6 @@ namespace Data.Entities
         [Required]
         public DateTime ExpiresAt { get; set; }
 
-        public User? User { get; set; }
+        public User User { get; set; } = null!;
     }
 }

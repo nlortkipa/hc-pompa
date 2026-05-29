@@ -5,8 +5,13 @@
     <div>
         <div class="form-group" style="text-align:left">
             <label>ტელეფონის ნომერი</label>
-            <input type="tel" id="phone-input" placeholder="5XX XXX XXX" style="font-size:18px;text-align:center">
+            <input type="tel" id="phone-input" placeholder="5XX XXX XXX" style="font-size:18px;text-align:center"
+                [class.field-error]="showError()" [(ngModel)]="number" (ngModelChange)="showError.set(false)">
+            <div class="field-error-msg" *ngIf="showError()">
+                {{ error() }}
+            </div>
         </div>
-        <button class="btn btn-primary" style="width:100%;justify-content:center" routerLink="/verify">SMS კოდის გაგზავნა →</button>
+        <button class="btn btn-primary" style="width:100%;justify-content:center" (click)="submit()">SMS კოდის გაგზავნა
+            →</button>
     </div>
 </div>

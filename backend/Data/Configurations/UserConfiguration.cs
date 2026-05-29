@@ -16,6 +16,8 @@ namespace Data.Configurations
             builder.Property(u => u.Number)
                 .IsRequired()
                 .HasMaxLength(15);
+            builder.HasIndex(u => u.Number)
+                .IsUnique();
             builder.Property(u => u.CreatedAt)
                 .IsRequired();
 

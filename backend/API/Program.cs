@@ -1,7 +1,12 @@
+using Dal.Interfaces;
+using Dal.Repositories;
 using Data;
 using DotNetEnv;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Service.Interfaces;
+using Service.Mapping;
+using Service.Services;
 
 namespace API
 {
@@ -28,9 +33,14 @@ namespace API
             builder.Services.AddScoped<DbContext, ProjectContext>();
 
             // Add repositories to the container
-            // builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<ISmsCodeRepository, SmsCodeRepository>();
 
             // Add services to the container
+            builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<ISmsCodeService, SmsCodeService>();
+
+            builder.Services.AddAutoMapper(cfg => { }, typeof(MappingProfile).Assembly);
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
