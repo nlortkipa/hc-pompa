@@ -2,7 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import { BACKEND_URL } from '../globals';
 import { HttpClient } from '@angular/common/http';
 import { SmsCodeModel } from '../models/sms-code-model';
-import { tap } from 'rxjs';
+import { tap, throwError } from 'rxjs';
 
 const SMS_CODE_KEY = 'sms_code';
 
@@ -37,5 +37,16 @@ export class AuthService {
     } catch {
       return null;
     }
+  }
+
+  verifyCode(code: string) {
+    const smsCode = this.smsCode();
+    if (!smsCode) return throwError(() => new Error('No active SMS code'));
+
+    return this.http.post(
+      `${BACKEND_URL}/api/auth/verify-code`,
+      { userId: smsCode.userId, code },
+      { responseType: 'text' }
+    );
   }
 }

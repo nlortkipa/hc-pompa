@@ -4,9 +4,9 @@
 
     <div id="phase-otp">
         <div style="font-size:14px;color:var(--muted);margin-bottom:16px">
-            კოდი გაიგზავნა <span style="color:var(--text)">577711704</span>
+            კოდი გაიგზავნა <span style="color:var(--text)">{{authService.smsCode()?.userNumber}}</span>
         </div>
-        <div class="otp-inputs">
+        <div class="otp-inputs" [class.otp-error]="showError()">
             <input type="text" maxlength="1" class="otp-digit" #otpInput (input)="onOtpInput($event, 0)"
                 (keydown)="onKeyDown($event, 0)" (paste)="onPaste($event)">
             <input type="text" maxlength="1" class="otp-digit" #otpInput (input)="onOtpInput($event, 1)"
@@ -15,6 +15,9 @@
                 (keydown)="onKeyDown($event, 2)">
             <input type="text" maxlength="1" class="otp-digit" #otpInput (input)="onOtpInput($event, 3)"
                 (keydown)="onKeyDown($event, 3)">
+        </div>
+        <div class="field-error-msg" *ngIf="showError()">
+            {{ error() }}
         </div>
         <div class="hint">კოდი იწურება {{ timeLeft() }}-ში</div>
         <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:16px"

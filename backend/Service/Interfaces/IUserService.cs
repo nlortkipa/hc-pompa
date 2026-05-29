@@ -9,6 +9,7 @@ namespace Service.Interfaces
 {
     public interface IUserService
     {
+        Task<UserDTO?> GetByIdAsync(int id);
         Task<UserDTO?> GetByNumberAsync(string number);
     }
 }

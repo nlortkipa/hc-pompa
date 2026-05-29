@@ -9,17 +9,11 @@ namespace Service.DTOs
     {
         public int Id { get; set; }
         public int UserId { get; set; }
+        public string UserNumber { get; set; } = null!;
         public DateTime ExpiresAt { get; set; }
     }
 
-    public class CreateSmsCodeDTO
-    {
-        public int UserId { get; set; }
-        public string Code { get; set; } = null!;
-        public DateTime ExpiresAt { get; set; }
-    }
-
-    public class UpdateSmsCodeDTO
+    public class VerifySmsCodeDTO
     {
         public int UserId { get; set; }
         public string Code { get; set; } = null!;

@@ -46,7 +46,21 @@ namespace Service.Services
 
             Console.WriteLine($"[SMS SEND] {phoneNumber} -> {code}");
 
-            return _mapper.Map<SmsCodeDTO>(smsCode);
+            var smsCodeModel = _mapper.Map<SmsCodeDTO>(smsCode);
+            smsCodeModel.UserNumber = phoneNumber;
+            return smsCodeModel;
+        }
+
+        public async Task<bool> VerifyCodeAsync(VerifySmsCodeDTO model)
+        {
+            var code = await _smsCodeRepository.GetByUserIdAsync(model.UserId);
+            if (code == null)
+                return false;
+
+            if (code.ExpiresAt < DateTime.UtcNow)
+                return false;
+
+            return code.Code == model.Code;
         }
     }
 }

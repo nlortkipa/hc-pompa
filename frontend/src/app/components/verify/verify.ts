@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnDestroy, OnInit, QueryList, ViewChildren, inject, signal } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, QueryList, ViewChildren, signal } from '@angular/core';
 import { RouterLink, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth-service';
@@ -14,10 +14,11 @@ export class Verify implements OnInit, OnDestroy {
   @ViewChildren('otpInput')
   otpInputs!: QueryList<ElementRef<HTMLInputElement>>;
 
-  private router = inject(Router);
-  private authService = inject(AuthService);
+  constructor(private router: Router, public authService: AuthService) { }
 
   timeLeft = signal('');
+  error = signal('');
+  showError = signal(false);
   private timerInterval?: ReturnType<typeof setInterval>;
 
   ngOnInit() {
@@ -57,15 +58,28 @@ export class Verify implements OnInit, OnDestroy {
 
   submit() {
     const otp = this.otpInputs.map(i => i.nativeElement.value).join('');
-    if (otp.length < this.otpInputs.length) return;
+    if (otp.length < this.otpInputs.length) {
+      this.error.set('შეიყვანეთ სრული კოდი');
+      this.showError.set(true);
+      return;
+    }
 
-    // TODO: call this.authService.verifyCode(otp) when endpoint exists
-    console.log('successfuly verified');
+    this.authService.verifyCode(otp).subscribe({
+      next: () => {
+        this.authService.setCode(null);  // ← clear SMS code from localStorage
+        this.router.navigate(['/dashboard']);
+      },
+      error: (err) => {
+        this.error.set(err.error);
+        this.showError.set(true);
+      }
+    });
   }
 
   onOtpInput(event: Event, index: number) {
     const input = event.target as HTMLInputElement;
     input.value = input.value.replace(/\D/g, '');
+    this.showError.set(false);
     if (input.value && index < this.otpInputs.length - 1) {
       this.otpInputs.get(index + 1)?.nativeElement.focus();
     }
@@ -85,6 +99,7 @@ export class Verify implements OnInit, OnDestroy {
       .replace(/\D/g, '')
       .slice(0, this.otpInputs.length);
     if (!pasted) return;
+    this.showError.set(false);
     pasted.split('').forEach((char, i) => {
       const input = this.otpInputs.get(i)?.nativeElement;
       if (input) input.value = char;

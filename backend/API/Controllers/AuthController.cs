@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Service.DTOs;
+using Service.Helpers;
 using Service.Interfaces;
 
 namespace API.Controllers
@@ -9,15 +11,18 @@ namespace API.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
+        private readonly IConfiguration _configuration;
         private readonly IUserService _userService;
         private readonly ISmsCodeService _smsCodeService;
 
-        public AuthController(IUserService userService, ISmsCodeService smsCodeService)
+        public AuthController(IConfiguration configuration, IUserService userService, ISmsCodeService smsCodeService)
         {
+            _configuration = configuration;
             _userService = userService;
             _smsCodeService = smsCodeService;
         }
 
+        [AllowAnonymous]
         [HttpPost("Send-Code")]
         public async Task<ActionResult<SmsCodeDTO>> SendCode([FromBody] string number)
         {
@@ -32,6 +37,22 @@ namespace API.Controllers
 
             var smsCode = await _smsCodeService.SendCodeAsync(user.Id, user.Number);
             return Ok(smsCode);
+        }
+
+        [AllowAnonymous]
+        [HttpPost("Verify-Code")]
+        public async Task<ActionResult<string>> VerifyCode([FromBody] VerifySmsCodeDTO verifySmsCode)
+        {
+            var user = await _userService.GetByIdAsync(verifySmsCode.UserId);
+            if (user == null)
+                return BadRequest("ნომერი ვერ მოიძებნა");
+
+            var res = await _smsCodeService.VerifyCodeAsync(verifySmsCode);
+            if (!res) 
+                return BadRequest("შეყვანილია ვადაგასული ან არასწორი კოდი");
+
+            var token = TokenHelper.GenerateToken(user.Id, user.Number, "Admin", _configuration);
+            return Ok(token);
         }
     }
 }

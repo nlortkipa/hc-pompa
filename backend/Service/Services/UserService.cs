@@ -22,6 +22,12 @@ namespace Service.Services
             _userRepository = userRepository;
         }
 
+        public async Task<UserDTO?> GetByIdAsync(int id)
+        {
+            var user = await _userRepository.GetByIdAsync(id);
+            return _mapper.Map<UserDTO>(user);
+        }
+
         public async Task<UserDTO?> GetByNumberAsync(string number)
         {
             var user = await _userRepository.GetByNumberAsync(number);
