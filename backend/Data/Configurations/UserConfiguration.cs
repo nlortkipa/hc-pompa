@@ -13,10 +13,21 @@ namespace Data.Configurations
         {
             builder.ToTable("users")
                 .HasKey(u => u.Id);
-            builder.Property(u => u.Number)
+            builder.Property(u => u.FirstName)
+                .IsRequired()
+                .HasMaxLength(25)
+                .IsUnicode(true);
+            builder.Property(u => u.LastName)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(true);
+            builder.Property(u => u.PersonalId)
+                .IsRequired()
+                .HasMaxLength(11);
+            builder.Property(u => u.PhoneNumber)
                 .IsRequired()
                 .HasMaxLength(15);
-            builder.HasIndex(u => u.Number)
+            builder.HasIndex(u => u.PhoneNumber)
                 .IsUnique();
             builder.Property(u => u.CreatedAt)
                 .IsRequired();

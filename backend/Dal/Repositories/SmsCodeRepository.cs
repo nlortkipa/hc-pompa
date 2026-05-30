@@ -21,7 +21,7 @@ namespace Dal.Repositories
         {
             return await _context.Set<SmsCode>()
                 .Include(x => x.User)
-                .Where(x => x.User.Number == number)
+                .Where(x => x.User.PhoneNumber == number)
                 .ToListAsync();
         }
 

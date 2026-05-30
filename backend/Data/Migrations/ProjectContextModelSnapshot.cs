@@ -43,7 +43,8 @@ namespace Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId")
+                        .IsUnique();
 
                     b.ToTable("SmsCodes", (string)null);
                 });
@@ -59,12 +60,32 @@ namespace Data.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Number")
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasMaxLength(25)
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(25)");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("PersonalId")
+                        .IsRequired()
+                        .HasMaxLength(11)
+                        .HasColumnType("nvarchar(11)");
+
+                    b.Property<string>("PhoneNumber")
                         .IsRequired()
                         .HasMaxLength(15)
                         .HasColumnType("nvarchar(15)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("PhoneNumber")
+                        .IsUnique();
 
                     b.ToTable("users", (string)null);
 
@@ -73,7 +94,10 @@ namespace Data.Migrations
                         {
                             Id = 1,
                             CreatedAt = new DateTime(2026, 5, 28, 16, 0, 0, 0, DateTimeKind.Local),
-                            Number = "575780323"
+                            FirstName = "ნიკოლოზ",
+                            LastName = "ლორთქიფანიძე",
+                            PersonalId = "12345678901",
+                            PhoneNumber = "575780323"
                         });
                 });
 

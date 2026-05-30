@@ -36,7 +36,10 @@ namespace Data
                 new User
                 {
                     Id = 1,
-                    Number = "575780323",
+                    FirstName = "ნიკოლოზ",
+                    LastName = "ლორთქიფანიძე",
+                    PersonalId = "12345678901",
+                    PhoneNumber = "575780323",
                     CreatedAt = DateTime.Parse("2026-05-28T12:00:00Z")
                 }    
             );

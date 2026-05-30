@@ -21,7 +21,7 @@ namespace Dal.Repositories
         public async Task<User?> GetByNumberAsync(string number)
         {
             return await _context.Users
-                .FirstOrDefaultAsync(u => u.Number == number);
+                .FirstOrDefaultAsync(u => u.PhoneNumber == number);
         }
     }
 }

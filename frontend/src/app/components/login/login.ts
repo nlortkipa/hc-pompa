@@ -22,6 +22,12 @@ export class Login {
 
   constructor(private router: Router, private authService: AuthService) { }
 
+  ngOnInit() {
+    const token = localStorage.getItem('token')
+    if (token != null)
+      this.router.navigate(['/console'])
+  }
+
   submit() {
     if (!this.number().trim()) {
       this.error.set('შეიყვანეთ ტელეფონის ნომერი');

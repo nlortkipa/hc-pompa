@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -12,8 +13,19 @@ namespace Data.Entities
         [Key]
         public int Id { get; set; }
         [Required]
+        [MaxLength(25)]
+        [Unicode(true)]
+        public string FirstName { get; set; } = null!;
+        [Required]
+        [MaxLength(50)]
+        [Unicode(true)]
+        public string LastName { get; set; } = null!;
+        [Required]
+        [MaxLength(11)]
+        public string PersonalId { get; set; } = null!;
+        [Required]
         [MaxLength(15)]
-        public string Number { get; set; } = null!;
+        public string PhoneNumber { get; set; } = null!;
         [Required]
         public DateTime CreatedAt { get; set; }
 

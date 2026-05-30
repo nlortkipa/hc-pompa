@@ -35,7 +35,7 @@ namespace API.Controllers
             if (user == null)
                 return NotFound("ნომერი ვერ მოიძებნა");
 
-            var smsCode = await _smsCodeService.SendCodeAsync(user.Id, user.Number);
+            var smsCode = await _smsCodeService.SendCodeAsync(user.Id, user.PhoneNumber);
             return Ok(smsCode);
         }
 
@@ -51,7 +51,7 @@ namespace API.Controllers
             if (!res) 
                 return BadRequest("შეყვანილია ვადაგასული ან არასწორი კოდი");
 
-            var token = TokenHelper.GenerateToken(user.Id, user.Number, "Admin", _configuration);
+            var token = TokenHelper.GenerateToken(user.Id, user.PhoneNumber, "Admin", _configuration);
             return Ok(token);
         }
     }

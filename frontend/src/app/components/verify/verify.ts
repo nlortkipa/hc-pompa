@@ -65,12 +65,14 @@ export class Verify implements OnInit, OnDestroy {
     }
 
     this.authService.verifyCode(otp).subscribe({
-      next: () => {
-        this.authService.setCode(null);  // ← clear SMS code from localStorage
+      next: (token) => {
+        this.authService.setCode(null);
+        localStorage.setItem('token', token)
         this.router.navigate(['/dashboard']);
       },
       error: (err) => {
         this.error.set(err.error);
+        localStorage.removeItem('token')
         this.showError.set(true);
       }
     });
