@@ -348,7 +348,7 @@ select.field-error {
     border-color: var(--danger) !important;
 }
 .field-error-msg {
-    display: none;
+    // display: none;
     color: var(--danger);
     font-size: 11px;
     font-family: var(--mono);

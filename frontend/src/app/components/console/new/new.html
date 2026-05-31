@@ -1,0 +1,201 @@
+<div class="wizard-page">
+
+  <!-- ── PROGRESS BAR ── -->
+  <div class="wizard-progress">
+    <div
+      *ngFor="let i of stepRange"
+      class="wstep"
+      [class.done]="stepStatus(i) === 'done'"
+      [class.active]="stepStatus(i) === 'active'"
+    ></div>
+  </div>
+
+  <!-- ── STEP LABEL & TITLE ── -->
+  <div class="wizard-step-label">ეტაპი {{ wiz.step + 1 }} / {{ STEPS.length }}</div>
+  <div class="wizard-title">{{ STEPS[wiz.step] }}</div>
+
+  <!-- ══════════════════ STEP 0 — DATE ══════════════════ -->
+  <ng-container *ngIf="wiz.step === 0">
+    <div class="form-group">
+      <label>თარიღი</label>
+      <input type="date" [(ngModel)]="wiz.date" name="date" />
+    </div>
+  </ng-container>
+
+  <!-- ══════════════════ STEP 1 — COMPANY ══════════════════ -->
+  <ng-container *ngIf="wiz.step === 1">
+    <div class="form-group">
+      <label>კომპანია</label>
+      <select [(ngModel)]="wiz.companyId" name="company">
+        <option [ngValue]="null">— აირჩიეთ —</option>
+        <option *ngFor="let c of companies" [ngValue]="c.id">{{ c.name }}</option>
+      </select>
+    </div>
+  </ng-container>
+
+  <!-- ══════════════════ STEP 2 — ADDRESS ══════════════════ -->
+  <ng-container *ngIf="wiz.step === 2">
+    <div class="form-group">
+      <label>მისამართი</label>
+      <select [(ngModel)]="wiz.addressId" name="address">
+        <option [ngValue]="null">— აირჩიეთ —</option>
+        <option *ngFor="let a of filteredAddresses" [ngValue]="a.id">{{ a.name }}</option>
+      </select>
+    </div>
+    <p *ngIf="filteredAddresses.length === 0" class="hint-warn">
+      ამ კომპანიას აქტიური მისამართი არ აქვს.
+    </p>
+  </ng-container>
+
+  <!-- ══════════════════ STEP 3 — PUMP ══════════════════ -->
+  <ng-container *ngIf="wiz.step === 3">
+    <div class="form-group">
+      <label>სახ. ნომერი</label>
+      <input
+        type="text"
+        [(ngModel)]="wiz.pumpPlate"
+        name="pumpPlate"
+        placeholder="GE-XXX-XX"
+        (input)="autoDetectPump()"
+      />
+    </div>
+    <!-- <div class="form-group">
+      <label>პომპის ტიპი</label>
+      <input
+        type="text"
+        [value]="wiz.pumpType"
+        name="pumpType"
+        readonly
+        placeholder="ავტომ. განისაზღვრება"
+        class="readonly-input"
+      />
+    </div> -->
+  </ng-container>
+
+  <!-- ══════════════════ STEP 4 — CONCRETE ══════════════════ -->
+  <ng-container *ngIf="wiz.step === 4">
+    <div class="form-group">
+      <label>ბეტონის მოცულობა (m³)</label>
+      <input
+        type="number"
+        [(ngModel)]="wiz.concreteVolume"
+        name="concrete"
+        min="0"
+        step="0.5"
+        placeholder="0"
+      />
+    </div>
+  </ng-container>
+
+  <!-- ══════════════════ STEP 5 — OPERATIONS ══════════════════ -->
+  <ng-container *ngIf="wiz.step === 5">
+    <div class="check-group">
+      <div
+        *ngFor="let op of opItems"
+        class="check-row"
+        [class.checked]="wiz[op.key] > 0"
+      >
+        <div class="check-left">
+          <input
+            type="checkbox"
+            [id]="'cb-' + op.key"
+            [checked]="wiz[op.key] > 0"
+            (change)="toggleOp(op.key, $any($event.target).checked)"
+          />
+          <label [for]="'cb-' + op.key" class="check-label">{{ op.label }}</label>
+        </div>
+        <div class="check-right">
+          <input
+            class="check-qty"
+            type="number"
+            min="0"
+            [(ngModel)]="wiz[op.key]"
+            [name]="'qty-' + op.key"
+            [disabled]="wiz[op.key] === 0"
+            [class.dimmed]="wiz[op.key] === 0"
+          />
+          <span class="check-unit">{{ op.unit }}</span>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- ══════════════════ STEP 6 — REVIEW ══════════════════ -->
+  <ng-container *ngIf="wiz.step === 6">
+    <div class="card review-card">
+      <table class="review-table">
+        <tr>
+          <td class="rev-label">თარიღი</td>
+          <td>{{ wiz.date }}</td>
+        </tr>
+        <tr>
+          <td class="rev-label">კომპანია</td>
+          <td>{{ selectedCompany?.name || '—' }}</td>
+        </tr>
+        <tr>
+          <td class="rev-label">მისამართი</td>
+          <td>{{ selectedAddress?.name || '—' }}</td>
+        </tr>
+        <tr>
+          <td class="rev-label">პომპა</td>
+          <td>
+            <span class="mono">{{ wiz.pumpPlate }}</span>
+            <span class="pill">{{ wiz.pumpType }}</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="rev-label">ბეტონი</td>
+          <td><strong>{{ wiz.concreteVolume }}</strong> m³</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="card review-card" style="margin-bottom:0">
+      <div class="card-title">დამატებითი ოპერაციები</div>
+      <table class="review-table">
+        <thead>
+          <tr>
+            <th>ოპერაცია</th>
+            <th>რაოდ.</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let op of reviewOps">
+            <td>{{ op.label }}</td>
+            <td><strong>{{ op.val }}</strong></td>
+          </tr>
+          <tr *ngIf="reviewOps.length === 0">
+            <td colspan="2" class="empty-cell">—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ng-container>
+
+  <!-- ── NAV BUTTONS ── -->
+  <div class="wizard-nav">
+    <button
+      *ngIf="wiz.step > 0; else spacer"
+      class="btn btn-secondary"
+      (click)="wizBack()"
+    >← უკან</button>
+    <ng-template #spacer><div></div></ng-template>
+
+    <button
+      *ngIf="wiz.step < STEPS.length - 1; else submitBtn"
+      class="btn btn-primary"
+      (click)="wizNext()"
+    >შემდეგი →</button>
+    <ng-template #submitBtn>
+      <button class="btn btn-primary" (click)="wizSubmit()">✔ შენახვა</button>
+    </ng-template>
+  </div>
+
+  <!-- ── TOAST ── -->
+  <div
+    class="toast"
+    [class.show]="toast.visible"
+    [class.error]="toast.isError"
+  >{{ toast.msg }}</div>
+
+</div>

@@ -3,6 +3,7 @@ import { Login } from './components/login/login';
 import { APP_NAME } from './globals';
 import { Verify } from './components/verify/verify';
 import { Console } from './components/console/console';
+import { New } from './components/console/new/new';
 
 export const routes: Routes = [
     {
@@ -23,6 +24,12 @@ export const routes: Routes = [
     {
         path: 'console',
         component: Console,
-        title: `${APP_NAME} - Console`
+        title: `${APP_NAME} - Console`,
+        children: [
+            {
+                path: 'new',
+                component: New
+            }
+        ]
     }
 ];

@@ -68,7 +68,7 @@ export class Verify implements OnInit, OnDestroy {
       next: (token) => {
         this.authService.setCode(null);
         localStorage.setItem('token', token)
-        this.router.navigate(['/dashboard']);
+        this.router.navigate(['/console']);
       },
       error: (err) => {
         this.error.set(err.error);

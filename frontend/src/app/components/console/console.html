@@ -4,3 +4,39 @@
         <span id="user-name">{{profile()?.firstName}} {{profile()?.lastName}}</span>
     </div>
 </div>
+
+<div id="main">
+    <div id="sidebar">
+        <!-- <div class="nav-item active" data-screen="dashboard" onclick="nav('dashboard')"><span class="nav-icon">📊</span>
+            დეშბორდი</div> -->
+        <div class="nav-item" routerLink="new" routerLinkActive="active" data-screen="wizard" onclick="nav('wizard')"><span class="nav-icon">➕</span> ახალი
+            ჩანაწერი</div>
+        <div class="nav-item" routerLink="history" routerLinkActive="active" data-screen="records" onclick="nav('records')"><span class="nav-icon">📋</span> ჩანაწერები
+        </div>
+        <!-- <div class="nav-item" data-screen="reports" onclick="nav('reports')"><span class="nav-icon">📈</span> რეპორტები
+        </div>
+        <div class="nav-item" data-screen="admin" onclick="nav('admin')"><span class="nav-icon">⚙️</span> ადმინ</div> -->
+    </div>
+
+    <router-outlet></router-outlet>
+
+    <div id="mobile-nav">
+        <div class="mobile-nav-inner">
+            <!-- <div class="mnav active" data-screen="dashboard" onclick="nav('dashboard')">
+                <div class="mnav-icon">📊</div>დეშბორდი
+            </div> -->
+            <div class="mnav" routerLink="new" routerLinkActive="active" data-screen="wizard" onclick="nav('wizard')">
+                <div class="mnav-icon">➕</div>ახალი
+            </div>
+            <div class="mnav" routerLink="history" routerLinkActive="active" data-screen="records" onclick="nav('records')">
+                <div class="mnav-icon">📋</div>ჩანაწერები
+            </div>
+            <!-- <div class="mnav" data-screen="reports" onclick="nav('reports')">
+                <div class="mnav-icon">📈</div>რეპორტი
+            </div>
+            <div class="mnav" data-screen="admin" onclick="nav('admin')">
+                <div class="mnav-icon">⚙️</div>ადმინ
+            </div> -->
+        </div>
+    </div>
+</div>
