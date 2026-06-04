@@ -18,6 +18,11 @@ namespace Service.Mapping
 
             // SmsCode
             CreateMap<SmsCode, SmsCodeDTO>().ReverseMap();
+
+            // Company
+            CreateMap<Company, CompanyDTO>().ReverseMap();
+            CreateMap<CreateCompanyDTO, Company>();
+            CreateMap<UpdateCompanyDTO, Company>();
         }
     }
 }

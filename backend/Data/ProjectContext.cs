@@ -13,6 +13,7 @@ namespace Data
         // DBSet Properties
         public DbSet<User> Users { get; set; }
         public DbSet<SmsCode> SmsCodes { get; set; }
+        public DbSet<Company> Companies { get; set; }
 
         public ProjectContext()
         {
@@ -30,6 +31,7 @@ namespace Data
             // add configurations
             modelBuilder.ApplyConfiguration(new UserConfiguration());
             modelBuilder.ApplyConfiguration(new SmsCodeConfiguration());
+            modelBuilder.ApplyConfiguration(new CompanyConfiguration());
 
             // seeding
             modelBuilder.Entity<User>().HasData(
@@ -42,6 +44,23 @@ namespace Data
                     PhoneNumber = "575780323",
                     CreatedAt = DateTime.Parse("2026-05-28T12:00:00Z")
                 }    
+            );
+            modelBuilder.Entity<Company>().HasData(
+                new Company
+                {
+                    Id = 1,
+                    Name = "Company 1"
+                },
+                new Company
+                {
+                    Id = 2,
+                    Name = "Company 2"
+                },
+                new Company
+                {
+                    Id = 3,
+                    Name = "Company 3"
+                }
             );
         }
     }

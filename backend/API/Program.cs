@@ -82,10 +82,12 @@ namespace API
             // Add repositories to the container
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<ISmsCodeRepository, SmsCodeRepository>();
+            builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
 
             // Add services to the container
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<ISmsCodeService, SmsCodeService>();
+            builder.Services.AddScoped<ICompanyService, CompanyService>();
 
             builder.Services.AddAutoMapper(cfg => { }, typeof(MappingProfile).Assembly);
 

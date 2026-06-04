@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { CompanyModel } from '../../../models/company-model';
+import { CompanyService } from '../../../services/company-service';
 
 interface Operator { id: number; name: string; phone: string; active: boolean; }
 interface Pump { id: number; plate: string; type: string; }
-interface Company { id: number; name: string; }
 interface Address { id: number; companyId: number; name: string; active: boolean; }
 interface Operation {
   id: number; date: string; operatorId: number;
@@ -50,11 +51,7 @@ export class New implements OnInit {
     { id: 2, plate: 'GE-002-BB', type: 'Stationary Pump' },
     { id: 3, plate: 'GE-003-CC', type: 'Hydraulic Distributor' },
   ];
-  companies: Company[] = [
-    { id: 1, name: 'კომპანია 1' },
-    { id: 2, name: 'კომპანია 2' },
-    { id: 3, name: 'კომპანია 3' },
-  ];
+
   addresses: Address[] = [
     { id: 1, companyId: 1, name: 'ლოკაცია 1', active: true },
     { id: 2, companyId: 1, name: 'ლოკაცია 2', active: true },
@@ -96,6 +93,8 @@ export class New implements OnInit {
     dismantleAssemble: 'Dismantle/Assemble',
   };
 
+  constructor(public companyService: CompanyService){}
+
   /* ── LIFECYCLE ── */
   ngOnInit(): void { this.resetWizard(); }
 
@@ -133,8 +132,8 @@ export class New implements OnInit {
     return this.addresses.filter(a => a.companyId === this.wiz.companyId && a.active);
   }
 
-  get selectedCompany(): Company | undefined {
-    return this.companies.find(c => c.id === this.wiz.companyId);
+  get selectedCompany(): CompanyModel | undefined {
+    return this.companyService.companies().find(c => c.id === this.wiz.companyId);
   }
 
   get selectedAddress(): Address | undefined {

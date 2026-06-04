@@ -22,6 +22,44 @@ namespace Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Data.Entities.Company", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Companies", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Company 1"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Company 2"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Company 3"
+                        });
+                });
+
             modelBuilder.Entity("Data.Entities.SmsCode", b =>
                 {
                     b.Property<int>("Id")

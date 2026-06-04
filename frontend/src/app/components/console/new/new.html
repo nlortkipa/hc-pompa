@@ -29,7 +29,7 @@
       <label>კომპანია</label>
       <select [(ngModel)]="wiz.companyId" name="company" (ngModelChange)="clearError('companyId')">
         <option [ngValue]="null">— აირჩიეთ —</option>
-        <option *ngFor="let c of companies" [ngValue]="c.id">{{ c.name }}</option>
+        <option *ngFor="let c of companyService.companies()" [ngValue]="c.id">{{ c.name }}</option>
       </select>
       <span class="field-error" *ngIf="errors['companyId']">{{ errors['companyId'] }}</span>
     </div>
