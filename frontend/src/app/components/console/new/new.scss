@@ -112,6 +112,51 @@ input.readonly-input {
   cursor: default;
 }
 
+/* ── INLINE FIELD ERRORS ── */
+.form-group.has-error input,
+.form-group.has-error select {
+  border-color: var(--danger);
+}
+
+.form-group.has-error input:focus,
+.form-group.has-error select:focus {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+}
+
+.field-error {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--danger);
+  font-family: var(--mono);
+  letter-spacing: 0.2px;
+  animation: errorSlideIn 0.18s ease;
+
+  &::before {
+    content: '!';
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--danger);
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    flex-shrink: 0;
+    font-family: var(--mono);
+  }
+}
+
+@keyframes errorSlideIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 /* ── HINT ── */
 .hint-warn {
   font-size: 13px;
@@ -311,7 +356,7 @@ input[type='checkbox'] {
   cursor: not-allowed;
 }
 
-/* ── TOAST ── */
+/* ── TOAST (success only) ── */
 .toast {
   position: fixed;
   bottom: 24px;
@@ -329,5 +374,4 @@ input[type='checkbox'] {
   pointer-events: none;
 }
 
-.toast.show  { transform: translateX(-50%) translateY(0); }
-.toast.error { border-color: var(--danger); color: var(--danger); }
+.toast.show { transform: translateX(-50%) translateY(0); }

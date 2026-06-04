@@ -16,31 +16,34 @@
 
   <!-- ══════════════════ STEP 0 — DATE ══════════════════ -->
   <ng-container *ngIf="wiz.step === 0">
-    <div class="form-group">
+    <div class="form-group" [class.has-error]="errors['date']">
       <label>თარიღი</label>
-      <input type="date" [(ngModel)]="wiz.date" name="date" />
+      <input type="date" [(ngModel)]="wiz.date" name="date" (ngModelChange)="clearError('date')" />
+      <span class="field-error" *ngIf="errors['date']">{{ errors['date'] }}</span>
     </div>
   </ng-container>
 
   <!-- ══════════════════ STEP 1 — COMPANY ══════════════════ -->
   <ng-container *ngIf="wiz.step === 1">
-    <div class="form-group">
+    <div class="form-group" [class.has-error]="errors['companyId']">
       <label>კომპანია</label>
-      <select [(ngModel)]="wiz.companyId" name="company">
+      <select [(ngModel)]="wiz.companyId" name="company" (ngModelChange)="clearError('companyId')">
         <option [ngValue]="null">— აირჩიეთ —</option>
         <option *ngFor="let c of companies" [ngValue]="c.id">{{ c.name }}</option>
       </select>
+      <span class="field-error" *ngIf="errors['companyId']">{{ errors['companyId'] }}</span>
     </div>
   </ng-container>
 
   <!-- ══════════════════ STEP 2 — ADDRESS ══════════════════ -->
   <ng-container *ngIf="wiz.step === 2">
-    <div class="form-group">
+    <div class="form-group" [class.has-error]="errors['addressId']">
       <label>მისამართი</label>
-      <select [(ngModel)]="wiz.addressId" name="address">
+      <select [(ngModel)]="wiz.addressId" name="address" (ngModelChange)="clearError('addressId')">
         <option [ngValue]="null">— აირჩიეთ —</option>
         <option *ngFor="let a of filteredAddresses" [ngValue]="a.id">{{ a.name }}</option>
       </select>
+      <span class="field-error" *ngIf="errors['addressId']">{{ errors['addressId'] }}</span>
     </div>
     <p *ngIf="filteredAddresses.length === 0" class="hint-warn">
       ამ კომპანიას აქტიური მისამართი არ აქვს.
@@ -49,32 +52,22 @@
 
   <!-- ══════════════════ STEP 3 — PUMP ══════════════════ -->
   <ng-container *ngIf="wiz.step === 3">
-    <div class="form-group">
+    <div class="form-group" [class.has-error]="errors['pumpPlate']">
       <label>სახ. ნომერი</label>
       <input
         type="text"
         [(ngModel)]="wiz.pumpPlate"
         name="pumpPlate"
         placeholder="GE-XXX-XX"
-        (input)="autoDetectPump()"
+        (input)="autoDetectPump(); clearError('pumpPlate')"
       />
+      <span class="field-error" *ngIf="errors['pumpPlate']">{{ errors['pumpPlate'] }}</span>
     </div>
-    <!-- <div class="form-group">
-      <label>პომპის ტიპი</label>
-      <input
-        type="text"
-        [value]="wiz.pumpType"
-        name="pumpType"
-        readonly
-        placeholder="ავტომ. განისაზღვრება"
-        class="readonly-input"
-      />
-    </div> -->
   </ng-container>
 
   <!-- ══════════════════ STEP 4 — CONCRETE ══════════════════ -->
   <ng-container *ngIf="wiz.step === 4">
-    <div class="form-group">
+    <div class="form-group" [class.has-error]="errors['concreteVolume']">
       <label>ბეტონის მოცულობა (m³)</label>
       <input
         type="number"
@@ -83,7 +76,9 @@
         min="0"
         step="0.5"
         placeholder="0"
+        (ngModelChange)="clearError('concreteVolume')"
       />
+      <span class="field-error" *ngIf="errors['concreteVolume']">{{ errors['concreteVolume'] }}</span>
     </div>
   </ng-container>
 
@@ -191,11 +186,10 @@
     </ng-template>
   </div>
 
-  <!-- ── TOAST ── -->
+  <!-- ── TOAST (success only) ── -->
   <div
     class="toast"
     [class.show]="toast.visible"
-    [class.error]="toast.isError"
   >{{ toast.msg }}</div>
 
 </div>

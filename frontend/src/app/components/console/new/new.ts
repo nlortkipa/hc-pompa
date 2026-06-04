@@ -80,7 +80,10 @@ export class New implements OnInit {
     { key: 'dismantleAssemble', label: 'Dismantle / Assemble', unit: 'ცალი' },
   ];
 
-  toast = { msg: '', visible: false, isError: false };
+  /* ── INLINE ERRORS ── */
+  errors: Record<string, string> = {};
+
+  toast = { msg: '', visible: false };
   private toastTimer: any;
 
   /* ── REVIEW LABELS ── */
@@ -109,7 +112,14 @@ export class New implements OnInit {
     };
   }
 
-  resetWizard(): void { this.wiz = this.defaultWiz(); }
+  resetWizard(): void {
+    this.wiz = this.defaultWiz();
+    this.errors = {};
+  }
+
+  clearError(field: string): void {
+    delete this.errors[field];
+  }
 
   get stepRange(): number[] { return this.STEPS.map((_, i) => i); }
 
@@ -152,18 +162,31 @@ export class New implements OnInit {
 
   /* ── VALIDATION ── */
   private validate(): boolean {
+    this.errors = {};
     const s = this.wiz.step;
-    if (s === 0 && !this.wiz.date) { this.showToast('თარიღი სავალდებულოა', true); return false; }
-    if (s === 1 && !this.wiz.companyId) { this.showToast('კომპანია სავალდებულოა', true); return false; }
-    if (s === 2 && !this.wiz.addressId) { this.showToast('მისამართი სავალდებულოა', true); return false; }
-    if (s === 3 && !this.wiz.pumpPlate) { this.showToast('პომპის ნომერი სავალდებულოა', true); return false; }
-    if (s === 4 && !this.wiz.concreteVolume) { this.showToast('ბეტონის მოცულობა სავალდებულოა', true); return false; }
-    return true;
+
+    if (s === 0 && !this.wiz.date) {
+      this.errors['date'] = 'თარიღი სავალდებულოა';
+    }
+    if (s === 1 && !this.wiz.companyId) {
+      this.errors['companyId'] = 'კომპანია სავალდებულოა';
+    }
+    if (s === 2 && !this.wiz.addressId) {
+      this.errors['addressId'] = 'მისამართი სავალდებულოა';
+    }
+    if (s === 3 && !this.wiz.pumpPlate) {
+      this.errors['pumpPlate'] = 'პომპის ნომერი სავალდებულოა';
+    }
+    if (s === 4 && !this.wiz.concreteVolume) {
+      this.errors['concreteVolume'] = 'ბეტონის მოცულობა სავალდებულოა';
+    }
+
+    return Object.keys(this.errors).length === 0;
   }
 
   /* ── NAV ── */
   wizNext(): void { if (!this.validate()) return; this.wiz.step++; }
-  wizBack(): void { this.wiz.step--; }
+  wizBack(): void { this.errors = {}; this.wiz.step--; }
 
   wizSubmit(): void {
     const op: Operation = {
@@ -187,10 +210,10 @@ export class New implements OnInit {
     setTimeout(() => this.resetWizard(), 900);
   }
 
-  /* ── TOAST ── */
-  showToast(msg: string, isError = false): void {
+  /* ── TOAST (success only) ── */
+  showToast(msg: string): void {
     clearTimeout(this.toastTimer);
-    this.toast = { msg, visible: true, isError };
+    this.toast = { msg, visible: true };
     this.toastTimer = setTimeout(() => (this.toast.visible = false), 2800);
   }
 }
