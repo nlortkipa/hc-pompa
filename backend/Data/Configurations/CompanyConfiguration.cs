@@ -18,6 +18,10 @@ namespace Data.Configurations
                 .HasMaxLength(100);
             builder.HasIndex(c => c.Name)
                 .IsUnique();
+
+            builder.HasMany(c => c.CompanyAddresses)
+                .WithOne(ca => ca.Company)
+                .HasForeignKey(ca => ca.CompanyId);
         }
     }
 }

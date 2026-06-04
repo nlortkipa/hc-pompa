@@ -22,6 +22,59 @@ namespace Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Data.Entities.Address", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Id")
+                        .IsUnique();
+
+                    b.ToTable("Addresses", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Address 1"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Address 2"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Address 3"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Address 4"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "Address 5"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Name = "Address 6"
+                        });
+                });
+
             modelBuilder.Entity("Data.Entities.Company", b =>
                 {
                     b.Property<int>("Id")
@@ -57,6 +110,67 @@ namespace Data.Migrations
                         {
                             Id = 3,
                             Name = "Company 3"
+                        });
+                });
+
+            modelBuilder.Entity("Data.Entities.CompanyAddress", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AddressId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AddressId");
+
+                    b.HasIndex("CompanyId");
+
+                    b.ToTable("CompanyAddresses", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            AddressId = 1,
+                            CompanyId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            AddressId = 2,
+                            CompanyId = 1
+                        },
+                        new
+                        {
+                            Id = 3,
+                            AddressId = 3,
+                            CompanyId = 2
+                        },
+                        new
+                        {
+                            Id = 4,
+                            AddressId = 4,
+                            CompanyId = 2
+                        },
+                        new
+                        {
+                            Id = 5,
+                            AddressId = 5,
+                            CompanyId = 3
+                        },
+                        new
+                        {
+                            Id = 6,
+                            AddressId = 6,
+                            CompanyId = 3
                         });
                 });
 
@@ -139,6 +253,25 @@ namespace Data.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Data.Entities.CompanyAddress", b =>
+                {
+                    b.HasOne("Data.Entities.Address", "Address")
+                        .WithMany("CompanyAddresses")
+                        .HasForeignKey("AddressId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Data.Entities.Company", "Company")
+                        .WithMany("CompanyAddresses")
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Address");
+
+                    b.Navigation("Company");
+                });
+
             modelBuilder.Entity("Data.Entities.SmsCode", b =>
                 {
                     b.HasOne("Data.Entities.User", "User")
@@ -148,6 +281,16 @@ namespace Data.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Data.Entities.Address", b =>
+                {
+                    b.Navigation("CompanyAddresses");
+                });
+
+            modelBuilder.Entity("Data.Entities.Company", b =>
+                {
+                    b.Navigation("CompanyAddresses");
                 });
 
             modelBuilder.Entity("Data.Entities.User", b =>

@@ -14,5 +14,7 @@ namespace Data.Entities
         [Required]
         [MaxLength(100)]
         public string Name { get; set; } = null!;
+
+        public ICollection<CompanyAddress> CompanyAddresses { get; set; } = new List<CompanyAddress>();
     }
 }
