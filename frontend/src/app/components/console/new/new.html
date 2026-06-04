@@ -2,12 +2,8 @@
 
   <!-- ── PROGRESS BAR ── -->
   <div class="wizard-progress">
-    <div
-      *ngFor="let i of stepRange"
-      class="wstep"
-      [class.done]="stepStatus(i) === 'done'"
-      [class.active]="stepStatus(i) === 'active'"
-    ></div>
+    <div *ngFor="let i of stepRange" class="wstep" [class.done]="stepStatus(i) === 'done'"
+      [class.active]="stepStatus(i) === 'active'"></div>
   </div>
 
   <!-- ── STEP LABEL & TITLE ── -->
@@ -27,7 +23,7 @@
   <ng-container *ngIf="wiz.step === 1">
     <div class="form-group" [class.has-error]="errors['companyId']">
       <label>კომპანია</label>
-      <select [(ngModel)]="wiz.companyId" name="company" (ngModelChange)="clearError('companyId')">
+      <select [(ngModel)]="wiz.companyId" name="company" (ngModelChange)="onCompanyChange()">
         <option [ngValue]="null">— აირჩიეთ —</option>
         <option *ngFor="let c of companyService.companies()" [ngValue]="c.id">{{ c.name }}</option>
       </select>
@@ -54,13 +50,8 @@
   <ng-container *ngIf="wiz.step === 3">
     <div class="form-group" [class.has-error]="errors['pumpPlate']">
       <label>სახ. ნომერი</label>
-      <input
-        type="text"
-        [(ngModel)]="wiz.pumpPlate"
-        name="pumpPlate"
-        placeholder="GE-XXX-XX"
-        (input)="autoDetectPump(); clearError('pumpPlate')"
-      />
+      <input type="text" [(ngModel)]="wiz.pumpPlate" name="pumpPlate" placeholder="GE-XXX-XX"
+        (input)="autoDetectPump(); clearError('pumpPlate')" />
       <span class="field-error" *ngIf="errors['pumpPlate']">{{ errors['pumpPlate'] }}</span>
     </div>
   </ng-container>
@@ -69,15 +60,8 @@
   <ng-container *ngIf="wiz.step === 4">
     <div class="form-group" [class.has-error]="errors['concreteVolume']">
       <label>ბეტონის მოცულობა (m³)</label>
-      <input
-        type="number"
-        [(ngModel)]="wiz.concreteVolume"
-        name="concrete"
-        min="0"
-        step="0.5"
-        placeholder="0"
-        (ngModelChange)="clearError('concreteVolume')"
-      />
+      <input type="number" [(ngModel)]="wiz.concreteVolume" name="concrete" min="0" step="0.5" placeholder="0"
+        (ngModelChange)="clearError('concreteVolume')" />
       <span class="field-error" *ngIf="errors['concreteVolume']">{{ errors['concreteVolume'] }}</span>
     </div>
   </ng-container>
@@ -85,30 +69,15 @@
   <!-- ══════════════════ STEP 5 — OPERATIONS ══════════════════ -->
   <ng-container *ngIf="wiz.step === 5">
     <div class="check-group">
-      <div
-        *ngFor="let op of opItems"
-        class="check-row"
-        [class.checked]="wiz[op.key] > 0"
-      >
+      <div *ngFor="let op of opItems" class="check-row" [class.checked]="wiz[op.key] > 0">
         <div class="check-left">
-          <input
-            type="checkbox"
-            [id]="'cb-' + op.key"
-            [checked]="wiz[op.key] > 0"
-            (change)="toggleOp(op.key, $any($event.target).checked)"
-          />
+          <input type="checkbox" [id]="'cb-' + op.key" [checked]="wiz[op.key] > 0"
+            (change)="toggleOp(op.key, $any($event.target).checked)" />
           <label [for]="'cb-' + op.key" class="check-label">{{ op.label }}</label>
         </div>
         <div class="check-right">
-          <input
-            class="check-qty"
-            type="number"
-            min="0"
-            [(ngModel)]="wiz[op.key]"
-            [name]="'qty-' + op.key"
-            [disabled]="wiz[op.key] === 0"
-            [class.dimmed]="wiz[op.key] === 0"
-          />
+          <input class="check-qty" type="number" min="0" [(ngModel)]="wiz[op.key]" [name]="'qty-' + op.key"
+            [disabled]="wiz[op.key] === 0" [class.dimmed]="wiz[op.key] === 0" />
           <span class="check-unit">{{ op.unit }}</span>
         </div>
       </div>
@@ -169,27 +138,19 @@
 
   <!-- ── NAV BUTTONS ── -->
   <div class="wizard-nav">
-    <button
-      *ngIf="wiz.step > 0; else spacer"
-      class="btn btn-secondary"
-      (click)="wizBack()"
-    >← უკან</button>
-    <ng-template #spacer><div></div></ng-template>
+    <button *ngIf="wiz.step > 0; else spacer" class="btn btn-secondary" (click)="wizBack()">← უკან</button>
+    <ng-template #spacer>
+      <div></div>
+    </ng-template>
 
-    <button
-      *ngIf="wiz.step < STEPS.length - 1; else submitBtn"
-      class="btn btn-primary"
-      (click)="wizNext()"
-    >შემდეგი →</button>
+    <button *ngIf="wiz.step < STEPS.length - 1; else submitBtn" class="btn btn-primary" (click)="wizNext()">შემდეგი
+      →</button>
     <ng-template #submitBtn>
       <button class="btn btn-primary" (click)="wizSubmit()">✔ შენახვა</button>
     </ng-template>
   </div>
 
-  <!-- ── TOAST (success only) ── -->
-  <div
-    class="toast"
-    [class.show]="toast.visible"
-  >{{ toast.msg }}</div>
+  <!-- ── TOAST ── -->
+  <div class="toast" [class.show]="toast.visible">{{ toast.msg }}</div>
 
 </div>

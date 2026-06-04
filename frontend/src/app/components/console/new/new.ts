@@ -2,11 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CompanyModel } from '../../../models/company-model';
+import { AddressModel } from '../../../models/address-model';
 import { CompanyService } from '../../../services/company-service';
 
 interface Operator { id: number; name: string; phone: string; active: boolean; }
 interface Pump { id: number; plate: string; type: string; }
-interface Address { id: number; companyId: number; name: string; active: boolean; }
 interface Operation {
   id: number; date: string; operatorId: number;
   companyId: number | null; addressId: number | null;
@@ -52,14 +52,6 @@ export class New implements OnInit {
     { id: 3, plate: 'GE-003-CC', type: 'Hydraulic Distributor' },
   ];
 
-  addresses: Address[] = [
-    { id: 1, companyId: 1, name: 'ლოკაცია 1', active: true },
-    { id: 2, companyId: 1, name: 'ლოკაცია 2', active: true },
-    { id: 3, companyId: 1, name: 'ლოკაცია 3', active: false },
-    { id: 4, companyId: 2, name: 'ლოკაცია 4', active: true },
-    { id: 5, companyId: 2, name: 'ლოკაცია 5', active: true },
-    { id: 6, companyId: 3, name: 'ლოკაცია 6', active: true },
-  ];
   operations: Operation[] = [];
   nextOpId = 6;
 
@@ -93,7 +85,7 @@ export class New implements OnInit {
     dismantleAssemble: 'Dismantle/Assemble',
   };
 
-  constructor(public companyService: CompanyService){}
+  constructor(public companyService: CompanyService) { }
 
   /* ── LIFECYCLE ── */
   ngOnInit(): void { this.resetWizard(); }
@@ -114,6 +106,7 @@ export class New implements OnInit {
   resetWizard(): void {
     this.wiz = this.defaultWiz();
     this.errors = {};
+    this.companyService.addresses.set([]);
   }
 
   clearError(field: string): void {
@@ -128,16 +121,27 @@ export class New implements OnInit {
     return '';
   }
 
-  get filteredAddresses(): Address[] {
-    return this.addresses.filter(a => a.companyId === this.wiz.companyId && a.active);
+  /* ── COMPANY CHANGE — fetch addresses & reset addressId ── */
+  onCompanyChange(): void {
+    this.wiz.addressId = null;
+    this.clearError('companyId');
+    if (this.wiz.companyId !== null) {
+      this.companyService.getAddresses(this.wiz.companyId);
+    } else {
+      this.companyService.addresses.set([]);
+    }
+  }
+
+  get filteredAddresses(): AddressModel[] {
+    return this.companyService.addresses();
   }
 
   get selectedCompany(): CompanyModel | undefined {
     return this.companyService.companies().find(c => c.id === this.wiz.companyId);
   }
 
-  get selectedAddress(): Address | undefined {
-    return this.addresses.find(a => a.id === this.wiz.addressId);
+  get selectedAddress(): AddressModel | undefined {
+    return this.companyService.addresses().find(a => a.id === this.wiz.addressId);
   }
 
   get reviewOps(): { label: string; val: number }[] {
@@ -164,8 +168,24 @@ export class New implements OnInit {
     this.errors = {};
     const s = this.wiz.step;
 
-    if (s === 0 && !this.wiz.date) {
-      this.errors['date'] = 'თარიღი სავალდებულოა';
+    if (s === 0) {
+      if (!this.wiz.date) {
+        this.errors['date'] = 'თარიღი სავალდებულოა';
+      } else {
+        const selected = new Date(this.wiz.date);
+        const today = new Date();
+
+        const isFuture = selected > today;
+        const differentMonth =
+          selected.getFullYear() !== today.getFullYear() ||
+          selected.getMonth() !== today.getMonth();
+
+        if (isFuture) {
+          this.errors['date'] = 'თარიღი არ შეიძლება იყოს მომავალში';
+        } else if (differentMonth) {
+          this.errors['date'] = 'თარიღი მიმდინარე თვეში უნდა იყოს';
+        }
+      }
     }
     if (s === 1 && !this.wiz.companyId) {
       this.errors['companyId'] = 'კომპანია სავალდებულოა';
@@ -209,7 +229,7 @@ export class New implements OnInit {
     setTimeout(() => this.resetWizard(), 900);
   }
 
-  /* ── TOAST (success only) ── */
+  /* ── TOAST ── */
   showToast(msg: string): void {
     clearTimeout(this.toastTimer);
     this.toast = { msg, visible: true };

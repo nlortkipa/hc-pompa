@@ -23,6 +23,11 @@ namespace Service.Mapping
             CreateMap<Company, CompanyDTO>().ReverseMap();
             CreateMap<CreateCompanyDTO, Company>();
             CreateMap<UpdateCompanyDTO, Company>();
+
+            // Address
+            CreateMap<Address, AddressDTO>().ReverseMap();
+            CreateMap<CreateAddressDTO, Address>();
+            CreateMap<UpdateAddressDTO, Address>();
         }
     }
 }

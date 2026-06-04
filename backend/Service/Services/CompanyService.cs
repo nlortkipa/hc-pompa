@@ -24,5 +24,11 @@ namespace Service.Services
             var companies = await _companyRepository.GetAllAsync();
             return _mapper.Map<IEnumerable<CompanyDTO>>(companies);
         }
+
+        public async Task<IEnumerable<AddressDTO>> GetAddressesAsync(int id)
+        {
+            var addresses = await _companyRepository.GetAddressesAsync(id);
+            return _mapper.Map<IEnumerable<AddressDTO>>(addresses);
+        }
     }
 }

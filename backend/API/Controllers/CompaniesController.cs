@@ -8,11 +8,11 @@ namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class Companies : ControllerBase
+    public class CompaniesController : ControllerBase
     {
         private readonly ICompanyService _companyService;
 
-        public Companies(ICompanyService companyService)
+        public CompaniesController(ICompanyService companyService)
         {
             _companyService = companyService;
         }
@@ -26,6 +26,17 @@ namespace API.Controllers
                 return NotFound("No companies found");
 
             return Ok(companies);
+        }
+
+        [Authorize]
+        [HttpGet("{id:int}/addresses")]
+        public async Task<ActionResult<IEnumerable<AddressDTO>>> GetCompanyAddresses(int id)
+        {
+            var addresses = await _companyService.GetAddressesAsync(id);
+            if (addresses.Count() == 0)
+                return BadRequest("No company addresses found");
+
+            return Ok(addresses);
         }
     }
 }

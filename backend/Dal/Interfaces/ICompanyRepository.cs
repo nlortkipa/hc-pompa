@@ -8,5 +8,6 @@ namespace Dal.Interfaces
 {
     public interface ICompanyRepository : IBaseRepository<Company>
     {
+        Task<IEnumerable<Address>> GetAddressesAsync(int id);
     }
 }

@@ -8,5 +8,6 @@ namespace Service.Interfaces
     public interface ICompanyService
     {
         Task<IEnumerable<CompanyDTO>> GetAllAsync();
+        Task<IEnumerable<AddressDTO>> GetAddressesAsync(int id);
     }
 }
