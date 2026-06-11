@@ -6,12 +6,14 @@ import { CompanyModel } from '../../../models/company-model';
 import { AddressModel } from '../../../models/address-model';
 import { CompanyService } from '../../../services/company-service';
 import { LicensePlatePermissionService } from '../../../services/license-plate-permission-service';
+import { PumpOperationModel } from '../../../models/pump-operation';
 
 interface Operator { id: number; name: string; phone: string; active: boolean; }
 interface Pump { id: number; plate: string; type: string; }
 interface Operation {
   id: number; date: string; operatorId: number;
   companyId: number | null; addressId: number | null;
+  pumpId: number | null;
   pumpPlate: string; pumpType: string; concreteVolume: number;
   pumpRelocation: number; stationaryRelocation: number; hydraulicRelocation: number;
   stationaryReposition: number; idleTime: number; dismantleAssemble: number;
@@ -20,6 +22,7 @@ interface Operation {
 interface WizardState {
   step: number; date: string;
   companyId: number | null; addressId: number | null;
+  pumpId: number | null;
   pumpPlate: string; pumpType: string;
   concreteVolume: number | null;
   pumpRelocation: number; stationaryRelocation: number; hydraulicRelocation: number;
@@ -73,7 +76,7 @@ export class New implements OnInit {
     { key: 'hydraulicRelocation',   label: 'Hydraulic Relocation',        unit: 'ცალი' },
     { key: 'stationaryReposition',  label: 'სტაციონარის გადაწყობა',       unit: 'ცალი' },
     { key: 'idleTime',              label: 'მოცდენა',                     unit: 'სთ'   },
-    { key: 'dismantleAssemble',     label: 'Dismantle / Assemble',        unit: 'ცალი' },
+    { key: 'dismantleAssemble',     label: 'დაშლა / აწყობა',        unit: 'ცალი' },
   ];
 
   /* ── INLINE ERRORS ── */
@@ -106,6 +109,7 @@ export class New implements OnInit {
       step: 0,
       date: new Date().toISOString().split('T')[0],
       companyId: null, addressId: null,
+      pumpId: null,
       pumpPlate: '', pumpType: '',
       concreteVolume: null,
       pumpRelocation: 0, stationaryRelocation: 0, hydraulicRelocation: 0,
@@ -158,6 +162,7 @@ export class New implements OnInit {
   autoDetectPump(): void {
     const p = this.pumps.find(p => p.plate.toLowerCase() === this.wiz.pumpPlate.toLowerCase());
     this.wiz.pumpType = p ? p.type : '';
+    this.wiz.pumpId = p ? p.id : null;
     this.clearError('pumpPlate');
   }
 
@@ -279,6 +284,7 @@ export class New implements OnInit {
       operatorId: 1,
       companyId: this.wiz.companyId,
       addressId: this.wiz.addressId,
+      pumpId: this.wiz.pumpId,
       pumpPlate: this.wiz.pumpPlate,
       pumpType: this.wiz.pumpType,
       concreteVolume: this.wiz.concreteVolume ?? 0,
@@ -290,6 +296,20 @@ export class New implements OnInit {
       dismantleAssemble: this.wiz.dismantleAssemble,
     };
     this.operations.push(op);
+
+    // Create and log PumpOperationModel
+    const model: PumpOperationModel = {
+      date: new Date(this.wiz.date),
+      companyId: this.wiz.companyId || 0,
+      addressId: this.wiz.addressId || 0,
+      concreteVolume: this.wiz.concreteVolume || 0,
+      pumpRelocation: this.wiz.pumpRelocation,
+      stationaryRelocation: this.wiz.stationaryRelocation,
+      hydraulicRelocation: this.wiz.hydraulicRelocation,
+      dismantleAssemble: this.wiz.dismantleAssemble
+    };
+    console.log('Final PumpOperationModel:', model);
+
     this.showToast('✔ ჩანაწერი შენახულია!');
     setTimeout(() => this.resetWizard(), 900);
   }

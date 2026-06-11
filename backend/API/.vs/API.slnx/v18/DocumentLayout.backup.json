@@ -3,15 +3,10 @@
   "WorkspaceRootPath": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\API\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{41120729-9A79-414D-957E-573D058BE244}|..\\Data\\Data.csproj|c:\\users\\administrator\\desktop\\pompa\\backend\\data\\projectcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{41120729-9A79-414D-957E-573D058BE244}|..\\Data\\Data.csproj|c:\\users\\administrator\\desktop\\pompa\\backend\\data\\entities\\pumpoperation.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|API.csproj|c:\\users\\administrator\\desktop\\pompa\\backend\\api\\controllers\\permissionscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|API.csproj|solutionrelative:controllers\\permissionscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|API.csproj|c:\\users\\administrator\\desktop\\pompa\\backend\\api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|API.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{41120729-9A79-414D-957E-573D058BE244}|..\\Data\\Data.csproj|c:\\users\\administrator\\desktop\\pompa\\backend\\data\\entities\\licenseplatepermission.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -26,39 +21,28 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "ProjectContext.cs",
-              "DocumentMoniker": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Data\\ProjectContext.cs",
-              "RelativeDocumentMoniker": "..\\Data\\ProjectContext.cs",
-              "ToolTip": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Data\\ProjectContext.cs",
-              "RelativeToolTip": "..\\Data\\ProjectContext.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAMwAAAArAAAAAAAAAA==",
+              "Title": "PumpOperation.cs",
+              "DocumentMoniker": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Data\\Entities\\PumpOperation.cs",
+              "RelativeDocumentMoniker": "..\\Data\\Entities\\PumpOperation.cs",
+              "ToolTip": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Data\\Entities\\PumpOperation.cs*",
+              "RelativeToolTip": "..\\Data\\Entities\\PumpOperation.cs*",
+              "ViewState": "AgIAABQAAAAAAAAAAAAcwBkAAAAeAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-06-10T17:57:12.308Z",
+              "WhenOpened": "2026-06-11T10:39:33.51Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "PermissionsController.cs",
-              "DocumentMoniker": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\API\\Controllers\\PermissionsController.cs",
-              "RelativeDocumentMoniker": "Controllers\\PermissionsController.cs",
-              "ToolTip": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\API\\Controllers\\PermissionsController.cs",
-              "RelativeToolTip": "Controllers\\PermissionsController.cs",
-              "ViewState": "AgIAABAAAAAAAAAAAAAuwB8AAAAAAAAAAAAAAA==",
+              "Title": "LicensePlatePermission.cs",
+              "DocumentMoniker": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Data\\Entities\\LicensePlatePermission.cs",
+              "RelativeDocumentMoniker": "..\\Data\\Entities\\LicensePlatePermission.cs",
+              "ToolTip": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Data\\Entities\\LicensePlatePermission.cs",
+              "RelativeToolTip": "..\\Data\\Entities\\LicensePlatePermission.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-06-10T17:48:37.559Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\API\\Program.cs",
-              "RelativeDocumentMoniker": "Program.cs",
-              "ToolTip": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\API\\Program.cs",
-              "RelativeToolTip": "Program.cs",
-              "ViewState": "AgIAABMAAAAAAAAAAAAgwFsAAABkAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-06-10T17:35:35.865Z"
+              "WhenOpened": "2026-06-11T10:36:26.205Z",
+              "EditorCaption": ""
             }
           ]
         }

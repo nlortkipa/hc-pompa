@@ -121,53 +121,66 @@
 
   <!-- ══════════════════ STEP 6 — REVIEW ══════════════════ -->
   <ng-container *ngIf="wiz.step === 6">
-    <div class="card review-card">
-      <table class="review-table">
-        <tr>
-          <td class="rev-label">თარიღი</td>
-          <td>{{ wiz.date }}</td>
-        </tr>
-        <tr>
-          <td class="rev-label">კომპანია</td>
-          <td>{{ selectedCompany?.name || '—' }}</td>
-        </tr>
-        <tr>
-          <td class="rev-label">მისამართი</td>
-          <td>{{ selectedAddress?.name || '—' }}</td>
-        </tr>
-        <tr>
-          <td class="rev-label">პომპა</td>
-          <td>
-            <span class="mono">{{ wiz.pumpPlate }}</span>
-            <span class="pill">{{ wiz.pumpType }}</span>
-          </td>
-        </tr>
-        <tr>
-          <td class="rev-label">ბეტონი</td>
-          <td><strong>{{ wiz.concreteVolume }}</strong> m³</td>
-        </tr>
-      </table>
-    </div>
+    <div class="review-summary">
+      
+      <div class="summary-card main-info">
+        <div class="summary-grid">
+          <div class="summary-item">
+            <span class="summary-label">თარიღი</span>
+            <span class="summary-value">{{ wiz.date }}</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">პომპა</span>
+            <div class="summary-value pump-badge">
+              <span class="plate">{{ wiz.pumpPlate }}</span>
+              <span class="type-tag">{{ wiz.pumpType }}</span>
+            </div>
+          </div>
+        </div>
 
-    <div class="card review-card" style="margin-bottom:0">
-      <div class="card-title">დამატებითი ოპერაციები</div>
-      <table class="review-table">
-        <thead>
-          <tr>
-            <th>ოპერაცია</th>
-            <th>რაოდ.</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let op of reviewOps">
-            <td>{{ op.label }}</td>
-            <td><strong>{{ op.val }}</strong></td>
-          </tr>
-          <tr *ngIf="reviewOps.length === 0">
-            <td colspan="2" class="empty-cell">—</td>
-          </tr>
-        </tbody>
-      </table>
+        <div class="summary-divider"></div>
+
+        <div class="summary-group">
+          <div class="summary-item">
+            <span class="summary-label">კომპანია</span>
+            <span class="summary-value">{{ selectedCompany?.name || '—' }}</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">მისამართი</span>
+            <span class="summary-value address-val">{{ selectedAddress?.name || '—' }}</span>
+          </div>
+        </div>
+
+        <div class="summary-divider"></div>
+
+        <div class="summary-item highlight">
+          <span class="summary-label">ბეტონის მოცულობა</span>
+          <div class="summary-value volume-val">
+            <strong>{{ wiz.concreteVolume }}</strong>
+            <span class="unit">m³</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="summary-card ops-info" *ngIf="reviewOps.length > 0">
+        <div class="summary-header">
+          <span class="header-icon">⚙</span>
+          დამატებითი ოპერაციები
+        </div>
+        <div class="op-summary-list">
+          <div *ngFor="let op of reviewOps" class="op-summary-row">
+            <span class="op-label">{{ op.label }}</span>
+            <span class="op-dots"></span>
+            <span class="op-value">{{ op.val }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="summary-card ops-info empty" *ngIf="reviewOps.length === 0">
+        <div class="summary-header">დამატებითი ოპერაციები</div>
+        <p class="empty-hint">დამატებითი ოპერაციები არ არის არჩეული</p>
+      </div>
+
     </div>
   </ng-container>
 
