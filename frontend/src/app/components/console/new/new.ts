@@ -1,9 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, NgZone, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { finalize } from 'rxjs/operators';
 import { CompanyModel } from '../../../models/company-model';
 import { AddressModel } from '../../../models/address-model';
 import { CompanyService } from '../../../services/company-service';
+import { LicensePlatePermissionService } from '../../../services/license-plate-permission-service';
 
 interface Operator { id: number; name: string; phone: string; active: boolean; }
 interface Pump { id: number; plate: string; type: string; }
@@ -18,7 +20,8 @@ interface Operation {
 interface WizardState {
   step: number; date: string;
   companyId: number | null; addressId: number | null;
-  pumpPlate: string; pumpType: string; concreteVolume: number;
+  pumpPlate: string; pumpType: string;
+  concreteVolume: number | null;
   pumpRelocation: number; stationaryRelocation: number; hydraulicRelocation: number;
   stationaryReposition: number; idleTime: number; dismantleAssemble: number;
 }
@@ -55,18 +58,22 @@ export class New implements OnInit {
   operations: Operation[] = [];
   nextOpId = 6;
 
+  /* ── PERMISSION ── */
+  platePermission: number | null = null;
+
   /* ── WIZARD ── */
   readonly STEPS = ['თარიღი', 'კომპანია', 'მისამართი', 'პომპა', 'ბეტონი', 'ოპერაციები', 'განხილვა'];
 
   wiz: WizardState = this.defaultWiz();
+  isLoading = false;
 
   readonly opItems: OpItem[] = [
-    { key: 'pumpRelocation', label: 'Pump Relocation (გადადგომა)', unit: 'ცალი' },
-    { key: 'stationaryRelocation', label: 'Stationary Relocation', unit: 'ცალი' },
-    { key: 'hydraulicRelocation', label: 'Hydraulic Relocation', unit: 'ცალი' },
-    { key: 'stationaryReposition', label: 'სტაციონარის გადაწყობა', unit: 'ცალი' },
-    { key: 'idleTime', label: 'მოცდენა', unit: 'სთ' },
-    { key: 'dismantleAssemble', label: 'Dismantle / Assemble', unit: 'ცალი' },
+    { key: 'pumpRelocation',        label: 'Pump Relocation (გადადგომა)', unit: 'ცალი' },
+    { key: 'stationaryRelocation',  label: 'Stationary Relocation',       unit: 'ცალი' },
+    { key: 'hydraulicRelocation',   label: 'Hydraulic Relocation',        unit: 'ცალი' },
+    { key: 'stationaryReposition',  label: 'სტაციონარის გადაწყობა',       unit: 'ცალი' },
+    { key: 'idleTime',              label: 'მოცდენა',                     unit: 'სთ'   },
+    { key: 'dismantleAssemble',     label: 'Dismantle / Assemble',        unit: 'ცალი' },
   ];
 
   /* ── INLINE ERRORS ── */
@@ -77,27 +84,30 @@ export class New implements OnInit {
 
   /* ── REVIEW LABELS ── */
   readonly opLabels: Record<string, string> = {
-    pumpRelocation: 'Pump Relocation',
+    pumpRelocation:       'Pump Relocation',
     stationaryRelocation: 'Stationary Relocation',
-    hydraulicRelocation: 'Hydraulic Relocation',
+    hydraulicRelocation:  'Hydraulic Relocation',
     stationaryReposition: 'გადაწყობა',
-    idleTime: 'მოცდენა',
-    dismantleAssemble: 'Dismantle/Assemble',
+    idleTime:             'მოცდენა',
+    dismantleAssemble:    'Dismantle/Assemble',
   };
 
-  constructor(public companyService: CompanyService) { }
+  constructor(
+    public companyService: CompanyService,
+    private licensePlatePermissionService: LicensePlatePermissionService,
+    private zone: NgZone,
+    private cdr: ChangeDetectorRef,
+  ) {}
 
-  /* ── LIFECYCLE ── */
   ngOnInit(): void { this.resetWizard(); }
 
-  /* ── HELPERS ── */
   private defaultWiz(): WizardState {
     return {
       step: 0,
       date: new Date().toISOString().split('T')[0],
       companyId: null, addressId: null,
       pumpPlate: '', pumpType: '',
-      concreteVolume: 0,
+      concreteVolume: null,
       pumpRelocation: 0, stationaryRelocation: 0, hydraulicRelocation: 0,
       stationaryReposition: 0, idleTime: 0, dismantleAssemble: 0,
     };
@@ -106,11 +116,15 @@ export class New implements OnInit {
   resetWizard(): void {
     this.wiz = this.defaultWiz();
     this.errors = {};
+    this.platePermission = null;
     this.companyService.addresses.set([]);
   }
 
   clearError(field: string): void {
-    delete this.errors[field];
+    if (this.errors[field]) {
+      delete this.errors[field];
+      this.cdr.detectChanges();
+    }
   }
 
   get stepRange(): number[] { return this.STEPS.map((_, i) => i); }
@@ -121,7 +135,6 @@ export class New implements OnInit {
     return '';
   }
 
-  /* ── COMPANY CHANGE — fetch addresses & reset addressId ── */
   onCompanyChange(): void {
     this.wiz.addressId = null;
     this.clearError('companyId');
@@ -132,17 +145,9 @@ export class New implements OnInit {
     }
   }
 
-  get filteredAddresses(): AddressModel[] {
-    return this.companyService.addresses();
-  }
-
-  get selectedCompany(): CompanyModel | undefined {
-    return this.companyService.companies().find(c => c.id === this.wiz.companyId);
-  }
-
-  get selectedAddress(): AddressModel | undefined {
-    return this.companyService.addresses().find(a => a.id === this.wiz.addressId);
-  }
+  get filteredAddresses(): AddressModel[] { return this.companyService.addresses(); }
+  get selectedCompany(): CompanyModel | undefined { return this.companyService.companies().find(c => c.id === this.wiz.companyId); }
+  get selectedAddress(): AddressModel | undefined { return this.companyService.addresses().find(a => a.id === this.wiz.addressId); }
 
   get reviewOps(): { label: string; val: number }[] {
     return this.opItems
@@ -150,20 +155,33 @@ export class New implements OnInit {
       .map(op => ({ label: this.opLabels[op.key], val: this.wiz[op.key] }));
   }
 
-  /* ── PUMP AUTO-DETECT ── */
   autoDetectPump(): void {
-    const p = this.pumps.find(
-      p => p.plate.toLowerCase() === this.wiz.pumpPlate.toLowerCase()
-    );
+    const p = this.pumps.find(p => p.plate.toLowerCase() === this.wiz.pumpPlate.toLowerCase());
     this.wiz.pumpType = p ? p.type : '';
+    this.clearError('pumpPlate');
   }
 
-  /* ── OP TOGGLE ── */
   toggleOp(key: OpItem['key'], checked: boolean): void {
     this.wiz[key] = checked ? 1 : 0;
   }
 
-  /* ── VALIDATION ── */
+  onOpQtyChange(key: OpItem['key'], val: number): void {
+    const min = key === 'idleTime' ? 0.5 : 1;
+    if (val < min) this.wiz[key] = min;
+  }
+
+  onConcreteVolumeChange(): void {
+    this.clearError('concreteVolume');
+    if (this.wiz.concreteVolume !== null && this.wiz.concreteVolume < 0) {
+      this.wiz.concreteVolume = 0;
+    }
+  }
+
+  setConcreteVolume(v: number): void {
+    this.wiz.concreteVolume = v;
+    this.onConcreteVolumeChange();
+  }
+
   private validate(): boolean {
     this.errors = {};
     const s = this.wiz.step;
@@ -174,37 +192,84 @@ export class New implements OnInit {
       } else {
         const selected = new Date(this.wiz.date);
         const today = new Date();
-
-        const isFuture = selected > today;
-        const differentMonth =
-          selected.getFullYear() !== today.getFullYear() ||
-          selected.getMonth() !== today.getMonth();
-
-        if (isFuture) {
+        if (selected > today) {
           this.errors['date'] = 'თარიღი არ შეიძლება იყოს მომავალში';
-        } else if (differentMonth) {
+        } else if (
+          selected.getFullYear() !== today.getFullYear() ||
+          selected.getMonth() !== today.getMonth()
+        ) {
           this.errors['date'] = 'თარიღი მიმდინარე თვეში უნდა იყოს';
         }
       }
     }
+
     if (s === 1 && !this.wiz.companyId) {
       this.errors['companyId'] = 'კომპანია სავალდებულოა';
     }
     if (s === 2 && !this.wiz.addressId) {
       this.errors['addressId'] = 'მისამართი სავალდებულოა';
     }
-    if (s === 3 && !this.wiz.pumpPlate) {
+    if (s === 3 && !this.wiz.pumpPlate.trim()) {
       this.errors['pumpPlate'] = 'პომპის ნომერი სავალდებულოა';
     }
-    if (s === 4 && !this.wiz.concreteVolume) {
-      this.errors['concreteVolume'] = 'ბეტონის მოცულობა სავალდებულოა';
+
+    if (s === 4) {
+      if (this.wiz.concreteVolume === null || this.wiz.concreteVolume < 0) {
+        this.errors['concreteVolume'] = 'ბეტონის მოცულობა სავალდებულოა';
+      } else if (
+        this.platePermission !== null &&
+        this.wiz.concreteVolume > this.platePermission
+      ) {
+        this.errors['concreteVolume'] =
+          `მაქსიმუმი ${this.platePermission} m³ (ნებართვის მიხედვით)`;
+      }
     }
 
+    this.cdr.detectChanges();
     return Object.keys(this.errors).length === 0;
   }
 
-  /* ── NAV ── */
-  wizNext(): void { if (!this.validate()) return; this.wiz.step++; }
+  wizNext(): void {
+    if (this.isLoading) return;
+    if (!this.validate()) return;
+
+    if (this.wiz.step === 3) {
+      this.isLoading = true;
+      this.licensePlatePermissionService
+        .getPlatePermission(this.wiz.pumpPlate.trim())
+        .pipe(finalize(() => {
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        }))
+        .subscribe({
+          next: (perm) => {
+            this.zone.run(() => {
+              if (perm == null) {
+                this.errors['pumpPlate'] = 'სანომრე ნიშანი სისტემაში არ მოიძებნა';
+                return;
+              }
+              this.platePermission = perm.permission ?? null;
+              if (this.platePermission === 0) {
+                 this.errors['pumpPlate'] = 'ამ პომპაზე ბეტონის მოცულობის დაშვება არის 0 m³';
+                 return;
+              }
+              this.wiz.step++;
+            });
+          },
+          error: (err) => {
+            this.zone.run(() => {
+              console.warn('Plate lookup failed (likely 404):', err);
+              this.errors['pumpPlate'] = 'სანომრე ნიშანი სისტემაში არ მოიძებნა';
+              this.cdr.detectChanges();
+            });
+          },
+        });
+      return;
+    }
+
+    this.wiz.step++;
+  }
+
   wizBack(): void { this.errors = {}; this.wiz.step--; }
 
   wizSubmit(): void {
@@ -216,7 +281,7 @@ export class New implements OnInit {
       addressId: this.wiz.addressId,
       pumpPlate: this.wiz.pumpPlate,
       pumpType: this.wiz.pumpType,
-      concreteVolume: this.wiz.concreteVolume,
+      concreteVolume: this.wiz.concreteVolume ?? 0,
       pumpRelocation: this.wiz.pumpRelocation,
       stationaryRelocation: this.wiz.stationaryRelocation,
       hydraulicRelocation: this.wiz.hydraulicRelocation,
@@ -229,7 +294,6 @@ export class New implements OnInit {
     setTimeout(() => this.resetWizard(), 900);
   }
 
-  /* ── TOAST ── */
   showToast(msg: string): void {
     clearTimeout(this.toastTimer);
     this.toast = { msg, visible: true };

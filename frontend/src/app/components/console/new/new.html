@@ -51,7 +51,7 @@
     <div class="form-group" [class.has-error]="errors['pumpPlate']">
       <label>სახ. ნომერი</label>
       <input type="text" [(ngModel)]="wiz.pumpPlate" name="pumpPlate" placeholder="GE-XXX-XX"
-        (input)="autoDetectPump(); clearError('pumpPlate')" />
+        [disabled]="isLoading" (input)="autoDetectPump()" />
       <span class="field-error" *ngIf="errors['pumpPlate']">{{ errors['pumpPlate'] }}</span>
     </div>
   </ng-container>
@@ -60,24 +60,59 @@
   <ng-container *ngIf="wiz.step === 4">
     <div class="form-group" [class.has-error]="errors['concreteVolume']">
       <label>ბეტონის მოცულობა (m³)</label>
-      <input type="number" [(ngModel)]="wiz.concreteVolume" name="concrete" min="0" step="0.5" placeholder="0"
-        (ngModelChange)="clearError('concreteVolume')" />
+      <input
+        type="number"
+        [(ngModel)]="wiz.concreteVolume"
+        name="concrete"
+        min="0.5"
+        step="0.5"
+        placeholder="0.0"
+        (ngModelChange)="onConcreteVolumeChange()" />
       <span class="field-error" *ngIf="errors['concreteVolume']">{{ errors['concreteVolume'] }}</span>
     </div>
+
+    <!-- Quick select chips -->
+    <div class="quick-select">
+      <button type="button" class="chip" (click)="setConcreteVolume(5)">5 m³</button>
+      <button type="button" class="chip" (click)="setConcreteVolume(7)">7 m³</button>
+      <button type="button" class="chip" (click)="setConcreteVolume(9)">9 m³</button>
+      <button type="button" class="chip" (click)="setConcreteVolume(10)">10 m³</button>
+      <button type="button" class="chip" (click)="setConcreteVolume(12)">12 m³</button>
+    </div>
+
+    <p *ngIf="platePermission !== null" class="hint-permission" [class.warn]="platePermission === 0">
+      {{ platePermission === 0 ? 'ყურადღება: ამ პომპას არ აქვს ბეტონის დაშვება (0 m³)' : 'მაქსიმალური დაშვებული მოცულობა: ' }}
+      <strong *ngIf="platePermission > 0">{{ platePermission }} m³</strong>
+    </p>
   </ng-container>
 
   <!-- ══════════════════ STEP 5 — OPERATIONS ══════════════════ -->
   <ng-container *ngIf="wiz.step === 5">
     <div class="check-group">
       <div *ngFor="let op of opItems" class="check-row" [class.checked]="wiz[op.key] > 0">
-        <div class="check-left">
-          <input type="checkbox" [id]="'cb-' + op.key" [checked]="wiz[op.key] > 0"
+        <div class="check-left" (click)="toggleOp(op.key, !(wiz[op.key] > 0))">
+          <input
+            type="checkbox"
+            [id]="'cb-' + op.key"
+            [checked]="wiz[op.key] > 0"
+            (click)="$event.stopPropagation()"
             (change)="toggleOp(op.key, $any($event.target).checked)" />
-          <label [for]="'cb-' + op.key" class="check-label">{{ op.label }}</label>
+          <label class="check-label">{{ op.label }}</label>
         </div>
         <div class="check-right">
-          <input class="check-qty" type="number" min="0" [(ngModel)]="wiz[op.key]" [name]="'qty-' + op.key"
-            [disabled]="wiz[op.key] === 0" [class.dimmed]="wiz[op.key] === 0" />
+          <ng-container *ngIf="wiz[op.key] > 0; else dimmedQty">
+            <input
+              class="check-qty"
+              type="number"
+              [min]="op.key === 'idleTime' ? 0.5 : 1"
+              [step]="op.key === 'idleTime' ? 0.5 : 1"
+              [(ngModel)]="wiz[op.key]"
+              [name]="'qty-' + op.key"
+              (ngModelChange)="onOpQtyChange(op.key, $event)" />
+          </ng-container>
+          <ng-template #dimmedQty>
+            <input class="check-qty dimmed" type="number" [value]="0" [name]="'qty-dis-' + op.key" disabled />
+          </ng-template>
           <span class="check-unit">{{ op.unit }}</span>
         </div>
       </div>
@@ -138,13 +173,17 @@
 
   <!-- ── NAV BUTTONS ── -->
   <div class="wizard-nav">
-    <button *ngIf="wiz.step > 0; else spacer" class="btn btn-secondary" (click)="wizBack()">← უკან</button>
+    <button *ngIf="wiz.step > 0; else spacer" class="btn btn-secondary" (click)="wizBack()" [disabled]="isLoading">
+      ← უკან
+    </button>
     <ng-template #spacer>
       <div></div>
     </ng-template>
 
-    <button *ngIf="wiz.step < STEPS.length - 1; else submitBtn" class="btn btn-primary" (click)="wizNext()">შემდეგი
-      →</button>
+    <button *ngIf="wiz.step < STEPS.length - 1; else submitBtn" class="btn btn-primary" (click)="wizNext()" [disabled]="isLoading">
+      <span *ngIf="!isLoading">შემდეგი →</span>
+      <span *ngIf="isLoading">მოწმდება...</span>
+    </button>
     <ng-template #submitBtn>
       <button class="btn btn-primary" (click)="wizSubmit()">✔ შენახვა</button>
     </ng-template>

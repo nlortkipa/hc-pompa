@@ -28,6 +28,11 @@ namespace Service.Mapping
             CreateMap<Address, AddressDTO>().ReverseMap();
             CreateMap<CreateAddressDTO, Address>();
             CreateMap<UpdateAddressDTO, Address>();
+
+            // Address
+            CreateMap<LicensePlatePermission, LicensePlatePermissionDTO>().ReverseMap();
+            CreateMap<CreateLicensePlatePermissionDTO, LicensePlatePermission>();
+            CreateMap<UpdateLicensePlatePermissionDTO, LicensePlatePermission>();
         }
     }
 }

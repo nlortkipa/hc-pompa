@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Data.Migrations
 {
     [DbContext(typeof(ProjectContext))]
-    [Migration("20260604170323_v7")]
-    partial class v7
+    [Migration("20260610173959_v1")]
+    partial class v1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -177,6 +177,80 @@ namespace Data.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Data.Entities.LicensePlatePermission", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("LicensePlate")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<int>("Permission")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LicensePlate")
+                        .IsUnique();
+
+                    b.ToTable("LicensePlatePermissions", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            LicensePlate = "II210NI",
+                            Permission = 52
+                        },
+                        new
+                        {
+                            Id = 2,
+                            LicensePlate = "PB107PB",
+                            Permission = 42
+                        },
+                        new
+                        {
+                            Id = 3,
+                            LicensePlate = "BB685FF",
+                            Permission = 42
+                        },
+                        new
+                        {
+                            Id = 4,
+                            LicensePlate = "VQ632QV",
+                            Permission = 42
+                        },
+                        new
+                        {
+                            Id = 5,
+                            LicensePlate = "CG368CG",
+                            Permission = 48
+                        },
+                        new
+                        {
+                            Id = 6,
+                            LicensePlate = "CC178LC",
+                            Permission = 60
+                        },
+                        new
+                        {
+                            Id = 7,
+                            LicensePlate = "WW832GW",
+                            Permission = 60
+                        },
+                        new
+                        {
+                            Id = 8,
+                            LicensePlate = "OV247VO",
+                            Permission = 47
+                        });
+                });
+
             modelBuilder.Entity("Data.Entities.SmsCode", b =>
                 {
                     b.Property<int>("Id")
@@ -249,9 +323,45 @@ namespace Data.Migrations
                         {
                             Id = 1,
                             CreatedAt = new DateTime(2026, 5, 28, 16, 0, 0, 0, DateTimeKind.Local),
+                            FirstName = "ჯემალ",
+                            LastName = "გიორგობიანი",
+                            PersonalId = "1001055244",
+                            PhoneNumber = "551710931"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedAt = new DateTime(2026, 5, 28, 16, 0, 0, 0, DateTimeKind.Local),
+                            FirstName = "გიორგი",
+                            LastName = "გუჯეჯიანი",
+                            PersonalId = "01005027479",
+                            PhoneNumber = "598606823"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CreatedAt = new DateTime(2026, 5, 28, 16, 0, 0, 0, DateTimeKind.Local),
+                            FirstName = "დათო",
+                            LastName = "ელგენდარაშვილი",
+                            PersonalId = "01008045338",
+                            PhoneNumber = "01008045338"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            CreatedAt = new DateTime(2026, 5, 28, 16, 0, 0, 0, DateTimeKind.Local),
+                            FirstName = "ზვიადი",
+                            LastName = "ენუქიძე",
+                            PersonalId = "38001031038",
+                            PhoneNumber = "591207381"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            CreatedAt = new DateTime(2026, 5, 28, 16, 0, 0, 0, DateTimeKind.Local),
                             FirstName = "ნიკოლოზ",
                             LastName = "ლორთქიფანიძე",
-                            PersonalId = "12345678901",
+                            PersonalId = "11111111111",
                             PhoneNumber = "575780323"
                         });
                 });
