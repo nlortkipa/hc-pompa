@@ -15,15 +15,10 @@ namespace Data.Entities
         public DateTime Date { get; set; }
         [Required]
         public int OperatorId { get; set; }
-        public User Operator { get; set; } = null!;
         [Required]
         public int CompanyId { get; set; }
-        public Company Company { get; set; } = null!;
         [Required]
         public int AddressId { get; set; }
-        public Address Address { get; set; } = null!;
-        [Required]
-        public int PumpPlateId { get; set; }
         [Required]
         public decimal ConcreteVolume { get; set; }
         [Required]
@@ -38,7 +33,9 @@ namespace Data.Entities
         public decimal IdleTime { get; set; }
         [Required]
         public int DismantleAssemble { get; set; }
-        [Required]
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        public User Operator { get; set; } = null!;
+        public Company Company { get; set; } = null!;
+        public Address Address { get; set; } = null!;
     }
 }

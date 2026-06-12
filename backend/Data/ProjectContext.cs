@@ -17,6 +17,7 @@ namespace Data
         public DbSet<Address> Addresses { get; set; }
         public DbSet<CompanyAddress> CompanyAddresses { get; set; }
         public DbSet<LicensePlatePermission> LicensePlatePermissions { get; set; }
+        public DbSet<PumpOperation> PumpOperations { get; set; }
 
         public ProjectContext()
         {
@@ -38,6 +39,7 @@ namespace Data
             modelBuilder.ApplyConfiguration(new AddressConfiguration());
             modelBuilder.ApplyConfiguration(new CompanyAddressConfiguration());
             modelBuilder.ApplyConfiguration(new LicensePlatePermissionConfiguration());
+            modelBuilder.ApplyConfiguration(new PumpOperationConfiguration());
 
             // seeding
             modelBuilder.Entity<User>().HasData(

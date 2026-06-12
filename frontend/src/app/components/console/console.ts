@@ -3,12 +3,11 @@ import { ProfileService } from '../../services/profile-service';
 import { Router, RouterOutlet, RouterLinkActive, RouterLinkWithHref } from '@angular/router';
 import { APP_NAME } from '../../globals';
 import { UserModel } from '../../models/user-model';
-import { New } from "./new/new";
 
 @Component({
   standalone: true,
   selector: 'app-console',
-  imports: [New, RouterOutlet, RouterLinkActive, RouterLinkWithHref],
+  imports: [RouterOutlet, RouterLinkActive, RouterLinkWithHref],
   templateUrl: './console.html',
   styleUrl: './console.scss',
 })

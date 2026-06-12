@@ -84,12 +84,14 @@ namespace API
             builder.Services.AddScoped<ISmsCodeRepository, SmsCodeRepository>();
             builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
             builder.Services.AddScoped<ILicensePlatePermissionRepository, LicensePlatePermissionRepository>();
+            builder.Services.AddScoped<IPumpOperationRepository, PumpOperationRepository>();
 
             // Add services to the container
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<ISmsCodeService, SmsCodeService>();
             builder.Services.AddScoped<ICompanyService, CompanyService>();
             builder.Services.AddScoped<ILicensePlatePermissionService, LicensePlatePermissionService>();
+            builder.Services.AddScoped<IPumpOperationService, PumpOperationService>();
 
             builder.Services.AddAutoMapper(cfg => { }, typeof(MappingProfile).Assembly);
 

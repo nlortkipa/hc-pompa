@@ -16,5 +16,6 @@ namespace Data.Entities
         public string Name { get; set; } = null!;
 
         public ICollection<CompanyAddress> CompanyAddresses { get; set; } = new List<CompanyAddress>();
+        public ICollection<PumpOperation> PumpOperations { get; set; } = new List<PumpOperation>();
     }
 }

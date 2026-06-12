@@ -30,5 +30,6 @@ namespace Data.Entities
         public DateTime CreatedAt { get; set; }
 
         public ICollection<SmsCode> SmsCodes { get; set; } = new List<SmsCode>();
+        public ICollection<PumpOperation> PumpOperations { get; set; } = new List<PumpOperation>();
     }
 }

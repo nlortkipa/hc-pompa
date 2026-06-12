@@ -33,6 +33,10 @@ namespace Service.Mapping
             CreateMap<LicensePlatePermission, LicensePlatePermissionDTO>().ReverseMap();
             CreateMap<CreateLicensePlatePermissionDTO, LicensePlatePermission>();
             CreateMap<UpdateLicensePlatePermissionDTO, LicensePlatePermission>();
+
+            // PumpOperation
+            CreateMap<PumpOperation, PumpOperationDto>().ReverseMap();
+            CreateMap<CreatePumpOperationDto, PumpOperation>();
         }
     }
 }

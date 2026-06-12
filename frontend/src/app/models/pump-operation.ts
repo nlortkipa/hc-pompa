@@ -6,5 +6,7 @@ export interface PumpOperationModel {
     pumpRelocation: number
     stationaryRelocation: number
     hydraulicRelocation: number
+    stationaryReposition: number
     dismantleAssemble: number
+    idleTime: number
 }

@@ -35,6 +35,9 @@ namespace Data.Configurations
             builder.HasMany(u => u.SmsCodes)
                 .WithOne(sc => sc.User)
                 .HasForeignKey(sc => sc.UserId);
+            builder.HasMany(u => u.PumpOperations)
+                .WithOne(p => p.Operator)
+                .HasForeignKey(p => p.OperatorId);
         }
     }
 }

@@ -248,6 +248,58 @@ namespace Data.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Data.Entities.PumpOperation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AddressId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("ConcreteVolume")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("DismantleAssemble")
+                        .HasColumnType("int");
+
+                    b.Property<int>("HydraulicRelocation")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("IdleTime")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("OperatorId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PumpRelocation")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StationaryRelocation")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StationaryReposition")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AddressId");
+
+                    b.HasIndex("CompanyId");
+
+                    b.HasIndex("OperatorId");
+
+                    b.ToTable("PumpOperations");
+                });
+
             modelBuilder.Entity("Data.Entities.SmsCode", b =>
                 {
                     b.Property<int>("Id")
@@ -382,6 +434,33 @@ namespace Data.Migrations
                     b.Navigation("Company");
                 });
 
+            modelBuilder.Entity("Data.Entities.PumpOperation", b =>
+                {
+                    b.HasOne("Data.Entities.Address", "Address")
+                        .WithMany("PumpOperations")
+                        .HasForeignKey("AddressId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Data.Entities.Company", "Company")
+                        .WithMany("PumpOperations")
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Data.Entities.User", "Operator")
+                        .WithMany("PumpOperations")
+                        .HasForeignKey("OperatorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Address");
+
+                    b.Navigation("Company");
+
+                    b.Navigation("Operator");
+                });
+
             modelBuilder.Entity("Data.Entities.SmsCode", b =>
                 {
                     b.HasOne("Data.Entities.User", "User")
@@ -396,15 +475,21 @@ namespace Data.Migrations
             modelBuilder.Entity("Data.Entities.Address", b =>
                 {
                     b.Navigation("CompanyAddresses");
+
+                    b.Navigation("PumpOperations");
                 });
 
             modelBuilder.Entity("Data.Entities.Company", b =>
                 {
                     b.Navigation("CompanyAddresses");
+
+                    b.Navigation("PumpOperations");
                 });
 
             modelBuilder.Entity("Data.Entities.User", b =>
                 {
+                    b.Navigation("PumpOperations");
+
                     b.Navigation("SmsCodes");
                 });
 #pragma warning restore 612, 618

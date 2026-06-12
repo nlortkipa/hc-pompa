@@ -6,6 +6,7 @@ import { CompanyModel } from '../../../models/company-model';
 import { AddressModel } from '../../../models/address-model';
 import { CompanyService } from '../../../services/company-service';
 import { LicensePlatePermissionService } from '../../../services/license-plate-permission-service';
+import { PumpOperationService } from '../../../services/pump-operation-service';
 import { PumpOperationModel } from '../../../models/pump-operation';
 
 interface Operator { id: number; name: string; phone: string; active: boolean; }
@@ -98,6 +99,7 @@ export class New implements OnInit {
   constructor(
     public companyService: CompanyService,
     private licensePlatePermissionService: LicensePlatePermissionService,
+    private pumpOperationService: PumpOperationService,
     private zone: NgZone,
     private cdr: ChangeDetectorRef,
   ) {}
@@ -278,26 +280,9 @@ export class New implements OnInit {
   wizBack(): void { this.errors = {}; this.wiz.step--; }
 
   wizSubmit(): void {
-    const op: Operation = {
-      id: this.nextOpId++,
-      date: this.wiz.date,
-      operatorId: 1,
-      companyId: this.wiz.companyId,
-      addressId: this.wiz.addressId,
-      pumpId: this.wiz.pumpId,
-      pumpPlate: this.wiz.pumpPlate,
-      pumpType: this.wiz.pumpType,
-      concreteVolume: this.wiz.concreteVolume ?? 0,
-      pumpRelocation: this.wiz.pumpRelocation,
-      stationaryRelocation: this.wiz.stationaryRelocation,
-      hydraulicRelocation: this.wiz.hydraulicRelocation,
-      stationaryReposition: this.wiz.stationaryReposition,
-      idleTime: this.wiz.idleTime,
-      dismantleAssemble: this.wiz.dismantleAssemble,
-    };
-    this.operations.push(op);
+    if (this.isLoading) return;
+    this.isLoading = true;
 
-    // Create and log PumpOperationModel
     const model: PumpOperationModel = {
       date: new Date(this.wiz.date),
       companyId: this.wiz.companyId || 0,
@@ -306,12 +291,30 @@ export class New implements OnInit {
       pumpRelocation: this.wiz.pumpRelocation,
       stationaryRelocation: this.wiz.stationaryRelocation,
       hydraulicRelocation: this.wiz.hydraulicRelocation,
-      dismantleAssemble: this.wiz.dismantleAssemble
+      stationaryReposition: this.wiz.stationaryReposition,
+      dismantleAssemble: this.wiz.dismantleAssemble,
+      idleTime: this.wiz.idleTime || 0
     };
-    console.log('Final PumpOperationModel:', model);
 
-    this.showToast('✔ ჩანაწერი შენახულია!');
-    setTimeout(() => this.resetWizard(), 900);
+    this.pumpOperationService.create(model)
+      .pipe(finalize(() => {
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      }))
+      .subscribe({
+        next: (res: any) => {
+          this.zone.run(() => {
+            this.showToast('✔ ჩანაწერი შენახულია!');
+            setTimeout(() => this.resetWizard(), 900);
+          });
+        },
+        error: (err: any) => {
+          this.zone.run(() => {
+            console.error('Failed to save pump operation:', err);
+            this.showToast('❌ შენახვა ვერ მოხერხდა');
+          });
+        }
+      });
   }
 
   showToast(msg: string): void {

@@ -22,6 +22,9 @@ namespace Data.Configurations
             builder.HasMany(c => c.CompanyAddresses)
                 .WithOne(ca => ca.Company)
                 .HasForeignKey(ca => ca.CompanyId);
+            builder.HasMany(c => c.PumpOperations)
+                .WithOne(p => p.Company)
+                .HasForeignKey(p => p.CompanyId);
         }
     }
 }
