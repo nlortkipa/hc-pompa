@@ -18,15 +18,15 @@ namespace Data
             _dbSet = _context.Set<T>();
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync()
+        public virtual async Task<IEnumerable<T>> GetAllAsync()
         {
             return await _dbSet.ToListAsync();
         }
-        public async Task<T?> GetByIdAsync(int id)
+        public virtual async Task<T?> GetByIdAsync(int id)
         {
             return await _dbSet.FindAsync(id);
         }
-        public async Task AddAsync(T entity)
+        public virtual async Task AddAsync(T entity)
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity), typeof(T).Name + "can't be null.");
@@ -34,7 +34,7 @@ namespace Data
             await _dbSet.AddAsync(entity);
             await _context.SaveChangesAsync();
         }
-        public async Task UpdateAsync(T entity)
+        public virtual async Task UpdateAsync(T entity)
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity), typeof(T).Name + "can't be null.");
@@ -42,7 +42,7 @@ namespace Data
             _dbSet.Update(entity);
             await _context.SaveChangesAsync();
         }
-        public async Task DeleteAsync(int id)
+        public virtual async Task DeleteAsync(int id)
         {
             var entity = await _dbSet.FindAsync(id);
 

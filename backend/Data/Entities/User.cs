@@ -28,6 +28,9 @@ namespace Data.Entities
         public string PhoneNumber { get; set; } = null!;
         [Required]
         public DateTime CreatedAt { get; set; }
+        [Required]
+        [MaxLength(20)]
+        public string Role { get; set; } = "User";
 
         public ICollection<SmsCode> SmsCodes { get; set; } = new List<SmsCode>();
         public ICollection<PumpOperation> PumpOperations { get; set; } = new List<PumpOperation>();

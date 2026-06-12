@@ -1,0 +1,74 @@
+<div class="section-title">მომხმარებლების მართვა</div>
+
+<div class="card">
+    <div class="card-title">{{ isEditing ? 'რედაქტირება' : 'ახალი მომხმარებელი' }}</div>
+    <div class="user-form">
+        <div class="stat-row">
+            <div class="form-group">
+                <label>სახელი</label>
+                <input type="text" [(ngModel)]="userForm.firstName" [class.field-error]="errors['firstName']" placeholder="სახელი">
+                <div class="field-error-msg" *ngIf="errors['firstName']">{{errors['firstName']}}</div>
+            </div>
+            <div class="form-group">
+                <label>გვარი</label>
+                <input type="text" [(ngModel)]="userForm.lastName" [class.field-error]="errors['lastName']" placeholder="გვარი">
+                <div class="field-error-msg" *ngIf="errors['lastName']">{{errors['lastName']}}</div>
+            </div>
+        </div>
+        <div class="stat-row">
+            <div class="form-group">
+                <label>პირადი ნომერი</label>
+                <input type="text" [(ngModel)]="userForm.personalId" [class.field-error]="errors['personalId']" placeholder="პირადი ნომერი (11 ნიშნა)">
+                <div class="field-error-msg" *ngIf="errors['personalId']">{{errors['personalId']}}</div>
+            </div>
+            <div class="form-group">
+                <label>ტელეფონი</label>
+                <input type="text" [(ngModel)]="userForm.phoneNumber" [class.field-error]="errors['phoneNumber']" placeholder="599...">
+                <div class="field-error-msg" *ngIf="errors['phoneNumber']">{{errors['phoneNumber']}}</div>
+            </div>
+            <div class="form-group">
+                <label>როლი</label>
+                <select [(ngModel)]="userForm.role">
+                    <option value="User">User</option>
+                    <option value="Admin">Admin</option>
+                </select>
+            </div>
+        </div>
+        <div class="wizard-nav">
+            <button class="btn btn-primary" (click)="saveUser()" [disabled]="isLoading">
+                {{ isEditing ? 'განახლება' : 'დამატება' }}
+            </button>
+            <button *ngIf="isEditing" class="btn btn-secondary" (click)="cancelEdit()">გაუქმება</button>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="table-scroll">
+        <table>
+            <thead>
+                <tr>
+                    <th>სახელი გვარი</th>
+                    <th>პირადი ნომერი</th>
+                    <th>ტელეფონი</th>
+                    <th>როლი</th>
+                    <th>მოქმედება</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let u of users()">
+                    <td>{{u.firstName}} {{u.lastName}}</td>
+                    <td>{{u.personalId}}</td>
+                    <td>{{u.phoneNumber}}</td>
+                    <td><span class="badge" [ngClass]="u.role === 'Admin' ? 'badge-red' : 'badge-blue'">{{u.role}}</span></td>
+                    <td>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-secondary btn-sm" (click)="editUser(u)">შეცვლა</button>
+                            <button class="btn btn-danger btn-sm" (click)="deleteUser(u.id)">წაშლა</button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

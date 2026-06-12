@@ -13,6 +13,7 @@ namespace Service.DTOs
         public string PersonalId { get; set; } = null!;
         public string PhoneNumber { get; set; } = null!;
         public DateTime CreatedAt { get; set; }
+        public string Role { get; set; } = null!;
     }
 
     public class CreateUserDTO
@@ -22,6 +23,7 @@ namespace Service.DTOs
         public string PersonalId { get; set; } = null!;
         public string PhoneNumber { get; set; } = null!;
         public DateTime CreatedAt { get; set; }
+        public string Role { get; set; } = "User";
     }
 
     public class UpdateUserDTO
@@ -30,5 +32,6 @@ namespace Service.DTOs
         public string LastName { get; set; } = null!;
         public string PersonalId { get; set; } = null!;
         public string PhoneNumber { get; set; } = null!;
+        public string Role { get; set; } = null!;
     }
 }

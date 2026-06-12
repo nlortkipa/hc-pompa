@@ -4,6 +4,8 @@ import { APP_NAME } from './globals';
 import { Verify } from './components/verify/verify';
 import { Console } from './components/console/console';
 import { New } from './components/console/new/new';
+import { History } from './components/console/history/history';
+import { Users } from './components/console/users/users';
 
 export const routes: Routes = [
     {
@@ -29,6 +31,14 @@ export const routes: Routes = [
             {
                 path: 'new',
                 component: New
+            },
+            {
+                path: 'history',
+                component: History
+            },
+            {
+                path: 'users',
+                component: Users
             }
         ]
     }

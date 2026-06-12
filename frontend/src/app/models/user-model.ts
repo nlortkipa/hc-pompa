@@ -5,4 +5,5 @@ export interface UserModel {
     personalId: string
     phoneNumber: string
     createdAt: Date
+    role: string
 }

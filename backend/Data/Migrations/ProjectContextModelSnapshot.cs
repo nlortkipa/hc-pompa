@@ -266,7 +266,7 @@ namespace Data.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("date");
 
                     b.Property<int>("DismantleAssemble")
                         .HasColumnType("int");
@@ -297,7 +297,7 @@ namespace Data.Migrations
 
                     b.HasIndex("OperatorId");
 
-                    b.ToTable("PumpOperations");
+                    b.ToTable("PumpOperations", (string)null);
                 });
 
             modelBuilder.Entity("Data.Entities.SmsCode", b =>
@@ -360,6 +360,13 @@ namespace Data.Migrations
                         .HasMaxLength(15)
                         .HasColumnType("nvarchar(15)");
 
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasDefaultValue("User");
+
                     b.HasKey("Id");
 
                     b.HasIndex("PhoneNumber")
@@ -375,7 +382,8 @@ namespace Data.Migrations
                             FirstName = "ჯემალ",
                             LastName = "გიორგობიანი",
                             PersonalId = "1001055244",
-                            PhoneNumber = "551710931"
+                            PhoneNumber = "551710931",
+                            Role = "Admin"
                         },
                         new
                         {
@@ -384,7 +392,8 @@ namespace Data.Migrations
                             FirstName = "გიორგი",
                             LastName = "გუჯეჯიანი",
                             PersonalId = "01005027479",
-                            PhoneNumber = "598606823"
+                            PhoneNumber = "598606823",
+                            Role = "User"
                         },
                         new
                         {
@@ -393,7 +402,8 @@ namespace Data.Migrations
                             FirstName = "დათო",
                             LastName = "ელგენდარაშვილი",
                             PersonalId = "01008045338",
-                            PhoneNumber = "01008045338"
+                            PhoneNumber = "01008045338",
+                            Role = "User"
                         },
                         new
                         {
@@ -402,7 +412,8 @@ namespace Data.Migrations
                             FirstName = "ზვიადი",
                             LastName = "ენუქიძე",
                             PersonalId = "38001031038",
-                            PhoneNumber = "591207381"
+                            PhoneNumber = "591207381",
+                            Role = "User"
                         },
                         new
                         {
@@ -411,7 +422,8 @@ namespace Data.Migrations
                             FirstName = "ნიკოლოზ",
                             LastName = "ლორთქიფანიძე",
                             PersonalId = "11111111111",
-                            PhoneNumber = "575780323"
+                            PhoneNumber = "575780323",
+                            Role = "User"
                         });
                 });
 

@@ -9,7 +9,7 @@ namespace Service.Interfaces
     public interface IPumpOperationService
     {
         Task<PumpOperationDto> CreateAsync(CreatePumpOperationDto dto, int operatorId);
-        Task<IEnumerable<PumpOperationDto>> GetAllAsync();
-        Task<PumpOperationDto> GetByIdAsync(int id);
+        Task<IEnumerable<PumpOperationDto>> GetAllAsync(int userId, string role, PumpOperationFilterDto? filter = null);
+        Task<PumpOperationDto?> GetByIdAsync(int id, int userId, string role);
     }
 }

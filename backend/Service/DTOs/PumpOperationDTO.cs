@@ -9,6 +9,8 @@ namespace Service.DTOs
         public int Id { get; set; }
         public DateTime Date { get; set; }
         public int OperatorId { get; set; }
+        public string OperatorFirstName { get; set; } = null!;
+        public string OperatorLastName { get; set; } = null!;
         public int CompanyId { get; set; }
         public int AddressId { get; set; }
         public decimal ConcreteVolume { get; set; }

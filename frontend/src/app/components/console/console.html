@@ -2,6 +2,7 @@
     <div class="logo">{{appName}}</div>
     <div class="user-chip">
         <span id="user-name">{{profile()?.firstName}} {{profile()?.lastName}}</span>
+        <button (click)="logout()" class="btn btn-secondary btn-sm" style="margin-left: 8px; border: none; padding: 4px 8px;">გამოსვლა</button>
     </div>
 </div>
 
@@ -13,30 +14,28 @@
             ჩანაწერი</div>
         <div class="nav-item" routerLink="history" routerLinkActive="active" data-screen="records"><span class="nav-icon">📋</span> ჩანაწერები
         </div>
+        <div *ngIf="profile()?.role === 'Admin'" class="nav-item" routerLink="users" routerLinkActive="active"><span class="nav-icon">👥</span> მომხმარებლები
+        </div>
         <!-- <div class="nav-item" data-screen="reports" onclick="nav('reports')"><span class="nav-icon">📈</span> რეპორტები
         </div>
         <div class="nav-item" data-screen="admin" onclick="nav('admin')"><span class="nav-icon">⚙️</span> ადმინ</div> -->
     </div>
 
-    <router-outlet></router-outlet>
+    <div id="content">
+        <router-outlet></router-outlet>
+    </div>
 
     <div id="mobile-nav">
         <div class="mobile-nav-inner">
-            <!-- <div class="mnav active" data-screen="dashboard" onclick="nav('dashboard')">
-                <div class="mnav-icon">📊</div>დეშბორდი
-            </div> -->
-            <div class="mnav" routerLink="new" routerLinkActive="active" data-screen="wizard" onclick="nav('wizard')">
+            <div class="mnav" routerLink="new" routerLinkActive="active">
                 <div class="mnav-icon">➕</div>ახალი
             </div>
-            <div class="mnav" routerLink="history" routerLinkActive="active" data-screen="records" onclick="nav('records')">
+            <div class="mnav" routerLink="history" routerLinkActive="active">
                 <div class="mnav-icon">📋</div>ჩანაწერები
             </div>
-            <!-- <div class="mnav" data-screen="reports" onclick="nav('reports')">
-                <div class="mnav-icon">📈</div>რეპორტი
+            <div *ngIf="profile()?.role === 'Admin'" class="mnav" routerLink="users" routerLinkActive="active">
+                <div class="mnav-icon">👥</div>მომხმარებლები
             </div>
-            <div class="mnav" data-screen="admin" onclick="nav('admin')">
-                <div class="mnav-icon">⚙️</div>ადმინ
-            </div> -->
         </div>
     </div>
 </div>

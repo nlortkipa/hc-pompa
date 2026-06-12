@@ -5,6 +5,7 @@ using Service.DTOs;
 using Service.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -23,15 +24,42 @@ namespace Service.Services
             return mapper.Map<PumpOperationDto>(entity);
         }
 
-        public async Task<IEnumerable<PumpOperationDto>> GetAllAsync()
+        public async Task<IEnumerable<PumpOperationDto>> GetAllAsync(int userId, string role, PumpOperationFilterDto? filter = null)
         {
             var entities = await repository.GetAllAsync();
+            
+            if (role != "Admin")
+            {
+                entities = entities.Where(x => x.OperatorId == userId);
+            }
+            else if (filter != null)
+            {
+                if (filter.FromDate.HasValue)
+                    entities = entities.Where(x => x.Date >= filter.FromDate.Value);
+                if (filter.ToDate.HasValue)
+                    entities = entities.Where(x => x.Date <= filter.ToDate.Value);
+                if (filter.CompanyId.HasValue)
+                    entities = entities.Where(x => x.CompanyId == filter.CompanyId.Value);
+                if (filter.AddressId.HasValue)
+                    entities = entities.Where(x => x.AddressId == filter.AddressId.Value);
+                if (filter.OperatorId.HasValue)
+                    entities = entities.Where(x => x.OperatorId == filter.OperatorId.Value);
+            }
+
             return mapper.Map<IEnumerable<PumpOperationDto>>(entities);
         }
 
-        public async Task<PumpOperationDto> GetByIdAsync(int id)
+        public async Task<PumpOperationDto?> GetByIdAsync(int id, int userId, string role)
         {
             var entity = await repository.GetByIdAsync(id);
+            
+            if (entity == null) return null;
+
+            if (role != "Admin" && entity.OperatorId != userId)
+            {
+                return null;
+            }
+
             return mapper.Map<PumpOperationDto>(entity);
         }
     }

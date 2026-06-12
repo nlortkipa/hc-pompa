@@ -1,0 +1,72 @@
+<div class="section-title">ჩანაწერების ისტორია</div>
+
+<div class="card" *ngIf="isAdmin">
+    <div class="card-title">ფილტრები</div>
+    <div class="filter-row">
+        <div class="form-group">
+            <label>თარიღიდან</label>
+            <input type="date" [(ngModel)]="filter.fromDate">
+        </div>
+        <div class="form-group">
+            <label>თარიღამდე</label>
+            <input type="date" [(ngModel)]="filter.toDate">
+        </div>
+        <div class="form-group">
+            <label>კომპანია</label>
+            <select [(ngModel)]="filter.companyId">
+                <option [ngValue]="null">ყველა</option>
+                <option *ngFor="let c of companyService.companies()" [ngValue]="c.id">{{c.name}}</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>ოპერატორი</label>
+            <select [(ngModel)]="filter.operatorId">
+                <option [ngValue]="null">ყველა</option>
+                <option *ngFor="let u of users()" [ngValue]="u.id">{{u.firstName}} {{u.lastName}}</option>
+            </select>
+        </div>
+        <div class="filter-actions" style="display: flex; gap: 8px; width: 100%;">
+            <button class="btn btn-primary" (click)="loadRecords()" [disabled]="isLoading" style="flex: 1;">
+                <span *ngIf="!isLoading">ფილტრი</span>
+                <span *ngIf="isLoading">...</span>
+            </button>
+            <button class="btn btn-secondary" (click)="clearFilters()" style="flex: 1;">გასუფთავება</button>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="table-scroll">
+        <table>
+            <thead>
+                <tr>
+                    <th>თარიღი</th>
+                    <th *ngIf="isAdmin">ოპერატორი</th>
+                    <th>ბეტონი (m³)</th>
+                    <th>გადადგომა</th>
+                    <th>სტაც. გადადგ.</th>
+                    <th>ჰიდრ. გადადგ.</th>
+                    <th>გადაწყობა</th>
+                    <th>დაშლა/აწყობა</th>
+                    <th>მოცდენა</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let r of records()">
+                    <td>{{r.date | date:'dd.MM.yyyy'}}</td>
+                    <td *ngIf="isAdmin">{{r.operatorFirstName}} {{r.operatorLastName}}</td>
+                    <td><span class="badge badge-blue">{{r.concreteVolume}}</span></td>
+                    <td>{{r.pumpRelocation}}</td>
+                    <td>{{r.stationaryRelocation}}</td>
+                    <td>{{r.hydraulicRelocation}}</td>
+                    <td>{{r.stationaryReposition}}</td>
+                    <td>{{r.dismantleAssemble}}</td>
+                    <td><span class="badge badge-yellow">{{r.idleTime}} სთ</span></td>
+                </tr>
+                <tr *ngIf="records().length === 0 && !isLoading">
+                    <td colspan="9" class="empty">ჩანაწერები არ მოიძებნა</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

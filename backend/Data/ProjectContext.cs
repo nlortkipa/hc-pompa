@@ -50,7 +50,8 @@ namespace Data
                     LastName = "გიორგობიანი",
                     PersonalId = "1001055244",
                     PhoneNumber = "551710931",
-                    CreatedAt = DateTime.Parse("2026-05-28T12:00:00Z")
+                    CreatedAt = DateTime.Parse("2026-05-28T12:00:00Z"),
+                    Role = "Admin"
                 },
                 new User
                 {
@@ -59,7 +60,8 @@ namespace Data
                     LastName = "გუჯეჯიანი",
                     PersonalId = "01005027479",
                     PhoneNumber = "598606823",
-                    CreatedAt = DateTime.Parse("2026-05-28T12:00:00Z")
+                    CreatedAt = DateTime.Parse("2026-05-28T12:00:00Z"),
+                    Role = "User"
                 },
                 new User
                 {
@@ -68,7 +70,8 @@ namespace Data
                     LastName = "ელგენდარაშვილი",
                     PersonalId = "01008045338",
                     PhoneNumber = "01008045338",
-                    CreatedAt = DateTime.Parse("2026-05-28T12:00:00Z")
+                    CreatedAt = DateTime.Parse("2026-05-28T12:00:00Z"),
+                    Role = "User"
                 },
                 new User
                 {
@@ -77,7 +80,8 @@ namespace Data
                     LastName = "ენუქიძე",
                     PersonalId = "38001031038",
                     PhoneNumber = "591207381",
-                    CreatedAt = DateTime.Parse("2026-05-28T12:00:00Z")
+                    CreatedAt = DateTime.Parse("2026-05-28T12:00:00Z"),
+                    Role = "User"
                 },
                 new User
                 {
@@ -86,7 +90,8 @@ namespace Data
                     LastName = "ლორთქიფანიძე",
                     PersonalId = "11111111111",
                     PhoneNumber = "575780323",
-                    CreatedAt = DateTime.Parse("2026-05-28T12:00:00Z")
+                    CreatedAt = DateTime.Parse("2026-05-28T12:00:00Z"),
+                    Role = "User"
                 }
             );
             modelBuilder.Entity<Company>().HasData(

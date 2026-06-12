@@ -31,6 +31,10 @@ namespace Data.Configurations
                 .IsUnique();
             builder.Property(u => u.CreatedAt)
                 .IsRequired();
+            builder.Property(u => u.Role)
+                .IsRequired()
+                .HasMaxLength(20)
+                .HasDefaultValue("User");
 
             builder.HasMany(u => u.SmsCodes)
                 .WithOne(sc => sc.User)

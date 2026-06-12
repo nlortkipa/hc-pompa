@@ -26,16 +26,32 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<PumpOperationDto>>> GetAll()
+        public async Task<ActionResult<IEnumerable<PumpOperationDto>>> GetAll([FromQuery] PumpOperationFilterDto? filter)
         {
-            var result = await service.GetAllAsync();
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var role = User.FindFirstValue(ClaimTypes.Role) ?? "User";
+
+            if (!int.TryParse(userIdStr, out var userId))
+            {
+                return Unauthorized();
+            }
+
+            var result = await service.GetAllAsync(userId, role, filter);
             return Ok(result);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<PumpOperationDto>> GetById(int id)
         {
-            var result = await service.GetByIdAsync(id);
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var role = User.FindFirstValue(ClaimTypes.Role) ?? "User";
+
+            if (!int.TryParse(userIdStr, out var userId))
+            {
+                return Unauthorized();
+            }
+
+            var result = await service.GetByIdAsync(id, userId, role);
             if (result == null) return NotFound();
             return Ok(result);
         }
