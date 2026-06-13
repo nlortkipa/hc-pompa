@@ -30,6 +30,7 @@
                 <label>როლი</label>
                 <select [(ngModel)]="userForm.role">
                     <option value="User">User</option>
+                    <option value="Accountant">Accountant</option>
                     <option value="Admin">Admin</option>
                 </select>
             </div>
@@ -57,14 +58,14 @@
             </thead>
             <tbody>
                 <tr *ngFor="let u of users()">
-                    <td>{{u.firstName}} {{u.lastName}}</td>
-                    <td>{{u.personalId}}</td>
-                    <td>{{u.phoneNumber}}</td>
-                    <td><span class="badge" [ngClass]="u.role === 'Admin' ? 'badge-red' : 'badge-blue'">{{u.role}}</span></td>
-                    <td>
-                        <div style="display: flex; gap: 8px;">
+                    <td data-label="სახელი">{{u.firstName}} {{u.lastName}}</td>
+                    <td data-label="პირადი ნომერი">{{u.personalId}}</td>
+                    <td data-label="ტელეფონი">{{u.phoneNumber}}</td>
+                    <td data-label="როლი"><span class="badge" [ngClass]="u.role === 'Admin' ? 'badge-red' : 'badge-blue'">{{u.role}}</span></td>
+                    <td data-label="მოქმედება">
+                        <div style="display: flex; gap: 8px; justify-content: flex-end;">
                             <button class="btn btn-secondary btn-sm" (click)="editUser(u)">შეცვლა</button>
-                            <button class="btn btn-danger btn-sm" (click)="deleteUser(u.id)">წაშლა</button>
+                            <button class="btn btn-danger btn-sm" (click)="deleteUser(u)">წაშლა</button>
                         </div>
                     </td>
                 </tr>

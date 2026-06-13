@@ -218,7 +218,7 @@ table {
     width: 100%;
     border-collapse: collapse;
     font-size: 13px;
-    min-width: 900px; /* Force scroll */
+    min-width: 600px; /* Force scroll */
 }
 th {
     text-align: left;
@@ -460,7 +460,7 @@ input:focus, select:focus, textarea:focus {
         letter-spacing: 1px;
     }
     table {
-        min-width: 850px;
+        min-width: 600px;
         font-size: 12px;
     }
     th, td {

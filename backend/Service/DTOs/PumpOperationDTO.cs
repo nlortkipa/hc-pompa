@@ -12,7 +12,9 @@ namespace Service.DTOs
         public string OperatorFirstName { get; set; } = null!;
         public string OperatorLastName { get; set; } = null!;
         public int CompanyId { get; set; }
+        public string CompanyName { get; set; } = null!;
         public int AddressId { get; set; }
+        public string AddressName { get; set; } = null!;
         public decimal ConcreteVolume { get; set; }
         public int PumpRelocation { get; set; }
         public int StationaryRelocation { get; set; }

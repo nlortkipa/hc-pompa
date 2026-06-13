@@ -37,7 +37,9 @@ namespace Service.Mapping
             // PumpOperation
             CreateMap<PumpOperation, PumpOperationDto>()
                 .ForMember(dest => dest.OperatorFirstName, opt => opt.MapFrom(src => src.Operator.FirstName))
-                .ForMember(dest => dest.OperatorLastName, opt => opt.MapFrom(src => src.Operator.LastName));
+                .ForMember(dest => dest.OperatorLastName, opt => opt.MapFrom(src => src.Operator.LastName))
+                .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.Company.Name))
+                .ForMember(dest => dest.AddressName, opt => opt.MapFrom(src => src.Address.Name));
             CreateMap<PumpOperationDto, PumpOperation>();
             CreateMap<CreatePumpOperationDto, PumpOperation>();
         }

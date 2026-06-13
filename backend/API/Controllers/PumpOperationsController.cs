@@ -12,6 +12,7 @@ namespace API.Controllers
     [Route("api/[controller]")]
     public class PumpOperationsController(IPumpOperationService service) : ControllerBase
     {
+        [Authorize(Roles = "Admin,User")]
         [HttpPost]
         public async Task<ActionResult<PumpOperationDto>> Create(CreatePumpOperationDto dto)
         {

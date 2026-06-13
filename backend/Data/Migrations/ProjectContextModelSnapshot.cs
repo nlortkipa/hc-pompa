@@ -383,7 +383,7 @@ namespace Data.Migrations
                             LastName = "გიორგობიანი",
                             PersonalId = "1001055244",
                             PhoneNumber = "551710931",
-                            Role = "Admin"
+                            Role = "User"
                         },
                         new
                         {
@@ -413,7 +413,7 @@ namespace Data.Migrations
                             LastName = "ენუქიძე",
                             PersonalId = "38001031038",
                             PhoneNumber = "591207381",
-                            Role = "User"
+                            Role = "Accountant"
                         },
                         new
                         {
@@ -423,7 +423,7 @@ namespace Data.Migrations
                             LastName = "ლორთქიფანიძე",
                             PersonalId = "11111111111",
                             PhoneNumber = "575780323",
-                            Role = "User"
+                            Role = "Admin"
                         });
                 });
 

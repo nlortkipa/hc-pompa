@@ -28,7 +28,7 @@ namespace Service.Services
         {
             var entities = await repository.GetAllAsync();
             
-            if (role != "Admin")
+            if (role != "Admin" && role != "Accountant")
             {
                 entities = entities.Where(x => x.OperatorId == userId);
             }
@@ -55,7 +55,7 @@ namespace Service.Services
             
             if (entity == null) return null;
 
-            if (role != "Admin" && entity.OperatorId != userId)
+            if (role != "Admin" && role != "Accountant" && entity.OperatorId != userId)
             {
                 return null;
             }

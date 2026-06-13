@@ -2,6 +2,7 @@ import { Component, OnInit, signal, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserService } from '../../../services/user-service';
+import { ProfileService } from '../../../services/profile-service';
 import { UserModel } from '../../../models/user-model';
 import { finalize } from 'rxjs';
 
@@ -22,6 +23,7 @@ export class Users implements OnInit {
 
   constructor(
     private userService: UserService,
+    private profileService: ProfileService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -106,11 +108,20 @@ export class Users implements OnInit {
     });
   }
 
-  deleteUser(id: number): void {
+  deleteUser(user: UserModel): void {
+    const profile = this.profileService.getProfileData();
+    if (user.id === profile?.id) {
+        alert('საკუთარი თავის წაშლა არ შეიძლება.');
+        return;
+    }
+    if (user.role === 'Admin') {
+        alert('ადმინისტრატორის წაშლა არ შეიძლება.');
+        return;
+    }
     if (!confirm('ნამდვილად გსურთ მომხმარებლის წაშლა?')) return;
     
     this.isLoading = true;
-    this.userService.delete(id)
+    this.userService.delete(user.id)
       .pipe(finalize(() => {
         this.isLoading = false;
         this.cdr.detectChanges();

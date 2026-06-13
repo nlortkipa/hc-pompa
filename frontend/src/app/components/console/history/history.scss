@@ -8,3 +8,56 @@
     min-width: 40px;
     text-align: center;
 }
+
+/* Mobile responsive fixes */
+@media (max-width: 768px) {
+    .filter-row {
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    /* Table to card layout */
+    .table-scroll {
+        overflow-x: visible;
+    }
+    
+    table {
+        min-width: 100%;
+        display: block;
+    }
+    
+    thead {
+        display: none; /* Hide table headers */
+    }
+    
+    tbody, tr, td {
+        display: block;
+        width: 100%;
+    }
+    
+    tr {
+        margin-bottom: 15px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 10px;
+        background: var(--surface2);
+    }
+    
+    td {
+        text-align: right;
+        padding: 5px;
+        position: relative;
+        padding-left: 50%;
+    }
+    
+    td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 10px;
+        width: 45%;
+        text-align: left;
+        font-weight: bold;
+        color: var(--muted);
+        font-size: 11px;
+    }
+}

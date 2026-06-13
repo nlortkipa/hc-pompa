@@ -21,7 +21,7 @@ export class History implements OnInit {
   records = signal<any[]>([]);
   isLoading = false;
   
-  isAdmin = false;
+  canViewDetails = false;
   users = signal<UserModel[]>([]);
 
   filter = {
@@ -41,9 +41,9 @@ export class History implements OnInit {
 
   ngOnInit(): void {
     const profile = this.profileService.getProfileData();
-    this.isAdmin = profile?.role === 'Admin';
+    this.canViewDetails = profile?.role === 'Admin' || profile?.role === 'Accountant';
     
-    if (this.isAdmin) {
+    if (this.canViewDetails) {
       this.userService.getAll().subscribe(data => this.users.set(data));
     }
     

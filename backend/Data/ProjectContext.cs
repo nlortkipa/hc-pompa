@@ -51,7 +51,7 @@ namespace Data
                     PersonalId = "1001055244",
                     PhoneNumber = "551710931",
                     CreatedAt = DateTime.Parse("2026-05-28T12:00:00Z"),
-                    Role = "Admin"
+                    Role = "User"
                 },
                 new User
                 {
@@ -81,7 +81,7 @@ namespace Data
                     PersonalId = "38001031038",
                     PhoneNumber = "591207381",
                     CreatedAt = DateTime.Parse("2026-05-28T12:00:00Z"),
-                    Role = "User"
+                    Role = "Accountant"
                 },
                 new User
                 {
@@ -91,7 +91,7 @@ namespace Data
                     PersonalId = "11111111111",
                     PhoneNumber = "575780323",
                     CreatedAt = DateTime.Parse("2026-05-28T12:00:00Z"),
-                    Role = "User"
+                    Role = "Admin"
                 }
             );
             modelBuilder.Entity<Company>().HasData(

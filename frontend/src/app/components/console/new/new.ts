@@ -155,10 +155,10 @@ export class New implements OnInit {
   get selectedCompany(): CompanyModel | undefined { return this.companyService.companies().find(c => c.id === this.wiz.companyId); }
   get selectedAddress(): AddressModel | undefined { return this.companyService.addresses().find(a => a.id === this.wiz.addressId); }
 
-  get reviewOps(): { label: string; val: number }[] {
+  get reviewOps(): { label: string; val: number; unit: string }[] {
     return this.opItems
       .filter(op => this.wiz[op.key] > 0)
-      .map(op => ({ label: this.opLabels[op.key], val: this.wiz[op.key] }));
+      .map(op => ({ label: this.opLabels[op.key], val: this.wiz[op.key], unit: op.unit }));
   }
 
   autoDetectPump(): void {
@@ -168,12 +168,8 @@ export class New implements OnInit {
     this.clearError('pumpPlate');
   }
 
-  toggleOp(key: OpItem['key'], checked: boolean): void {
-    this.wiz[key] = checked ? 1 : 0;
-  }
-
   onOpQtyChange(key: OpItem['key'], val: number): void {
-    const min = key === 'idleTime' ? 0.5 : 1;
+    const min = key === 'idleTime' ? 0.5 : 0;
     if (val < min) this.wiz[key] = min;
   }
 
@@ -284,6 +280,12 @@ export class New implements OnInit {
     this.isLoading = true;
 
     const model: PumpOperationModel = {
+      id: 0,
+      operatorId: 0,
+      operatorFirstName: '',
+      operatorLastName: '',
+      companyName: '',
+      addressName: '',
       date: new Date(this.wiz.date),
       companyId: this.wiz.companyId || 0,
       addressId: this.wiz.addressId || 0,
