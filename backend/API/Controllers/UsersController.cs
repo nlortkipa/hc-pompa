@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace API.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Accountant")]
     [ApiController]
     [Route("api/[controller]")]
     public class UsersController(IUserService userService) : ControllerBase
@@ -19,6 +19,7 @@ namespace API.Controllers
             return Ok(users);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet("{id}")]
         public async Task<ActionResult<UserDTO>> GetById(int id)
         {
@@ -27,6 +28,7 @@ namespace API.Controllers
             return Ok(user);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult<UserDTO>> Create(CreateUserDTO dto)
         {
@@ -34,6 +36,7 @@ namespace API.Controllers
             return CreatedAtAction(nameof(GetById), new { id = user.Id }, user);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<ActionResult<UserDTO>> Update(int id, UpdateUserDTO dto)
         {
@@ -48,6 +51,7 @@ namespace API.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id)
         {

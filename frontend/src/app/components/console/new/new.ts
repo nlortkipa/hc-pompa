@@ -8,6 +8,8 @@ import { CompanyService } from '../../../services/company-service';
 import { LicensePlatePermissionService } from '../../../services/license-plate-permission-service';
 import { PumpOperationService } from '../../../services/pump-operation-service';
 import { PumpOperationModel } from '../../../models/pump-operation';
+import { ProfileService } from '../../../services/profile-service';
+import { Router } from '@angular/router';
 
 interface Operator { id: number; name: string; phone: string; active: boolean; }
 interface Pump { id: number; plate: string; type: string; }
@@ -100,11 +102,20 @@ export class New implements OnInit {
     public companyService: CompanyService,
     private licensePlatePermissionService: LicensePlatePermissionService,
     private pumpOperationService: PumpOperationService,
+    private profileService: ProfileService,
+    private router: Router,
     private zone: NgZone,
     private cdr: ChangeDetectorRef,
   ) {}
 
-  ngOnInit(): void { this.resetWizard(); }
+  ngOnInit(): void {
+    const profile = this.profileService.getProfileData();
+    if (profile?.role === 'Accountant') {
+      this.router.navigate(['/console/history']);
+      return;
+    }
+    this.resetWizard();
+  }
 
   private defaultWiz(): WizardState {
     return {
