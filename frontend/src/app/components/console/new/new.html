@@ -1,6 +1,9 @@
 <div class="wizard-container">
-    <!-- ── PROGRESS INDICATOR ── -->
     <div class="wizard-header">
+        <div class="wizard-heading">
+            <div class="wizard-kicker">POMPA</div>
+            <h1>ახალი ჩანაწერი</h1>
+        </div>
         <div class="wizard-progress">
             <div *ngFor="let i of stepRange" class="progress-step" [class.done]="stepStatus(i) === 'done'"
                 [class.active]="stepStatus(i) === 'active'">
@@ -16,9 +19,7 @@
     <div class="card wizard-card">
         <div class="wizard-step-info">ეტაპი {{ wiz.step + 1 }} / {{ STEPS.length }} — {{ STEPS[wiz.step] }}</div>
 
-        <!-- ══════════════════ STEPS ══════════════════ -->
         <div class="wizard-content">
-            <!-- STEP 0 — DATE -->
             <ng-container *ngIf="wiz.step === 0">
                 <div class="form-group">
                     <label>თარიღი</label>
@@ -28,13 +29,12 @@
                 </div>
             </ng-container>
 
-            <!-- STEP 1 — COMPANY -->
             <ng-container *ngIf="wiz.step === 1">
                 <div class="form-group">
                     <label>კომპანია</label>
                     <div class="custom-dropdown">
                         <input type="text" [ngModel]="companySearch()" (ngModelChange)="companySearch.set($event)" 
-                               placeholder="🔍 ძებნა..." class="dropdown-search">
+                               placeholder="ძებნა..." class="dropdown-search">
                         <div class="dropdown-list">
                             <div *ngFor="let c of filteredCompanies()" 
                                  class="dropdown-item" 
@@ -49,13 +49,12 @@
                 </div>
             </ng-container>
 
-            <!-- STEP 2 — ADDRESS -->
             <ng-container *ngIf="wiz.step === 2">
                 <div class="form-group">
                     <label>მისამართი / ლოკაცია</label>
                     <div class="custom-dropdown">
                         <input type="text" [ngModel]="addressSearch()" (ngModelChange)="addressSearch.set($event)" 
-                               placeholder="🔍 ძებნა..." class="dropdown-search">
+                               placeholder="ძებნა..." class="dropdown-search">
                         <div class="dropdown-list">
                             <div *ngFor="let a of filteredAddresses" 
                                  class="dropdown-item" 
@@ -70,7 +69,6 @@
                 </div>
             </ng-container>
 
-            <!-- STEP 3 — PUMP -->
             <ng-container *ngIf="wiz.step === 3">
                 <div class="form-group">
                     <label>პომპის სანომრე ნიშანი</label>
@@ -83,7 +81,6 @@
                 </div>
             </ng-container>
 
-            <!-- STEP 4 — CONCRETE -->
             <ng-container *ngIf="wiz.step === 4">
                 <div class="form-group">
                     <label>ბეტონის მოცულობა (m³)</label>
@@ -103,7 +100,6 @@
                 </div>
             </ng-container>
 
-            <!-- STEP 5 — OPERATIONS -->
             <ng-container *ngIf="wiz.step === 5">
                 <div class="ops-list">
                     <div *ngFor="let op of opItems" class="op-item" [class.has-value]="wiz[op.key] > 0">
@@ -118,7 +114,6 @@
                 </div>
             </ng-container>
 
-            <!-- STEP 6 — REVIEW -->
             <ng-container *ngIf="wiz.step === 6">
                 <div class="review-grid">
                     <div class="review-item">
@@ -156,7 +151,6 @@
             </ng-container>
         </div>
 
-        <!-- ── NAV BUTTONS ── -->
         <div class="wizard-footer">
             <button *ngIf="wiz.step > 0; else spacer" class="btn btn-secondary" (click)="wizBack()"
                 [disabled]="isLoading">

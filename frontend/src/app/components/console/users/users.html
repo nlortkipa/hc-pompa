@@ -74,8 +74,12 @@
                     </td>
                     <td>
                         <div class="actions-cell">
-                            <button class="btn btn-secondary btn-sm" (click)="editUser(u)">შეცვლა</button>
-                            <button class="btn btn-secondary btn-sm text-danger" (click)="deleteUser(u)">წაშლა</button>
+                            <button class="btn btn-secondary btn-sm" (click)="editUser(u)">
+                                <span aria-hidden="true">✎</span> შეცვლა
+                            </button>
+                            <button class="btn btn-secondary btn-sm text-danger" (click)="deleteUser(u)">
+                                <span aria-hidden="true">×</span> წაშლა
+                            </button>
                         </div>
                     </td>
                 </tr>
@@ -102,8 +106,12 @@
             <div class="info-row"><span>ტელეფონი:</span> {{u.phoneNumber}}</div>
         </div>
         <div class="user-mobile-actions">
-            <button class="btn btn-secondary btn-sm" (click)="editUser(u)">შეცვლა</button>
-            <button class="btn btn-secondary btn-sm text-danger" (click)="deleteUser(u)">წაშლა</button>
+            <button class="btn btn-secondary btn-sm" (click)="editUser(u)">
+                <span aria-hidden="true">✎</span> შეცვლა
+            </button>
+            <button class="btn btn-secondary btn-sm text-danger" (click)="deleteUser(u)">
+                <span aria-hidden="true">×</span> წაშლა
+            </button>
         </div>
     </div>
 </div>

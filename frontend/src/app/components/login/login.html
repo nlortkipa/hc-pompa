@@ -1,7 +1,10 @@
 <div class="auth-container">
   <div class="auth-card">
     <div class="auth-header">
-      <div class="logo">POMPA</div>
+      <div class="auth-brand">
+        <span class="brand-mark">P</span>
+        <span class="auth-logo">POMPA</span>
+      </div>
       <p class="auth-subtitle">ბეტონის პომპის ოპერატორების სისტემა</p>
     </div>
 
@@ -21,6 +24,7 @@
       <button class="btn btn-primary w-full" (click)="submit()" [disabled]="isLoading()">
         <span *ngIf="!isLoading()">SMS კოდის გაგზავნა</span>
         <span *ngIf="isLoading()">გაიგზავნება...</span>
+        <span class="button-icon" aria-hidden="true">→</span>
       </button>
     </div>
   </div>

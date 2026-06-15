@@ -1,7 +1,10 @@
 <div class="auth-container">
     <div class="auth-card">
         <div class="auth-header">
-            <div class="logo">POMPA</div>
+            <div class="auth-brand">
+                <span class="brand-mark">P</span>
+                <span class="auth-logo">POMPA</span>
+            </div>
             <p class="auth-subtitle">შეიყვანეთ SMS კოდი</p>
             <p class="auth-info">კოდი გაიგზავნა ნომერზე <br> <strong>{{authService.smsCode()?.userNumber}}</strong></p>
         </div>
@@ -30,6 +33,7 @@
                 <button class="btn btn-primary w-full" (click)="submit()" [disabled]="isLoading()">
                   <span *ngIf="!isLoading()">შესვლა</span>
                   <span *ngIf="isLoading()">მოწმდება...</span>
+                  <span class="button-icon" aria-hidden="true">→</span>
                 </button>
                 <button class="btn btn-secondary w-full" routerLink="/login">← უკან დაბრუნება</button>
             </div>

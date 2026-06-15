@@ -10,7 +10,7 @@
             <button class="btn btn-primary" (click)="saveCompany()" [disabled]="isLoading || !companyForm.name.trim()">
                 {{ isEditingCompany ? 'შეცვლა' : 'დამატება' }}
             </button>
-            <button *ngIf="isEditingCompany" class="btn btn-secondary" (click)="cancelCompanyEdit()">X</button>
+            <button *ngIf="isEditingCompany" class="btn btn-secondary compact-btn" (click)="cancelCompanyEdit()">×</button>
         </div>
 
         <div class="item-list">
@@ -20,8 +20,8 @@
                  (click)="selectCompany(c.id)">
                 <span class="item-name">{{c.name}}</span>
                 <div class="item-actions">
-                    <button class="icon-btn" (click)="$event.stopPropagation(); editCompany(c)">✏️</button>
-                    <button class="icon-btn text-danger" (click)="$event.stopPropagation(); deleteCompany(c.id)">🗑️</button>
+                    <button class="icon-btn" title="შეცვლა" (click)="$event.stopPropagation(); editCompany(c)">✎</button>
+                    <button class="icon-btn text-danger" title="წაშლა" (click)="$event.stopPropagation(); deleteCompany(c.id)">×</button>
                 </div>
             </div>
         </div>
@@ -36,15 +36,15 @@
             <button class="btn btn-primary" (click)="saveAddress()" [disabled]="isLoading || !addressForm.name.trim()">
                 {{ isEditingAddress ? 'შეცვლა' : 'დამატება' }}
             </button>
-            <button *ngIf="isEditingAddress" class="btn btn-secondary" (click)="cancelAddressEdit()">X</button>
+            <button *ngIf="isEditingAddress" class="btn btn-secondary compact-btn" (click)="cancelAddressEdit()">×</button>
         </div>
 
         <div class="item-list">
             <div *ngFor="let a of companyService.addresses()" class="item-row no-hover">
                 <span class="item-name">{{a.name}}</span>
                 <div class="item-actions">
-                    <button class="icon-btn" (click)="editAddress(a)">✏️</button>
-                    <button class="icon-btn text-danger" (click)="deleteAddress(a.id)">🗑️</button>
+                    <button class="icon-btn" title="შეცვლა" (click)="editAddress(a)">✎</button>
+                    <button class="icon-btn text-danger" title="წაშლა" (click)="deleteAddress(a.id)">×</button>
                 </div>
             </div>
             <div *ngIf="companyService.addresses().length === 0" class="empty-msg">
@@ -55,7 +55,7 @@
 
     <div class="card empty-card" *ngIf="!selectedCompanyId">
         <div class="empty-state">
-            <span class="empty-icon">🏢</span>
+            <span class="empty-icon">▦</span>
             <p>აირჩიეთ კომპანია მისამართების სამართავად</p>
         </div>
     </div>

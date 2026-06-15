@@ -1,16 +1,17 @@
 <div id="topbar">
     <div class="logo">
-        <span class="logo-icon">🚛</span>
+        <span class="logo-icon">P</span>
         <span>{{appName}}</span>
     </div>
     
     <div class="topbar-right">
+        <div class="role-pill" *ngIf="profile()?.role">{{profile()?.role}}</div>
         <div class="user-chip">
             <div class="avatar">{{profile()?.firstName?.charAt(0)}}{{profile()?.lastName?.charAt(0)}}</div>
             <span id="user-name">{{profile()?.firstName}} {{profile()?.lastName}}</span>
         </div>
         <button (click)="logout()" class="logout-btn" title="გამოსვლა">
-            <span class="icon">🚪</span>
+            <span class="icon">⎋</span>
         </button>
     </div>
 </div>
@@ -18,19 +19,19 @@
 <div id="main">
     <div id="sidebar">
         <a *ngIf="profile()?.role !== 'Accountant'" class="nav-item" routerLink="new" routerLinkActive="active">
-            <span class="nav-icon">➕</span>
+            <span class="nav-icon">+</span>
             <span class="nav-label">ახალი ჩანაწერი</span>
         </a>
         <a class="nav-item" routerLink="history" routerLinkActive="active">
-            <span class="nav-icon">📋</span>
+            <span class="nav-icon">▤</span>
             <span class="nav-label">ჩანაწერები</span>
         </a>
         <a *ngIf="profile()?.role === 'Admin'" class="nav-item" routerLink="users" routerLinkActive="active">
-            <span class="nav-icon">👥</span>
+            <span class="nav-icon">U</span>
             <span class="nav-label">მომხმარებლები</span>
         </a>
         <a *ngIf="profile()?.role === 'Admin'" class="nav-item" routerLink="companies" routerLinkActive="active">
-            <span class="nav-icon">🏢</span>
+            <span class="nav-icon">▦</span>
             <span class="nav-label">კომპანიები</span>
         </a>
     </div>
@@ -42,19 +43,19 @@
     <div id="mobile-nav">
         <div class="mobile-nav-inner">
             <a *ngIf="profile()?.role !== 'Accountant'" class="mnav" routerLink="new" routerLinkActive="active">
-                <div class="mnav-icon">➕</div>
+                <div class="mnav-icon">+</div>
                 <span>ახალი</span>
             </a>
             <a class="mnav" routerLink="history" routerLinkActive="active">
-                <div class="mnav-icon">📋</div>
+                <div class="mnav-icon">▤</div>
                 <span>ჩანაწერები</span>
             </a>
             <a *ngIf="profile()?.role === 'Admin'" class="mnav" routerLink="users" routerLinkActive="active">
-                <div class="mnav-icon">👥</div>
+                <div class="mnav-icon">U</div>
                 <span>მომხმარებლები</span>
             </a>
             <a *ngIf="profile()?.role === 'Admin'" class="mnav" routerLink="companies" routerLinkActive="active">
-                <div class="mnav-icon">🏢</div>
+                <div class="mnav-icon">▦</div>
                 <span>კომპანიები</span>
             </a>
         </div>

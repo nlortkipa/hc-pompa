@@ -1,41 +1,76 @@
 .auth-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  padding: 20px;
-  background: var(--surface);
+  position: relative;
+  display: grid;
+  min-height: 100dvh;
+  place-items: center;
+  padding: 32px 18px;
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, #ffffff 0%, #f5fbf7 46%, #e7f6ed 100%);
+}
+
+.auth-container::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgb(16 131 79 / 0.08) 1px, transparent 1px),
+    linear-gradient(180deg, rgb(16 131 79 / 0.08) 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: linear-gradient(180deg, transparent, #000 22%, #000 72%, transparent);
+  pointer-events: none;
 }
 
 .auth-card {
-  width: 100%;
-  max-width: 400px;
-  background: var(--white);
-  padding: 40px;
+  position: relative;
+  width: min(100%, 430px);
+  padding: 34px;
+  overflow: hidden;
+  background: rgb(255 255 255 / 0.94);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow-md);
-  border: 1px solid var(--border);
+  backdrop-filter: blur(18px);
+}
+
+.auth-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 5px;
+  background: linear-gradient(90deg, var(--primary-strong), var(--primary), var(--mint));
 }
 
 .auth-header {
+  margin-bottom: 28px;
   text-align: center;
-  margin-bottom: 32px;
 }
 
-.auth-header .logo {
-  justify-content: center;
-  font-size: 32px;
-  margin-bottom: 8px;
+.auth-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.auth-logo {
+  color: var(--primary-strong);
+  font-size: 30px;
+  font-weight: 900;
+  line-height: 1;
 }
 
 .auth-subtitle {
   color: var(--text-muted);
-  font-size: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.5;
 }
 
 .auth-body {
   display: flex;
   flex-direction: column;
+  gap: 4px;
 }
 
 .input-wrapper {
@@ -46,15 +81,22 @@
 
 .input-prefix {
   position: absolute;
-  left: 16px;
-  color: var(--text-muted);
-  font-size: 15px;
-  font-weight: 500;
+  left: 14px;
+  z-index: 1;
+  color: var(--primary-strong);
+  font-size: 14px;
+  font-weight: 800;
   pointer-events: none;
 }
 
 .input-wrapper input {
-  padding-left: 60px;
+  padding-left: 61px;
+}
+
+.button-icon {
+  margin-left: auto;
+  font-size: 17px;
+  line-height: 1;
 }
 
 .w-full {
@@ -62,15 +104,17 @@
 }
 
 @media (max-width: 480px) {
-  .auth-card {
-    padding: 32px 24px;
-    box-shadow: none;
-    border: none;
-    background: transparent;
-  }
   .auth-container {
-    background: var(--white);
-    align-items: flex-start;
-    padding-top: 60px;
+    align-items: start;
+    padding-top: 46px;
+  }
+
+  .auth-card {
+    padding: 28px 20px;
+    box-shadow: var(--shadow);
+  }
+
+  .auth-logo {
+    font-size: 26px;
   }
 }

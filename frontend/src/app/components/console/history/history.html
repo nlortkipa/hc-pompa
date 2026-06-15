@@ -2,7 +2,7 @@
     <div class="section-title">ჩანაწერების ისტორია</div>
     <div class="section-actions">
         <button class="btn btn-secondary btn-sm" (click)="loadRecords()">
-            <span class="icon">🔄</span> განახლება
+            <span class="icon" aria-hidden="true">↻</span> განახლება
         </button>
     </div>
 </div>
@@ -96,7 +96,7 @@
                 <tr *ngIf="records().length === 0 && !isLoading">
                     <td [attr.colspan]="canViewDetails() ? 11 : 8" class="empty">
                         <div class="empty-state">
-                            <span class="empty-icon">📂</span>
+                            <span class="empty-icon">∅</span>
                             <p>ჩანაწერები არ მოიძებნა</p>
                         </div>
                     </td>
