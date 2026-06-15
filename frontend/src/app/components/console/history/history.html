@@ -32,6 +32,10 @@
                 <option *ngFor="let u of users()" [ngValue]="u.id">{{u.firstName}} {{u.lastName}}</option>
             </select>
         </div>
+        <div class="form-group">
+            <label>პომპის ნომერი</label>
+            <input type="text" [(ngModel)]="filter.plateNumber" placeholder="GE-000-XX">
+        </div>
     </div>
     <div class="filter-footer">
         <button class="btn btn-primary" (click)="loadRecords()" [disabled]="isLoading">
@@ -50,6 +54,7 @@
                     <th>თარიღი</th>
                     <th *ngIf="canViewDetails()">ოპერატორი</th>
                     <th *ngIf="canViewDetails()">კომპანია</th>
+                    <th>სახ. ნომერი</th>
                     <th>ბეტონი</th>
                     <th>გადადგომა</th>
                     <th>სტაც. გადადგ.</th>
@@ -73,8 +78,9 @@
                         </div>
                     </td>
                     <td *ngIf="canViewDetails()">{{r.companyName}}</td>
+                    <td>{{r.plateNumber}}</td>
                     <td>
-                        <span class="badge badge-blue">{{r.concreteVolume}} m³</span>
+                        <span class="badge badge-blue">{{r.concreteVolume}} მ³</span>
                     </td>
                     <td>{{r.pumpRelocation}}</td>
                     <td>{{r.stationaryRelocation}}</td>
@@ -88,7 +94,7 @@
                     </td>
                 </tr>
                 <tr *ngIf="records().length === 0 && !isLoading">
-                    <td [attr.colspan]="canViewDetails() ? 10 : 7" class="empty">
+                    <td [attr.colspan]="canViewDetails() ? 11 : 8" class="empty">
                         <div class="empty-state">
                             <span class="empty-icon">📂</span>
                             <p>ჩანაწერები არ მოიძებნა</p>
@@ -105,15 +111,16 @@
     <div *ngFor="let r of records()" class="card record-card">
         <div class="record-header">
             <span class="record-date">{{r.date | date:'dd.MM.yyyy'}}</span>
-            <span class="badge badge-blue">{{r.concreteVolume}} m³</span>
+            <span class="badge badge-blue">{{r.concreteVolume}} მ³</span>
         </div>
         
         <div class="record-body">
             <!-- Basic Info -->
-            <div class="record-section" *ngIf="canViewDetails()">
-                <div class="info-row"><span>კომპანია:</span> <strong>{{r.companyName}}</strong></div>
-                <div class="info-row"><span>ლოკაცია:</span> <strong>{{r.addressName}}</strong></div>
-                <div class="info-row"><span>ოპერატორი:</span> <strong>{{r.operatorFirstName}} {{r.operatorLastName}}</strong></div>
+            <div class="record-section">
+                <div class="info-row"><span>სახ. ნომერი:</span> <strong>{{r.plateNumber}}</strong></div>
+                <div class="info-row" *ngIf="canViewDetails()"><span>კომპანია:</span> <strong>{{r.companyName}}</strong></div>
+                <div class="info-row" *ngIf="canViewDetails()"><span>ლოკაცია:</span> <strong>{{r.addressName}}</strong></div>
+                <div class="info-row" *ngIf="canViewDetails()"><span>ოპერატორი:</span> <strong>{{r.operatorFirstName}} {{r.operatorLastName}}</strong></div>
             </div>
 
             <!-- Operations Grid -->

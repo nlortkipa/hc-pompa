@@ -32,7 +32,8 @@ export class History implements OnInit {
     fromDate: '',
     toDate: '',
     companyId: null as number | null,
-    operatorId: null as number | null
+    operatorId: null as number | null,
+    plateNumber: ''
   };
 
   constructor(
@@ -60,6 +61,7 @@ export class History implements OnInit {
     if (this.filter.toDate) f.toDate = this.filter.toDate;
     if (this.filter.companyId) f.companyId = this.filter.companyId;
     if (this.filter.operatorId) f.operatorId = this.filter.operatorId;
+    if (this.filter.plateNumber) f.plateNumber = this.filter.plateNumber;
 
     this.pumpOperationService.getAll(f)
       .pipe(finalize(() => {
@@ -77,7 +79,8 @@ export class History implements OnInit {
       fromDate: '',
       toDate: '',
       companyId: null,
-      operatorId: null
+      operatorId: null,
+      plateNumber: ''
     };
     this.loadRecords();
   }

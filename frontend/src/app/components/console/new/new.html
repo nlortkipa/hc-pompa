@@ -32,11 +32,19 @@
             <ng-container *ngIf="wiz.step === 1">
                 <div class="form-group">
                     <label>კომპანია</label>
-                    <select [(ngModel)]="wiz.companyId" name="company" [class.field-error]="errors['companyId']"
-                        (ngModelChange)="onCompanyChange()">
-                        <option [ngValue]="null">აირჩიეთ კომპანია</option>
-                        <option *ngFor="let c of companyService.companies()" [ngValue]="c.id">{{ c.name }}</option>
-                    </select>
+                    <div class="custom-dropdown">
+                        <input type="text" [ngModel]="companySearch()" (ngModelChange)="companySearch.set($event)" 
+                               placeholder="🔍 ძებნა..." class="dropdown-search">
+                        <div class="dropdown-list">
+                            <div *ngFor="let c of filteredCompanies()" 
+                                 class="dropdown-item" 
+                                 [class.selected]="wiz.companyId === c.id"
+                                 (click)="wiz.companyId = c.id; onCompanyChange()">
+                                {{ c.name }}
+                            </div>
+                            <div *ngIf="filteredCompanies().length === 0" class="no-results">კომპანია ვერ მოიძებნა</div>
+                        </div>
+                    </div>
                     <span class="field-error-msg" *ngIf="errors['companyId']">{{ errors['companyId'] }}</span>
                 </div>
             </ng-container>
@@ -45,15 +53,20 @@
             <ng-container *ngIf="wiz.step === 2">
                 <div class="form-group">
                     <label>მისამართი / ლოკაცია</label>
-                    <select [(ngModel)]="wiz.addressId" name="address" [class.field-error]="errors['addressId']"
-                        (ngModelChange)="clearError('addressId')">
-                        <option [ngValue]="null">აირჩიეთ მისამართი</option>
-                        <option *ngFor="let a of filteredAddresses" [ngValue]="a.id">{{ a.name }}</option>
-                    </select>
+                    <div class="custom-dropdown">
+                        <input type="text" [ngModel]="addressSearch()" (ngModelChange)="addressSearch.set($event)" 
+                               placeholder="🔍 ძებნა..." class="dropdown-search">
+                        <div class="dropdown-list">
+                            <div *ngFor="let a of filteredAddresses" 
+                                 class="dropdown-item" 
+                                 [class.selected]="wiz.addressId === a.id"
+                                 (click)="wiz.addressId = a.id; clearError('addressId')">
+                                {{ a.name }}
+                            </div>
+                            <div *ngIf="filteredAddresses.length === 0" class="no-results">მისამართი ვერ მოიძებნა</div>
+                        </div>
+                    </div>
                     <span class="field-error-msg" *ngIf="errors['addressId']">{{ errors['addressId'] }}</span>
-                </div>
-                <div *ngIf="filteredAddresses.length === 0" class="hint-box warning">
-                    ამ კომპანიას აქტიური მისამართი არ აქვს.
                 </div>
             </ng-container>
 
@@ -87,11 +100,6 @@
                     <button *ngFor="let v of [5, 7, 9, 10, 12]" type="button" class="chip" (click)="setConcreteVolume(v)">
                         {{ v }} m³
                     </button>
-                </div>
-
-                <div *ngIf="platePermission !== null" class="hint-box" [class.warning]="platePermission === 0">
-                    {{ platePermission === 0 ? 'ამ პომპას არ აქვს ბეტონის დაშვება (0 m³)' : 'მაქს. დაშვებული მოცულობა: ' }}
-                    <strong *ngIf="platePermission > 0">{{ platePermission }} m³</strong>
                 </div>
             </ng-container>
 
@@ -170,5 +178,4 @@
         </div>
     </div>
 </div>
-
 <div class="toast" [class.show]="toast.visible">{{ toast.msg }}</div>

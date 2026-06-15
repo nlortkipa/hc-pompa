@@ -22,6 +22,7 @@ namespace Service.DTOs
         public int StationaryReposition { get; set; }
         public decimal IdleTime { get; set; }
         public int DismantleAssemble { get; set; }
+        public string PlateNumber { get; set; } = null!;
     }
     
     public class CreatePumpOperationDto
@@ -36,5 +37,6 @@ namespace Service.DTOs
         public int StationaryReposition { get; set; }
         public decimal IdleTime { get; set; }
         public int DismantleAssemble { get; set; }
+        public string PlateNumber { get; set; } = null!;
     }
 }

@@ -15,4 +15,5 @@ export interface PumpOperationModel {
     stationaryReposition: number
     dismantleAssemble: number
     idleTime: number
+    plateNumber: string
 }

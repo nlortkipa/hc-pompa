@@ -1,11 +1,10 @@
-import { Component, NgZone, OnInit, ChangeDetectorRef, effect } from '@angular/core';
+import { Component, NgZone, OnInit, ChangeDetectorRef, effect, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
 import { CompanyModel } from '../../../models/company-model';
 import { AddressModel } from '../../../models/address-model';
 import { CompanyService } from '../../../services/company-service';
-import { LicensePlatePermissionService } from '../../../services/license-plate-permission-service';
 import { PumpOperationService } from '../../../services/pump-operation-service';
 import { PumpOperationModel } from '../../../models/pump-operation';
 import { ProfileService } from '../../../services/profile-service';
@@ -65,10 +64,20 @@ export class New implements OnInit {
   nextOpId = 6;
 
   /* ── PERMISSION ── */
-  platePermission: number | null = null;
+  // platePermission removed
 
   /* ── WIZARD ── */
   readonly STEPS = ['თარიღი', 'კომპანია', 'მისამართი', 'პომპა', 'ბეტონი', 'ოპერაციები', 'განხილვა'];
+
+  companySearch = signal('');
+  addressSearch = signal('');
+
+  filteredCompanies = computed(() => {
+    const search = this.companySearch().toLowerCase();
+    return this.companyService.companies().filter(c => 
+      c.name.toLowerCase().includes(search)
+    );
+  });
 
   wiz: WizardState = this.defaultWiz();
   isLoading = false;
@@ -100,7 +109,6 @@ export class New implements OnInit {
 
   constructor(
     public companyService: CompanyService,
-    private licensePlatePermissionService: LicensePlatePermissionService,
     private pumpOperationService: PumpOperationService,
     private profileService: ProfileService,
     private router: Router,
@@ -135,7 +143,7 @@ export class New implements OnInit {
   resetWizard(): void {
     this.wiz = this.defaultWiz();
     this.errors = {};
-    this.platePermission = null;
+    // this.platePermission = null;
     this.companyService.addresses.set([]);
   }
 
@@ -156,6 +164,8 @@ export class New implements OnInit {
 
   onCompanyChange(): void {
     this.wiz.addressId = null;
+    this.companySearch.set('');
+    this.addressSearch.set('');
     this.clearError('companyId');
     if (this.wiz.companyId !== null) {
       this.companyService.getAddresses(this.wiz.companyId);
@@ -164,7 +174,12 @@ export class New implements OnInit {
     }
   }
 
-  get filteredAddresses(): AddressModel[] { return this.companyService.addresses(); }
+  get filteredAddresses(): AddressModel[] { 
+    const search = this.addressSearch().toLowerCase();
+    return this.companyService.addresses().filter(a => 
+      a.name.toLowerCase().includes(search)
+    ); 
+  }
   get selectedCompany(): CompanyModel | undefined { return this.companyService.companies().find(c => c.id === this.wiz.companyId); }
   get selectedAddress(): AddressModel | undefined { return this.companyService.addresses().find(a => a.id === this.wiz.addressId); }
 
@@ -232,12 +247,6 @@ export class New implements OnInit {
     if (s === 4) {
       if (this.wiz.concreteVolume === null || this.wiz.concreteVolume < 0) {
         this.errors['concreteVolume'] = 'ბეტონის მოცულობა სავალდებულოა';
-      } else if (
-        this.platePermission !== null &&
-        this.wiz.concreteVolume > this.platePermission
-      ) {
-        this.errors['concreteVolume'] =
-          `მაქსიმუმი ${this.platePermission} m³ (ნებართვის მიხედვით)`;
       }
     }
 
@@ -249,42 +258,9 @@ export class New implements OnInit {
     if (this.isLoading) return;
     if (!this.validate()) return;
 
-    if (this.wiz.step === 3) {
-      this.isLoading = true;
-      this.licensePlatePermissionService
-        .getPlatePermission(this.wiz.pumpPlate.trim())
-        .pipe(finalize(() => {
-          this.isLoading = false;
-          this.cdr.detectChanges();
-        }))
-        .subscribe({
-          next: (perm) => {
-            this.zone.run(() => {
-              if (perm == null) {
-                this.errors['pumpPlate'] = 'სანომრე ნიშანი სისტემაში არ მოიძებნა';
-                return;
-              }
-              this.platePermission = perm.permission ?? null;
-              if (this.platePermission === 0) {
-                 this.errors['pumpPlate'] = 'ამ პომპაზე ბეტონის მოცულობის დაშვება არის 0 m³';
-                 return;
-              }
-              this.wiz.step++;
-            });
-          },
-          error: (err) => {
-            this.zone.run(() => {
-              console.warn('Plate lookup failed (likely 404):', err);
-              this.errors['pumpPlate'] = 'სანომრე ნიშანი სისტემაში არ მოიძებნა';
-              this.cdr.detectChanges();
-            });
-          },
-        });
-      return;
-    }
-
     this.wiz.step++;
   }
+
 
   wizBack(): void { this.errors = {}; this.wiz.step--; }
 
@@ -308,7 +284,8 @@ export class New implements OnInit {
       hydraulicRelocation: this.wiz.hydraulicRelocation,
       stationaryReposition: this.wiz.stationaryReposition,
       dismantleAssemble: this.wiz.dismantleAssemble,
-      idleTime: this.wiz.idleTime || 0
+      idleTime: this.wiz.idleTime || 0,
+      plateNumber: this.wiz.pumpPlate
     };
 
     this.pumpOperationService.create(model)

@@ -1,0 +1,102 @@
+.management-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    align-items: start;
+}
+
+.list-card {
+    height: 100%;
+}
+
+.form-inline {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.form-control {
+    flex: 1;
+}
+
+.item-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.item-row:hover {
+    border-color: var(--primary);
+    background: var(--primary-light);
+}
+
+.item-row.active {
+    border-color: var(--primary);
+    background: var(--primary-light);
+    box-shadow: 0 0 0 1px var(--primary);
+}
+
+.item-row.no-hover {
+    cursor: default;
+}
+
+.item-row.no-hover:hover {
+    border-color: var(--border);
+    background: var(--surface);
+}
+
+.item-name {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.item-actions {
+    display: flex;
+    gap: 4px;
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    font-size: 16px;
+    border-radius: var(--radius-sm);
+    transition: background 0.2s;
+}
+
+.icon-btn:hover {
+    background: rgba(0,0,0,0.05);
+}
+
+.empty-msg {
+    text-align: center;
+    padding: 24px;
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+.empty-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+}
+
+@media (max-width: 768px) {
+    .management-grid {
+        grid-template-columns: 1fr;
+    }
+}

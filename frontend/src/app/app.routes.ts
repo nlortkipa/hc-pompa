@@ -6,6 +6,7 @@ import { Console } from './components/console/console';
 import { New } from './components/console/new/new';
 import { History } from './components/console/history/history';
 import { Users } from './components/console/users/users';
+import { Companies } from './components/console/companies/companies';
 
 export const routes: Routes = [
     {
@@ -39,6 +40,10 @@ export const routes: Routes = [
             {
                 path: 'users',
                 component: Users
+            },
+            {
+                path: 'companies',
+                component: Companies
             }
         ]
     }

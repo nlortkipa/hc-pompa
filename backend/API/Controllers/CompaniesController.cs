@@ -8,23 +8,13 @@ namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CompaniesController : ControllerBase
+    public class CompaniesController(ICompanyService companyService) : ControllerBase
     {
-        private readonly ICompanyService _companyService;
-
-        public CompaniesController(ICompanyService companyService)
-        {
-            _companyService = companyService;
-        }
-
         [Authorize]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CompanyDTO>>> GetAll()
         {
-            var companies = await _companyService.GetAllAsync();
-            if (companies.Count() == 0)
-                return NotFound("No companies found");
-
+            var companies = await companyService.GetAllAsync();
             return Ok(companies);
         }
 
@@ -32,11 +22,56 @@ namespace API.Controllers
         [HttpGet("{id:int}/addresses")]
         public async Task<ActionResult<IEnumerable<AddressDTO>>> GetCompanyAddresses(int id)
         {
-            var addresses = await _companyService.GetAddressesAsync(id);
-            if (addresses.Count() == 0)
-                return BadRequest("No company addresses found");
-
+            var addresses = await companyService.GetAddressesAsync(id);
             return Ok(addresses);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        public async Task<ActionResult<CompanyDTO>> Create(CreateCompanyDTO dto)
+        {
+            var company = await companyService.CreateAsync(dto);
+            return CreatedAtAction(nameof(GetAll), company);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> Update(int id, UpdateCompanyDTO dto)
+        {
+            await companyService.UpdateAsync(id, dto);
+            return NoContent();
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            await companyService.DeleteAsync(id);
+            return NoContent();
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost("{id:int}/addresses")]
+        public async Task<ActionResult<AddressDTO>> AddAddress(int id, CreateAddressDTO dto)
+        {
+            var address = await companyService.AddAddressAsync(id, dto);
+            return Ok(address);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPut("addresses/{addressId:int}")]
+        public async Task<IActionResult> UpdateAddress(int addressId, UpdateAddressDTO dto)
+        {
+            await companyService.UpdateAddressAsync(addressId, dto);
+            return NoContent();
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("{id:int}/addresses/{addressId:int}")]
+        public async Task<IActionResult> RemoveAddress(int id, int addressId)
+        {
+            await companyService.RemoveAddressAsync(id, addressId);
+            return NoContent();
         }
     }
 }

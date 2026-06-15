@@ -9,5 +9,6 @@ namespace Service.DTOs
         public int? CompanyId { get; set; }
         public int? AddressId { get; set; }
         public int? OperatorId { get; set; }
+        public string? PlateNumber { get; set; }
     }
 }

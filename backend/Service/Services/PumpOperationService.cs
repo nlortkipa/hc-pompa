@@ -44,6 +44,8 @@ namespace Service.Services
                     entities = entities.Where(x => x.AddressId == filter.AddressId.Value);
                 if (filter.OperatorId.HasValue)
                     entities = entities.Where(x => x.OperatorId == filter.OperatorId.Value);
+                if (!string.IsNullOrEmpty(filter.PlateNumber))
+                    entities = entities.Where(x => x.PlateNumber.Contains(filter.PlateNumber));
             }
 
             return mapper.Map<IEnumerable<PumpOperationDto>>(entities);

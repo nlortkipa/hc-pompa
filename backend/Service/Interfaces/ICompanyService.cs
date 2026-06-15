@@ -9,5 +9,15 @@ namespace Service.Interfaces
     {
         Task<IEnumerable<CompanyDTO>> GetAllAsync();
         Task<IEnumerable<AddressDTO>> GetAddressesAsync(int id);
+        
+        // Company CRUD
+        Task<CompanyDTO> CreateAsync(CreateCompanyDTO dto);
+        Task UpdateAsync(int id, UpdateCompanyDTO dto);
+        Task DeleteAsync(int id);
+
+        // Address CRUD (scoped to company)
+        Task<AddressDTO> AddAddressAsync(int companyId, CreateAddressDTO dto);
+        Task UpdateAddressAsync(int addressId, UpdateAddressDTO dto);
+        Task RemoveAddressAsync(int companyId, int addressId);
     }
 }

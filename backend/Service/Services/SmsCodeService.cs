@@ -2,21 +2,30 @@
 using Dal.Interfaces;
 using Dal.Repositories;
 using Data.Entities;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Service.DTOs;
 using Service.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
+using System.Web;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Service.Services
 {
     public class SmsCodeService : ISmsCodeService
     {
+        private readonly string _smsKey;
+        private readonly HttpClient _httpClient;
         private readonly IMapper _mapper;
         private readonly ISmsCodeRepository _smsCodeRepository;
 
-        public SmsCodeService(IMapper mapper, ISmsCodeRepository smsCodeRepository)
+        public SmsCodeService(HttpClient httpClient, IMapper mapper, ISmsCodeRepository smsCodeRepository)
         {
+            _smsKey = Environment.GetEnvironmentVariable("SMS_KEY")
+                ?? throw new Exception("SMS_KEY Not Set.");
+            _httpClient = httpClient;
             _mapper = mapper;
             _smsCodeRepository = smsCodeRepository;
         }
@@ -45,6 +54,26 @@ namespace Service.Services
             await _smsCodeRepository.AddAsync(smsCode);
 
             Console.WriteLine($"[SMS SEND] {phoneNumber} -> {code}");
+            try
+            {
+                var queryParameters = $"key={HttpUtility.UrlEncode(_smsKey)}" +
+                                      $"&destination={HttpUtility.UrlEncode(phoneNumber)}" +
+                                      $"&sender={HttpUtility.UrlEncode("Beton.ge")}" +
+                                      $"&content={HttpUtility.UrlEncode(code)}";
+
+                string baseUrl = "http://smsoffice.ge/api/v2/send";
+                string fullUrl = $"{baseUrl}?{queryParameters}";
+
+                HttpResponseMessage response = await _httpClient.GetAsync(fullUrl);
+
+                response.EnsureSuccessStatusCode();
+                string responseData = await response.Content.ReadAsStringAsync();
+            }
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine($"Error sending SMS: {ex.Message}");
+                throw;
+            }
 
             var smsCodeModel = _mapper.Map<SmsCodeDTO>(smsCode);
             smsCodeModel.UserNumber = phoneNumber;

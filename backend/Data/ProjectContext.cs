@@ -16,7 +16,6 @@ namespace Data
         public DbSet<Company> Companies { get; set; }
         public DbSet<Address> Addresses { get; set; }
         public DbSet<CompanyAddress> CompanyAddresses { get; set; }
-        public DbSet<LicensePlatePermission> LicensePlatePermissions { get; set; }
         public DbSet<PumpOperation> PumpOperations { get; set; }
 
         public ProjectContext()
@@ -38,7 +37,6 @@ namespace Data
             modelBuilder.ApplyConfiguration(new CompanyConfiguration());
             modelBuilder.ApplyConfiguration(new AddressConfiguration());
             modelBuilder.ApplyConfiguration(new CompanyAddressConfiguration());
-            modelBuilder.ApplyConfiguration(new LicensePlatePermissionConfiguration());
             modelBuilder.ApplyConfiguration(new PumpOperationConfiguration());
 
             // seeding
@@ -179,56 +177,6 @@ namespace Data
                     Id = 6,
                     CompanyId = 3,
                     AddressId = 6
-                }
-            );
-            modelBuilder.Entity<LicensePlatePermission>().HasData(
-                new LicensePlatePermission
-                {
-                    Id = 1,
-                    LicensePlate = "II210NI",
-                    Permission = 52
-                },
-                new LicensePlatePermission
-                {
-                    Id = 2,
-                    LicensePlate = "PB107PB",
-                    Permission = 42
-                },
-                new LicensePlatePermission
-                {
-                    Id = 3,
-                    LicensePlate = "BB685FF",
-                    Permission = 42
-                },
-                new LicensePlatePermission
-                {
-                    Id = 4,
-                    LicensePlate = "VQ632QV",
-                    Permission = 42
-                },
-                new LicensePlatePermission
-                {
-                    Id = 5,
-                    LicensePlate = "CG368CG",
-                    Permission = 48
-                },
-                new LicensePlatePermission
-                {
-                    Id = 6,
-                    LicensePlate = "CC178LC",
-                    Permission = 60
-                },
-                new LicensePlatePermission
-                {
-                    Id = 7,
-                    LicensePlate = "WW832GW",
-                    Permission = 60
-                },
-                new LicensePlatePermission
-                {
-                    Id = 8,
-                    LicensePlate = "OV247VO",
-                    Permission = 47
                 }
             );
         }

@@ -280,6 +280,11 @@ namespace Data.Migrations
                     b.Property<int>("OperatorId")
                         .HasColumnType("int");
 
+                    b.Property<string>("PlateNumber")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
                     b.Property<int>("PumpRelocation")
                         .HasColumnType("int");
 

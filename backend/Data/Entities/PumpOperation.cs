@@ -33,6 +33,8 @@ namespace Data.Entities
         public decimal IdleTime { get; set; }
         [Required]
         public int DismantleAssemble { get; set; }
+        [Required]
+        public string PlateNumber { get; set; } = null!;
 
         public User Operator { get; set; } = null!;
         public Company Company { get; set; } = null!;

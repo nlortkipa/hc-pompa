@@ -3,16 +3,11 @@
   "WorkspaceRootPath": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\API\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{41120729-9A79-414D-957E-573D058BE244}|..\\Data\\Data.csproj|c:\\users\\administrator\\desktop\\pompa\\backend\\data\\projectcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|API.csproj|c:\\users\\administrator\\desktop\\pompa\\backend\\api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|API.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{41120729-9A79-414D-957E-573D058BE244}|..\\Data\\Data.csproj|c:\\users\\administrator\\desktop\\pompa\\backend\\data\\migrations\\20260612091930_v4.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{63858A8F-7DA1-49F5-952F-AD01CAA13083}|..\\Service\\Service.csproj|c:\\users\\administrator\\desktop\\pompa\\backend\\service\\services\\pumpoperationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{41120729-9A79-414D-957E-573D058BE244}|..\\Data\\Data.csproj|c:\\users\\administrator\\desktop\\pompa\\backend\\data\\migrations\\20260613074143_v10.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{63858A8F-7DA1-49F5-952F-AD01CAA13083}|..\\Service\\Service.csproj|c:\\users\\administrator\\desktop\\pompa\\backend\\service\\services\\smscodeservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -22,57 +17,33 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 0,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "20260613074143_v10.cs",
-              "DocumentMoniker": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Data\\Migrations\\20260613074143_v10.cs",
-              "RelativeDocumentMoniker": "..\\Data\\Migrations\\20260613074143_v10.cs",
-              "ToolTip": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Data\\Migrations\\20260613074143_v10.cs",
-              "RelativeToolTip": "..\\Data\\Migrations\\20260613074143_v10.cs",
-              "ViewState": "AgIAAA0AAAAAAAAAAAAgwAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-06-13T07:41:43.488Z"
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "ProjectContext.cs",
-              "DocumentMoniker": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Data\\ProjectContext.cs",
-              "RelativeDocumentMoniker": "..\\Data\\ProjectContext.cs",
-              "ToolTip": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Data\\ProjectContext.cs",
-              "RelativeToolTip": "..\\Data\\ProjectContext.cs",
-              "ViewState": "AgIAAFcAAAAAAAAAAAAgwFsAAAAsAAAAAAAAAA==",
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\API\\Program.cs",
+              "RelativeDocumentMoniker": "Program.cs",
+              "ToolTip": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\API\\Program.cs*",
+              "RelativeToolTip": "Program.cs*",
+              "ViewState": "AgIAAFsAAAAAAAAAAAAcwGQAAAAtAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-06-12T09:20:49.756Z",
+              "WhenOpened": "2026-06-15T13:39:08.215Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "20260612091930_v4.cs",
-              "DocumentMoniker": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Data\\Migrations\\20260612091930_v4.cs",
-              "RelativeDocumentMoniker": "..\\Data\\Migrations\\20260612091930_v4.cs",
-              "ToolTip": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Data\\Migrations\\20260612091930_v4.cs",
-              "RelativeToolTip": "..\\Data\\Migrations\\20260612091930_v4.cs",
-              "ViewState": "AgIAABoAAAAAAAAAAAAQwAAAAAAAAAAAAAAAAA==",
+              "Title": "SmsCodeService.cs",
+              "DocumentMoniker": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Service\\Services\\SmsCodeService.cs",
+              "RelativeDocumentMoniker": "..\\Service\\Services\\SmsCodeService.cs",
+              "ToolTip": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Service\\Services\\SmsCodeService.cs",
+              "RelativeToolTip": "..\\Service\\Services\\SmsCodeService.cs",
+              "ViewState": "AgIAAD8AAAAAAAAAAAAswDwAAABQAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-06-12T09:19:30.995Z",
+              "WhenOpened": "2026-06-15T13:33:47.476Z",
               "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "PumpOperationService.cs",
-              "DocumentMoniker": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Service\\Services\\PumpOperationService.cs",
-              "RelativeDocumentMoniker": "..\\Service\\Services\\PumpOperationService.cs",
-              "ToolTip": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Service\\Services\\PumpOperationService.cs",
-              "RelativeToolTip": "..\\Service\\Services\\PumpOperationService.cs",
-              "ViewState": "AgIAABkAAAAAAAAAAAArwBQAAAAuAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-06-12T08:55:44.937Z"
             }
           ]
         }

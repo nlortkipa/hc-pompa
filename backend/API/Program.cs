@@ -83,20 +83,22 @@ namespace API
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<ISmsCodeRepository, SmsCodeRepository>();
             builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
-            builder.Services.AddScoped<ILicensePlatePermissionRepository, LicensePlatePermissionRepository>();
+            builder.Services.AddScoped<IAddressRepository, AddressRepository>();
+            builder.Services.AddScoped<ICompanyAddressRepository, CompanyAddressRepository>();
             builder.Services.AddScoped<IPumpOperationRepository, PumpOperationRepository>();
 
             // Add services to the container
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<ISmsCodeService, SmsCodeService>();
             builder.Services.AddScoped<ICompanyService, CompanyService>();
-            builder.Services.AddScoped<ILicensePlatePermissionService, LicensePlatePermissionService>();
             builder.Services.AddScoped<IPumpOperationService, PumpOperationService>();
 
             builder.Services.AddAutoMapper(cfg => { }, typeof(MappingProfile).Assembly);
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            builder.Services.AddHttpClient();
 
             builder.Services.AddControllers();
 

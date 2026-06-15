@@ -59,7 +59,7 @@
                 <tr *ngFor="let u of users()">
                     <td>
                         <div class="user-cell">
-                            <div class="avatar-small">{{u.firstName?.charAt(0)}}{{u.lastName?.charAt(0)}}</div>
+                            <div class="avatar-small">{{u.firstName.charAt(0)}}{{u.lastName.charAt(0)}}</div>
                             <strong>{{u.firstName}} {{u.lastName}}</strong>
                         </div>
                     </td>
@@ -88,7 +88,7 @@
     <div *ngFor="let u of users()" class="card user-mobile-card">
         <div class="user-mobile-header">
             <div class="user-cell">
-                <div class="avatar-small">{{u.firstName?.charAt(0)}}{{u.lastName?.charAt(0)}}</div>
+                <div class="avatar-small">{{u.firstName.charAt(0)}}{{u.lastName.charAt(0)}}</div>
                 <strong>{{u.firstName}} {{u.lastName}}</strong>
             </div>
             <span class="badge" [ngClass]="{

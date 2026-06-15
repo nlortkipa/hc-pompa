@@ -29,11 +29,6 @@ namespace Service.Mapping
             CreateMap<CreateAddressDTO, Address>();
             CreateMap<UpdateAddressDTO, Address>();
 
-            // Address
-            CreateMap<LicensePlatePermission, LicensePlatePermissionDTO>().ReverseMap();
-            CreateMap<CreateLicensePlatePermissionDTO, LicensePlatePermission>();
-            CreateMap<UpdateLicensePlatePermissionDTO, LicensePlatePermission>();
-
             // PumpOperation
             CreateMap<PumpOperation, PumpOperationDto>()
                 .ForMember(dest => dest.OperatorFirstName, opt => opt.MapFrom(src => src.Operator.FirstName))

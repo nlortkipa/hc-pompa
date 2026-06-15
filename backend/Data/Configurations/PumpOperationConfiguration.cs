@@ -37,6 +37,9 @@ namespace Data.Configurations
                 .IsRequired();
             builder.Property(p => p.DismantleAssemble)
                 .IsRequired();
+            builder.Property(p => p.PlateNumber)
+                .IsRequired()
+                .HasMaxLength(20);
 
             builder.HasOne(p => p.Operator)
                 .WithMany(o => o.PumpOperations)
