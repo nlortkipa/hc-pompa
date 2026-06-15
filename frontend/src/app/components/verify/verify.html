@@ -1,28 +1,38 @@
-<div class="login-wrap">
-    <div class="login-logo">POMPA</div>
-    <div class="login-sub">ბეტონის პომპის ოპერატორების სისტემა</div>
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="logo">POMPA</div>
+            <p class="auth-subtitle">შეიყვანეთ SMS კოდი</p>
+            <p class="auth-info">კოდი გაიგზავნა ნომერზე <br> <strong>{{authService.smsCode()?.userNumber}}</strong></p>
+        </div>
 
-    <div id="phase-otp">
-        <div style="font-size:14px;color:var(--muted);margin-bottom:16px">
-            კოდი გაიგზავნა <span style="color:var(--text)">{{authService.smsCode()?.userNumber}}</span>
+        <div class="auth-body">
+            <div class="otp-container" [class.otp-error]="showError()">
+                <input type="text" maxlength="1" class="otp-input" #otpInput (input)="onOtpInput($event, 0)"
+                    (keydown)="onKeyDown($event, 0)" (paste)="onPaste($event)">
+                <input type="text" maxlength="1" class="otp-input" #otpInput (input)="onOtpInput($event, 1)"
+                    (keydown)="onKeyDown($event, 1)">
+                <input type="text" maxlength="1" class="otp-input" #otpInput (input)="onOtpInput($event, 2)"
+                    (keydown)="onKeyDown($event, 2)">
+                <input type="text" maxlength="1" class="otp-input" #otpInput (input)="onOtpInput($event, 3)"
+                    (keydown)="onKeyDown($event, 3)">
+            </div>
+
+            <div class="field-error-msg text-center" *ngIf="showError()">
+                {{ error() }}
+            </div>
+
+            <div class="timer">
+                კოდი იწურება: <span>{{ timeLeft() }}</span>
+            </div>
+
+            <div class="auth-actions">
+                <button class="btn btn-primary w-full" (click)="submit()" [disabled]="isLoading()">
+                  <span *ngIf="!isLoading()">შესვლა</span>
+                  <span *ngIf="isLoading()">მოწმდება...</span>
+                </button>
+                <button class="btn btn-secondary w-full" routerLink="/login">← უკან დაბრუნება</button>
+            </div>
         </div>
-        <div class="otp-inputs" [class.otp-error]="showError()">
-            <input type="text" maxlength="1" class="otp-digit" #otpInput (input)="onOtpInput($event, 0)"
-                (keydown)="onKeyDown($event, 0)" (paste)="onPaste($event)">
-            <input type="text" maxlength="1" class="otp-digit" #otpInput (input)="onOtpInput($event, 1)"
-                (keydown)="onKeyDown($event, 1)">
-            <input type="text" maxlength="1" class="otp-digit" #otpInput (input)="onOtpInput($event, 2)"
-                (keydown)="onKeyDown($event, 2)">
-            <input type="text" maxlength="1" class="otp-digit" #otpInput (input)="onOtpInput($event, 3)"
-                (keydown)="onKeyDown($event, 3)">
-        </div>
-        <div class="field-error-msg" *ngIf="showError()">
-            {{ error() }}
-        </div>
-        <div class="hint">კოდი იწურება {{ timeLeft() }}-ში</div>
-        <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:16px"
-            (click)="submit()">შესვლა</button>
-        <button class="btn btn-secondary" style="width:100%;justify-content:center;margin-top:8px" routerLink="/login">←
-            უკან</button>
     </div>
 </div>

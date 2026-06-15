@@ -19,6 +19,7 @@ export class Verify implements OnInit, OnDestroy {
   timeLeft = signal('');
   error = signal('');
   showError = signal(false);
+  isLoading = signal(false);
   private timerInterval?: ReturnType<typeof setInterval>;
 
   ngOnInit() {
@@ -64,13 +65,17 @@ export class Verify implements OnInit, OnDestroy {
       return;
     }
 
+    this.isLoading.set(true);
+
     this.authService.verifyCode(otp).subscribe({
       next: (token) => {
+        this.isLoading.set(false);
         this.authService.setCode(null);
         localStorage.setItem('token', token)
         this.router.navigate(['/console']);
       },
       error: (err) => {
+        this.isLoading.set(false);
         this.error.set(err.error);
         localStorage.removeItem('token')
         this.showError.set(true);

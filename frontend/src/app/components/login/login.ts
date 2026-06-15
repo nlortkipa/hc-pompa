@@ -19,6 +19,7 @@ export class Login {
   number = signal('');
   error = signal('');
   showError = signal(false);
+  isLoading = signal(false);
 
   constructor(private router: Router, private authService: AuthService) { }
 
@@ -36,10 +37,15 @@ export class Login {
     }
 
     const cleanNumber = this.number().replace(/\s/g, '');
+    this.isLoading.set(true);
 
     this.authService.sendCode(cleanNumber).subscribe({
-      next: () => this.router.navigate(['/verify']),
+      next: () => {
+        this.isLoading.set(false);
+        this.router.navigate(['/verify']);
+      },
       error: (err) => {
+        this.isLoading.set(false);
         this.error.set(err.error);
         this.showError.set(true);
       }

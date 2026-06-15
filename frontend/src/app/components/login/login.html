@@ -1,17 +1,27 @@
-<div class="login-wrap">
-    <div class="login-logo">POMPA</div>
-    <div class="login-sub">ბეტონის პომპის ოპერატორების სისტემა</div>
-
-    <div>
-        <div class="form-group" style="text-align:left">
-            <label>ტელეფონის ნომერი</label>
-            <input type="tel" id="phone-input" placeholder="5XX XXX XXX" style="font-size:18px;text-align:center"
-                [class.field-error]="showError()" [(ngModel)]="number" (ngModelChange)="showError.set(false)">
-            <div class="field-error-msg" *ngIf="showError()">
-                {{ error() }}
-            </div>
-        </div>
-        <button class="btn btn-primary" style="width:100%;justify-content:center" (click)="submit()">SMS კოდის გაგზავნა
-            →</button>
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="logo">POMPA</div>
+      <p class="auth-subtitle">ბეტონის პომპის ოპერატორების სისტემა</p>
     </div>
+
+    <div class="auth-body">
+      <div class="form-group">
+        <label>ტელეფონის ნომერი</label>
+        <div class="input-wrapper">
+          <span class="input-prefix">+995</span>
+          <input type="tel" placeholder="5XX XXX XXX" [class.field-error]="showError()" [(ngModel)]="number"
+            (ngModelChange)="showError.set(false)" (keyup.enter)="submit()">
+        </div>
+        <div class="field-error-msg" *ngIf="showError()">
+          {{ error() }}
+        </div>
+      </div>
+
+      <button class="btn btn-primary w-full" (click)="submit()" [disabled]="isLoading()">
+        <span *ngIf="!isLoading()">SMS კოდის გაგზავნა</span>
+        <span *ngIf="isLoading()">გაიგზავნება...</span>
+      </button>
+    </div>
+  </div>
 </div>

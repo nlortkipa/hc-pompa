@@ -1,4 +1,4 @@
-import { Component, NgZone, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, NgZone, OnInit, ChangeDetectorRef, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
@@ -106,14 +106,16 @@ export class New implements OnInit {
     private router: Router,
     private zone: NgZone,
     private cdr: ChangeDetectorRef,
-  ) {}
+  ) {
+    effect(() => {
+      const profile = this.profileService.profile();
+      if (profile && profile.role === 'Accountant') {
+        this.router.navigate(['/console/history']);
+      }
+    });
+  }
 
   ngOnInit(): void {
-    const profile = this.profileService.getProfileData();
-    if (profile?.role === 'Accountant') {
-      this.router.navigate(['/console/history']);
-      return;
-    }
     this.resetWizard();
   }
 

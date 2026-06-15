@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, signal, ChangeDetectorRef, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PumpOperationService } from '../../../services/pump-operation-service';
@@ -21,7 +21,11 @@ export class History implements OnInit {
   records = signal<any[]>([]);
   isLoading = false;
   
-  canViewDetails = false;
+  canViewDetails = computed(() => {
+    const profile = this.profileService.profile();
+    return profile?.role === 'Admin' || profile?.role === 'Accountant';
+  });
+
   users = signal<UserModel[]>([]);
 
   filter = {
@@ -37,16 +41,15 @@ export class History implements OnInit {
     private userService: UserService,
     private profileService: ProfileService,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) {
+    effect(() => {
+      if (this.canViewDetails()) {
+        this.userService.getAll().subscribe(data => this.users.set(data));
+      }
+    });
+  }
 
   ngOnInit(): void {
-    const profile = this.profileService.getProfileData();
-    this.canViewDetails = profile?.role === 'Admin' || profile?.role === 'Accountant';
-    
-    if (this.canViewDetails) {
-      this.userService.getAll().subscribe(data => this.users.set(data));
-    }
-    
     this.loadRecords();
   }
 
