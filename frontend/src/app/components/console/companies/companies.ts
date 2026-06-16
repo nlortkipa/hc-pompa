@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, signal, ChangeDetectorRef, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CompanyService } from '../../../services/company-service';
@@ -16,7 +16,11 @@ import { Observable } from 'rxjs';
 })
 export class Companies implements OnInit {
   companies = signal<CompanyModel[]>([]);
+  filteredCompanies = signal<CompanyModel[]>([]);
+  
   addresses = signal<AddressModel[]>([]);
+  filteredAddresses = signal<AddressModel[]>([]);
+
   isLoading = false;
   
   selectedCompanyId: number | null = null;
@@ -29,23 +33,42 @@ export class Companies implements OnInit {
   constructor(
     public companyService: CompanyService,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) {
+    effect(() => {
+        this.companies.set(this.companyService.companies());
+        this.filterCompanies();
+    });
+    effect(() => {
+        this.addresses.set(this.companyService.addresses());
+        this.filterAddresses();
+    });
+  }
 
   ngOnInit(): void {
     this.loadCompanies();
   }
 
   loadCompanies(): void {
-    this.isLoading = true;
     this.companyService.getCompanies();
-    // Signal based service, but we want to know when it's done for loading state
-    // Let's just use it as is for now as it's already integrated
-    this.isLoading = false;
-    this.cdr.detectChanges();
+  }
+
+  filterCompanies(): void {
+    const term = this.companyForm.name.toLowerCase();
+    this.filteredCompanies.set(
+      this.companies().filter((c) => c.name.toLowerCase().includes(term))
+    );
+  }
+
+  filterAddresses(): void {
+    const term = this.addressForm.name.toLowerCase();
+    this.filteredAddresses.set(
+      this.addresses().filter((a) => a.name.toLowerCase().includes(term))
+    );
   }
 
   selectCompany(id: number): void {
     this.selectedCompanyId = id;
+    this.addressForm.name = ''; // Reset address input on switch
     this.companyService.getAddresses(id);
     this.cancelAddressEdit();
   }
@@ -54,11 +77,13 @@ export class Companies implements OnInit {
   editCompany(company: CompanyModel): void {
     this.isEditingCompany = true;
     this.companyForm = { ...company };
+    this.filterCompanies();
   }
 
   cancelCompanyEdit(): void {
     this.isEditingCompany = false;
     this.companyForm = { id: 0, name: '' };
+    this.filterCompanies();
   }
 
   saveCompany(): void {
@@ -73,6 +98,13 @@ export class Companies implements OnInit {
       next: () => {
         this.companyService.getCompanies();
         this.cancelCompanyEdit();
+      },
+      error: (err) => {
+        if (err.status === 409) {
+          alert(err.error || 'კომპანია მსგავსი სახელით უკვე არსებობს.');
+        } else {
+          alert('შენახვა ვერ მოხერხდა.');
+        }
       }
     });
   }
@@ -92,20 +124,35 @@ export class Companies implements OnInit {
   editAddress(address: AddressModel): void {
     this.isEditingAddress = true;
     this.addressForm = { ...address };
+    this.filterAddresses();
   }
 
   cancelAddressEdit(): void {
     this.isEditingAddress = false;
     this.addressForm = { id: 0, name: '' };
+    this.filterAddresses();
   }
 
   saveAddress(): void {
     if (!this.selectedCompanyId || !this.addressForm.name.trim()) return;
+
+    // Check for duplicate address name
+    const addressName = this.addressForm.name.trim();
+    const isDuplicate = this.companyService.addresses().some(
+      (a) => a.name.toLowerCase() === addressName.toLowerCase() && 
+             (!this.isEditingAddress || a.id !== this.addressForm.id)
+    );
+
+    if (isDuplicate) {
+      alert('მითითებული მისამართი უკვე არსებობს ამ კომპანიისთვის.');
+      return;
+    }
+
     this.isLoading = true;
 
     const obs: Observable<any> = this.isEditingAddress
-      ? this.companyService.updateAddress(this.addressForm.id, this.addressForm.name)
-      : this.companyService.addAddress(this.selectedCompanyId, this.addressForm.name);
+      ? this.companyService.updateAddress(this.addressForm.id, addressName)
+      : this.companyService.addAddress(this.selectedCompanyId, addressName);
 
     obs.pipe(finalize(() => (this.isLoading = false))).subscribe({
       next: () => {

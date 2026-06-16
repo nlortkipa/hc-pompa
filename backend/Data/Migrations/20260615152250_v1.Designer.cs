@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Data.Migrations
 {
     [DbContext(typeof(ProjectContext))]
-    [Migration("20260610173959_v1")]
+    [Migration("20260615152250_v1")]
     partial class v1
     {
         /// <inheritdoc />
@@ -177,7 +177,7 @@ namespace Data.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Data.Entities.LicensePlatePermission", b =>
+            modelBuilder.Entity("Data.Entities.PumpOperation", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -185,70 +185,53 @@ namespace Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("LicensePlate")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
+                    b.Property<int>("AddressId")
+                        .HasColumnType("int");
 
-                    b.Property<int>("Permission")
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("ConcreteVolume")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("date");
+
+                    b.Property<int>("DismantleAssemble")
+                        .HasColumnType("int");
+
+                    b.Property<int>("HydraulicRelocation")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("IdleTime")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("OperatorId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PlateNumber")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("PumpRelocation")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StationaryRelocation")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StationaryReposition")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("LicensePlate")
-                        .IsUnique();
+                    b.HasIndex("AddressId");
 
-                    b.ToTable("LicensePlatePermissions", (string)null);
+                    b.HasIndex("CompanyId");
 
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            LicensePlate = "II210NI",
-                            Permission = 52
-                        },
-                        new
-                        {
-                            Id = 2,
-                            LicensePlate = "PB107PB",
-                            Permission = 42
-                        },
-                        new
-                        {
-                            Id = 3,
-                            LicensePlate = "BB685FF",
-                            Permission = 42
-                        },
-                        new
-                        {
-                            Id = 4,
-                            LicensePlate = "VQ632QV",
-                            Permission = 42
-                        },
-                        new
-                        {
-                            Id = 5,
-                            LicensePlate = "CG368CG",
-                            Permission = 48
-                        },
-                        new
-                        {
-                            Id = 6,
-                            LicensePlate = "CC178LC",
-                            Permission = 60
-                        },
-                        new
-                        {
-                            Id = 7,
-                            LicensePlate = "WW832GW",
-                            Permission = 60
-                        },
-                        new
-                        {
-                            Id = 8,
-                            LicensePlate = "OV247VO",
-                            Permission = 47
-                        });
+                    b.HasIndex("OperatorId");
+
+                    b.ToTable("PumpOperations", (string)null);
                 });
 
             modelBuilder.Entity("Data.Entities.SmsCode", b =>
@@ -311,7 +294,17 @@ namespace Data.Migrations
                         .HasMaxLength(15)
                         .HasColumnType("nvarchar(15)");
 
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasDefaultValue("User");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("PersonalId")
+                        .IsUnique();
 
                     b.HasIndex("PhoneNumber")
                         .IsUnique();
@@ -323,46 +316,11 @@ namespace Data.Migrations
                         {
                             Id = 1,
                             CreatedAt = new DateTime(2026, 5, 28, 16, 0, 0, 0, DateTimeKind.Local),
-                            FirstName = "ჯემალ",
-                            LastName = "გიორგობიანი",
-                            PersonalId = "1001055244",
-                            PhoneNumber = "551710931"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CreatedAt = new DateTime(2026, 5, 28, 16, 0, 0, 0, DateTimeKind.Local),
-                            FirstName = "გიორგი",
-                            LastName = "გუჯეჯიანი",
-                            PersonalId = "01005027479",
-                            PhoneNumber = "598606823"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            CreatedAt = new DateTime(2026, 5, 28, 16, 0, 0, 0, DateTimeKind.Local),
-                            FirstName = "დათო",
-                            LastName = "ელგენდარაშვილი",
-                            PersonalId = "01008045338",
-                            PhoneNumber = "01008045338"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            CreatedAt = new DateTime(2026, 5, 28, 16, 0, 0, 0, DateTimeKind.Local),
-                            FirstName = "ზვიადი",
-                            LastName = "ენუქიძე",
-                            PersonalId = "38001031038",
-                            PhoneNumber = "591207381"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            CreatedAt = new DateTime(2026, 5, 28, 16, 0, 0, 0, DateTimeKind.Local),
                             FirstName = "ნიკოლოზ",
                             LastName = "ლორთქიფანიძე",
                             PersonalId = "11111111111",
-                            PhoneNumber = "575780323"
+                            PhoneNumber = "575780323",
+                            Role = "Admin"
                         });
                 });
 
@@ -385,6 +343,33 @@ namespace Data.Migrations
                     b.Navigation("Company");
                 });
 
+            modelBuilder.Entity("Data.Entities.PumpOperation", b =>
+                {
+                    b.HasOne("Data.Entities.Address", "Address")
+                        .WithMany("PumpOperations")
+                        .HasForeignKey("AddressId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Data.Entities.Company", "Company")
+                        .WithMany("PumpOperations")
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Data.Entities.User", "Operator")
+                        .WithMany("PumpOperations")
+                        .HasForeignKey("OperatorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Address");
+
+                    b.Navigation("Company");
+
+                    b.Navigation("Operator");
+                });
+
             modelBuilder.Entity("Data.Entities.SmsCode", b =>
                 {
                     b.HasOne("Data.Entities.User", "User")
@@ -399,15 +384,21 @@ namespace Data.Migrations
             modelBuilder.Entity("Data.Entities.Address", b =>
                 {
                     b.Navigation("CompanyAddresses");
+
+                    b.Navigation("PumpOperations");
                 });
 
             modelBuilder.Entity("Data.Entities.Company", b =>
                 {
                     b.Navigation("CompanyAddresses");
+
+                    b.Navigation("PumpOperations");
                 });
 
             modelBuilder.Entity("Data.Entities.User", b =>
                 {
+                    b.Navigation("PumpOperations");
+
                     b.Navigation("SmsCodes");
                 });
 #pragma warning restore 612, 618

@@ -84,6 +84,7 @@ export class Users implements OnInit {
   }
 
   saveUser(): void {
+    this.userForm.phoneNumber = this.userForm.phoneNumber.replace(/\s+/g, '');
     if (this.isLoading) return;
     if (!this.validate()) return;
     this.isLoading = true;
@@ -102,8 +103,13 @@ export class Users implements OnInit {
         this.loadUsers();
       },
       error: (err) => {
-        console.error('Failed to save user:', err);
-        alert('შენახვა ვერ მოხერხდა. შესაძლოა ნომერი უკვე გამოყენებულია.');
+        this.isLoading = false;
+        if (err.status === 409) {
+          alert(err.error || 'მომხმარებელი მსგავსი მონაცემებით უკვე არსებობს.');
+        } else {
+          console.error('Failed to save user:', err);
+          alert('შენახვა ვერ მოხერხდა.');
+        }
       }
     });
   }

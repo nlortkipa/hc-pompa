@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -13,6 +14,7 @@ namespace Data.Entities
         public int Id { get; set; }
         [Required]
         [MaxLength(100)]
+        [Unicode]
         public string Name { get; set; } = null!;
 
         public ICollection<CompanyAddress> CompanyAddresses { get; set; } = new List<CompanyAddress>();

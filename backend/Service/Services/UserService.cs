@@ -6,6 +6,7 @@ using Service.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace Service.Services
 {
@@ -39,14 +40,26 @@ namespace Service.Services
                 throw new Exception("All fields are required");
             }
 
+            dto.PhoneNumber = dto.PhoneNumber.Replace(" ", "");
+
             if (dto.PersonalId.Trim().Length != 11)
             {
                 throw new Exception("Personal ID must be exactly 11 characters");
             }
 
+            var allUsers = await userRepository.GetAllAsync();
+            if (allUsers.Any(u => u.PhoneNumber == dto.PhoneNumber))
+            {
+                throw new Service.Exceptions.ConflictException("User with this phone number already exists");
+            }
+            if (allUsers.Any(u => u.PersonalId == dto.PersonalId))
+            {
+                throw new Service.Exceptions.ConflictException("User with this personal ID already exists");
+            }
+
             var user = mapper.Map<User>(dto);
             user.CreatedAt = DateTime.Now;
-            
+
             await userRepository.AddAsync(user);
             return mapper.Map<UserDTO>(user);
         }
@@ -60,6 +73,8 @@ namespace Service.Services
             {
                 throw new Exception("All fields are required");
             }
+
+            dto.PhoneNumber = dto.PhoneNumber.Replace(" ", "");
 
             if (dto.PersonalId.Trim().Length != 11)
             {

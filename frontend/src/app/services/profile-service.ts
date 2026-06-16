@@ -1,20 +1,21 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 import { UserModel } from '../models/user-model';
-import { BACKEND_URL } from '../globals';
+import { ConfigService } from './config.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProfileService {
   profile = signal<UserModel | null>(null);
+  private configService = inject(ConfigService);
 
   constructor(private http: HttpClient) { }
 
   getProfile(token: string): Observable<UserModel> {
     return this.http.get<UserModel>(
-      `${BACKEND_URL}/api/profile`,
+      `${this.configService.backendUrl}/api/profile`,
       {
         headers: {
           Authorization: `Bearer ${token}`

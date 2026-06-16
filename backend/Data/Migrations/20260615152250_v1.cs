@@ -40,20 +40,6 @@ namespace Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "LicensePlatePermissions",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    LicensePlate = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
-                    Permission = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_LicensePlatePermissions", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "users",
                 columns: table => new
                 {
@@ -63,7 +49,8 @@ namespace Data.Migrations
                     LastName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     PersonalId = table.Column<string>(type: "nvarchar(11)", maxLength: 11, nullable: false),
                     PhoneNumber = table.Column<string>(type: "nvarchar(15)", maxLength: 15, nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Role = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false, defaultValue: "User")
                 },
                 constraints: table =>
                 {
@@ -92,6 +79,48 @@ namespace Data.Migrations
                         name: "FK_CompanyAddresses_Companies_CompanyId",
                         column: x => x.CompanyId,
                         principalTable: "Companies",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PumpOperations",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Date = table.Column<DateTime>(type: "date", nullable: false),
+                    OperatorId = table.Column<int>(type: "int", nullable: false),
+                    CompanyId = table.Column<int>(type: "int", nullable: false),
+                    AddressId = table.Column<int>(type: "int", nullable: false),
+                    ConcreteVolume = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    PumpRelocation = table.Column<int>(type: "int", nullable: false),
+                    StationaryRelocation = table.Column<int>(type: "int", nullable: false),
+                    HydraulicRelocation = table.Column<int>(type: "int", nullable: false),
+                    StationaryReposition = table.Column<int>(type: "int", nullable: false),
+                    IdleTime = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    DismantleAssemble = table.Column<int>(type: "int", nullable: false),
+                    PlateNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PumpOperations", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PumpOperations_Addresses_AddressId",
+                        column: x => x.AddressId,
+                        principalTable: "Addresses",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_PumpOperations_Companies_CompanyId",
+                        column: x => x.CompanyId,
+                        principalTable: "Companies",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_PumpOperations_users_OperatorId",
+                        column: x => x.OperatorId,
+                        principalTable: "users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -141,31 +170,9 @@ namespace Data.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "LicensePlatePermissions",
-                columns: new[] { "Id", "LicensePlate", "Permission" },
-                values: new object[,]
-                {
-                    { 1, "II210NI", 52 },
-                    { 2, "PB107PB", 42 },
-                    { 3, "BB685FF", 42 },
-                    { 4, "VQ632QV", 42 },
-                    { 5, "CG368CG", 48 },
-                    { 6, "CC178LC", 60 },
-                    { 7, "WW832GW", 60 },
-                    { 8, "OV247VO", 47 }
-                });
-
-            migrationBuilder.InsertData(
                 table: "users",
-                columns: new[] { "Id", "CreatedAt", "FirstName", "LastName", "PersonalId", "PhoneNumber" },
-                values: new object[,]
-                {
-                    { 1, new DateTime(2026, 5, 28, 16, 0, 0, 0, DateTimeKind.Local), "ჯემალ", "გიორგობიანი", "1001055244", "551710931" },
-                    { 2, new DateTime(2026, 5, 28, 16, 0, 0, 0, DateTimeKind.Local), "გიორგი", "გუჯეჯიანი", "01005027479", "598606823" },
-                    { 3, new DateTime(2026, 5, 28, 16, 0, 0, 0, DateTimeKind.Local), "დათო", "ელგენდარაშვილი", "01008045338", "01008045338" },
-                    { 4, new DateTime(2026, 5, 28, 16, 0, 0, 0, DateTimeKind.Local), "ზვიადი", "ენუქიძე", "38001031038", "591207381" },
-                    { 5, new DateTime(2026, 5, 28, 16, 0, 0, 0, DateTimeKind.Local), "ნიკოლოზ", "ლორთქიფანიძე", "11111111111", "575780323" }
-                });
+                columns: new[] { "Id", "CreatedAt", "FirstName", "LastName", "PersonalId", "PhoneNumber", "Role" },
+                values: new object[] { 1, new DateTime(2026, 5, 28, 16, 0, 0, 0, DateTimeKind.Local), "ნიკოლოზ", "ლორთქიფანიძე", "11111111111", "575780323", "Admin" });
 
             migrationBuilder.InsertData(
                 table: "CompanyAddresses",
@@ -203,15 +210,30 @@ namespace Data.Migrations
                 column: "CompanyId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_LicensePlatePermissions_LicensePlate",
-                table: "LicensePlatePermissions",
-                column: "LicensePlate",
-                unique: true);
+                name: "IX_PumpOperations_AddressId",
+                table: "PumpOperations",
+                column: "AddressId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PumpOperations_CompanyId",
+                table: "PumpOperations",
+                column: "CompanyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PumpOperations_OperatorId",
+                table: "PumpOperations",
+                column: "OperatorId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SmsCodes_UserId",
                 table: "SmsCodes",
                 column: "UserId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_users_PersonalId",
+                table: "users",
+                column: "PersonalId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -228,7 +250,7 @@ namespace Data.Migrations
                 name: "CompanyAddresses");
 
             migrationBuilder.DropTable(
-                name: "LicensePlatePermissions");
+                name: "PumpOperations");
 
             migrationBuilder.DropTable(
                 name: "SmsCodes");

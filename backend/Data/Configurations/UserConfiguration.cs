@@ -24,6 +24,8 @@ namespace Data.Configurations
             builder.Property(u => u.PersonalId)
                 .IsRequired()
                 .HasMaxLength(11);
+            builder.HasIndex(u => u.PersonalId)
+                .IsUnique();
             builder.Property(u => u.PhoneNumber)
                 .IsRequired()
                 .HasMaxLength(15);

@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { BACKEND_URL } from '../globals';
+import { ConfigService } from './config.service';
 import { Observable } from 'rxjs';
 import { PumpOperationModel } from '../models/pump-operation';
 
@@ -8,10 +8,12 @@ import { PumpOperationModel } from '../models/pump-operation';
   providedIn: 'root',
 })
 export class PumpOperationService {
+  private configService = inject(ConfigService);
+
   constructor(private http: HttpClient) {}
 
   create(operation: PumpOperationModel): Observable<any> {
-    return this.http.post(`${BACKEND_URL}/api/pumpoperations`, operation);
+    return this.http.post(`${this.configService.backendUrl}/api/pumpoperations`, operation);
   }
 
   getAll(filter?: any): Observable<PumpOperationModel[]> {
@@ -23,6 +25,6 @@ export class PumpOperationService {
       if (filter.addressId) params = params.set('addressId', filter.addressId.toString());
       if (filter.operatorId) params = params.set('operatorId', filter.operatorId.toString());
     }
-    return this.http.get<PumpOperationModel[]>(`${BACKEND_URL}/api/pumpoperations`, { params });
+    return this.http.get<PumpOperationModel[]>(`${this.configService.backendUrl}/api/pumpoperations`, { params });
   }
 }

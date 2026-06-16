@@ -1,7 +1,6 @@
 using Dal.Interfaces;
 using Dal.Repositories;
-using Data;
-using DotNetEnv;
+using Data;using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -12,11 +11,11 @@ using Service.Services;
 using System.Security.Claims;
 using System.Text;
 
-namespace API
+namespace API 
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args) // Changed void to async Task for non-blocking migration
         {
             Env.Load();
 
@@ -24,10 +23,10 @@ namespace API
 
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("AllowAngular", policy =>
-                policy.WithOrigins("http://localhost:4200")
-                      .AllowAnyHeader()
-                      .AllowAnyMethod());
+                options.AddPolicy("AllowAll", policy =>
+                    policy.AllowAnyOrigin()
+                          .AllowAnyHeader()
+                          .AllowAnyMethod());
             });
 
             builder.Services.AddDbContext<ProjectContext>(options =>
@@ -104,21 +103,56 @@ namespace API
 
             var app = builder.Build();
 
-            app.UseCors("AllowAngular");
-
-            if (app.Environment.IsDevelopment())
+            using (var scope = app.Services.CreateScope())
             {
-                app.UseSwagger();
-                app.UseSwaggerUI();
+                var services = scope.ServiceProvider;
+                try
+                {
+                    var context = services.GetRequiredService<ProjectContext>();
+                    await context.Database.MigrateAsync();
+                }
+                catch (Exception ex)
+                {
+                    var logger = services.GetRequiredService<ILogger<Program>>();
+                    logger.LogError(ex, "An error occurred while creating or migrating the database.");
+                }
             }
+            // -----------------------------------------
+
+            app.UseCors("AllowAll");
+
+            //if (app.Environment.IsDevelopment())
+            //{
+            app.UseSwagger();
+            app.UseSwaggerUI();
+            //}
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+
+            app.UseExceptionHandler(exceptionHandlerApp =>
+            {
+                exceptionHandlerApp.Run(async context =>
+                {
+                    var exception = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerFeature>()?.Error;
+                    if (exception is Service.Exceptions.ConflictException)
+                    {
+                        context.Response.StatusCode = 409;
+                        await context.Response.WriteAsync(exception.Message);
+                    }
+                    else
+                    {
+                        context.Response.StatusCode = 500;
+                        await context.Response.WriteAsync("An error occurred.");
+                    }
+                });
+            });
+
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
 
-            app.Run();
+            await app.RunAsync();
         }
     }
 }

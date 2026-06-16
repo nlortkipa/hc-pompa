@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { BACKEND_URL } from '../globals';
+import { ConfigService } from './config.service';
 import { HttpClient } from '@angular/common/http';
 import { SmsCodeModel } from '../models/sms-code-model';
 import { tap, throwError } from 'rxjs';
@@ -12,11 +12,11 @@ const SMS_CODE_KEY = 'sms_code';
 export class AuthService {
   smsCode = signal<SmsCodeModel | null>(this.loadCode());
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private configService: ConfigService) { }
 
   sendCode(phone: string) {
     return this.http.post<SmsCodeModel>(
-      `${BACKEND_URL}/api/auth/send-code`,
+      `${this.configService.backendUrl}/api/auth/send-code`,
       JSON.stringify(phone),
       { headers: { 'Content-Type': 'application/json' } }
     ).pipe(
@@ -44,7 +44,7 @@ export class AuthService {
     if (!smsCode) return throwError(() => new Error('No active SMS code'));
 
     return this.http.post(
-      `${BACKEND_URL}/api/auth/verify-code`,
+      `${this.configService.backendUrl}/api/auth/verify-code`,
       { userId: smsCode.userId, code },
       { responseType: 'text' }
     );

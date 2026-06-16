@@ -30,8 +30,15 @@ namespace API.Controllers
         [HttpPost]
         public async Task<ActionResult<CompanyDTO>> Create(CreateCompanyDTO dto)
         {
-            var company = await companyService.CreateAsync(dto);
-            return CreatedAtAction(nameof(GetAll), company);
+            try
+            {
+                var company = await companyService.CreateAsync(dto);
+                return CreatedAtAction(nameof(GetAll), company);
+            }
+            catch (Service.Exceptions.ConflictException ex)
+            {
+                return Conflict(ex.Message);
+            }
         }
 
         [Authorize(Roles = "Admin")]

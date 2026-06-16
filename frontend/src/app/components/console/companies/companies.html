@@ -6,7 +6,7 @@
         <div class="card-title">კომპანიები</div>
         
         <div class="form-inline mb-4">
-            <input type="text" [(ngModel)]="companyForm.name" placeholder="კომპანიის სახელი" class="form-control">
+            <input type="text" [(ngModel)]="companyForm.name" (ngModelChange)="filterCompanies()" placeholder="კომპანიის სახელი" class="form-control">
             <button class="btn btn-primary" (click)="saveCompany()" [disabled]="isLoading || !companyForm.name.trim()">
                 {{ isEditingCompany ? 'შეცვლა' : 'დამატება' }}
             </button>
@@ -14,7 +14,7 @@
         </div>
 
         <div class="item-list">
-            <div *ngFor="let c of companyService.companies()" 
+            <div *ngFor="let c of filteredCompanies()" 
                  class="item-row" 
                  [class.active]="selectedCompanyId === c.id"
                  (click)="selectCompany(c.id)">
@@ -32,7 +32,7 @@
         <div class="card-title">მისამართები (ლოკაციები)</div>
         
         <div class="form-inline mb-4">
-            <input type="text" [(ngModel)]="addressForm.name" placeholder="მისამართი" class="form-control">
+            <input type="text" [(ngModel)]="addressForm.name" (ngModelChange)="filterAddresses()" placeholder="მისამართი" class="form-control">
             <button class="btn btn-primary" (click)="saveAddress()" [disabled]="isLoading || !addressForm.name.trim()">
                 {{ isEditingAddress ? 'შეცვლა' : 'დამატება' }}
             </button>
@@ -40,14 +40,14 @@
         </div>
 
         <div class="item-list">
-            <div *ngFor="let a of companyService.addresses()" class="item-row no-hover">
+            <div *ngFor="let a of filteredAddresses()" class="item-row no-hover">
                 <span class="item-name">{{a.name}}</span>
                 <div class="item-actions">
                     <button class="icon-btn" title="შეცვლა" (click)="editAddress(a)">✎</button>
                     <button class="icon-btn text-danger" title="წაშლა" (click)="deleteAddress(a.id)">×</button>
                 </div>
             </div>
-            <div *ngIf="companyService.addresses().length === 0" class="empty-msg">
+            <div *ngIf="filteredAddresses().length === 0" class="empty-msg">
                 მისამართები არ არის დამატებული
             </div>
         </div>

@@ -6,6 +6,7 @@ using Service.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace Service.Services
 {
@@ -29,6 +30,12 @@ namespace Service.Services
 
         public async Task<CompanyDTO> CreateAsync(CreateCompanyDTO dto)
         {
+            var existing = await companyRepository.GetAllAsync();
+            if (existing.Any(c => c.Name.Equals(dto.Name, StringComparison.OrdinalIgnoreCase)))
+            {
+                throw new Service.Exceptions.ConflictException("Company with this name already exists");
+            }
+            
             var entity = mapper.Map<Company>(dto);
             await companyRepository.AddAsync(entity);
             return mapper.Map<CompanyDTO>(entity);

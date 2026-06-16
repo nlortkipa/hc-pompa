@@ -33,6 +33,7 @@ namespace Data.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
+                        .IsUnicode(true)
                         .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
@@ -46,32 +47,272 @@ namespace Data.Migrations
                         new
                         {
                             Id = 1,
-                            Name = "Address 1"
+                            Name = "თბილისი, ბაგები წყნეთის გზატკეცილი 40"
                         },
                         new
                         {
                             Id = 2,
-                            Name = "Address 2"
+                            Name = "თბილისი, გაზაფხულის ქუჩა 79"
                         },
                         new
                         {
                             Id = 3,
-                            Name = "Address 3"
+                            Name = "თბილისი, ევგენია მაისურაძის ქ 7"
                         },
                         new
                         {
                             Id = 4,
-                            Name = "Address 4"
+                            Name = "რუსთავი, XVI მკრ."
                         },
                         new
                         {
                             Id = 5,
-                            Name = "Address 5"
+                            Name = "თბილისი,ვაშლიჯვარი. მანდორ პეტეფის 54"
                         },
                         new
                         {
                             Id = 6,
-                            Name = "Address 6"
+                            Name = "სოფელი დიღომი, ფატმანის 7"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Name = "თბილისი, გურამიშვილის 64"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Name = "თბილისი, ციხისძირის 69 (ნავთლუღი)"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Name = "თბილისი, დიღომი, როსტევანის 1 ჩიხი N3"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Name = "თბილისი, სოფელი დიღომი, ფატმანის 5"
+                        },
+                        new
+                        {
+                            Id = 11,
+                            Name = "მცხეთა, ნატახტარი"
+                        },
+                        new
+                        {
+                            Id = 12,
+                            Name = "ბათუმი, გრიგოლ ელიავას 41 ა"
+                        },
+                        new
+                        {
+                            Id = 13,
+                            Name = "თბილისი,ვახტანგ ჩიქოვანის N2"
+                        },
+                        new
+                        {
+                            Id = 14,
+                            Name = "თბილისი,პოლიციის #7"
+                        },
+                        new
+                        {
+                            Id = 15,
+                            Name = "თბილისი,ზურაბ ანჯაფარიძის 34"
+                        },
+                        new
+                        {
+                            Id = 16,
+                            Name = "თბილისი, ზ.ფალიაშვილის 100"
+                        },
+                        new
+                        {
+                            Id = 17,
+                            Name = "ახმეტის რაიონი,სოფ. ალავერდი"
+                        },
+                        new
+                        {
+                            Id = 18,
+                            Name = "ბათუმი, აეროპორტის გზატკეცილი 243"
+                        },
+                        new
+                        {
+                            Id = 19,
+                            Name = "თბილისი, ცოტნე დადიანის 263"
+                        },
+                        new
+                        {
+                            Id = 20,
+                            Name = "გურჯაანი, სოფ არაშენდა"
+                        },
+                        new
+                        {
+                            Id = 21,
+                            Name = "თბილისი, ცაცხვების 13;15;17"
+                        },
+                        new
+                        {
+                            Id = 22,
+                            Name = "თბილისი, ცაცხვების ქუჩა 15-17; მე-9 შესახვევი"
+                        },
+                        new
+                        {
+                            Id = 23,
+                            Name = "ბათუმი, ტბელ აბუსერიძის 23"
+                        },
+                        new
+                        {
+                            Id = 24,
+                            Name = "ბათუმი, ტბელ აბუსერიძის 19"
+                        },
+                        new
+                        {
+                            Id = 25,
+                            Name = "რუსთავი, თბილისის ქუჩის 30-ის მიმდ."
+                        },
+                        new
+                        {
+                            Id = 26,
+                            Name = "ბათუმი, ხახულის 63"
+                        },
+                        new
+                        {
+                            Id = 27,
+                            Name = "თბილისი, დიღომის მასივი, III კვარტალი"
+                        },
+                        new
+                        {
+                            Id = 28,
+                            Name = "რუსთავი, მოდებაძის ქუჩის მიმდებარედ"
+                        },
+                        new
+                        {
+                            Id = 29,
+                            Name = "ბათუმი, ფრიდონ ხალვაშის 5 შესახვევის 13"
+                        },
+                        new
+                        {
+                            Id = 30,
+                            Name = "ხელვაჩაური, აკაკი შანიძის 13"
+                        },
+                        new
+                        {
+                            Id = 31,
+                            Name = "ხელვაჩაური, ფრ. ხალვაშის 13"
+                        },
+                        new
+                        {
+                            Id = 32,
+                            Name = "თბილისი, ენუქიძის 7"
+                        },
+                        new
+                        {
+                            Id = 33,
+                            Name = "თბილისი, დ.ბაქრაძის ქ.20ბ"
+                        },
+                        new
+                        {
+                            Id = 34,
+                            Name = "ბათუმი, ავ. შანიძის 7"
+                        },
+                        new
+                        {
+                            Id = 35,
+                            Name = "თბილისი, ლისი, ინტენსიფიკაციის ქუჩის მიმდ. (ნაკ N11/11)"
+                        },
+                        new
+                        {
+                            Id = 36,
+                            Name = "თბილისი, ელგუჯა ამაშუკელის 5"
+                        },
+                        new
+                        {
+                            Id = 37,
+                            Name = "თბილისი, ვარკეთილის მე-3 მასივი, მე8 კვ, კორპ17-ის მიმ"
+                        },
+                        new
+                        {
+                            Id = 38,
+                            Name = "თბილისი, ხომერულის 27"
+                        },
+                        new
+                        {
+                            Id = 39,
+                            Name = "თბილისი, ვაჟა-ფშაველას II კვარტალი N9"
+                        },
+                        new
+                        {
+                            Id = 40,
+                            Name = "გურჯაანი, ნიკო ლომოურის ქ.9გ"
+                        },
+                        new
+                        {
+                            Id = 41,
+                            Name = "თბილისი, ნოე რამიშვილის ქ 30"
+                        },
+                        new
+                        {
+                            Id = 42,
+                            Name = "თბილისი, ნოე რამიშვილის ქ"
+                        },
+                        new
+                        {
+                            Id = 43,
+                            Name = "თბილისი, თვალჭრელიძის 35ა"
+                        },
+                        new
+                        {
+                            Id = 44,
+                            Name = "გარდაბანი, ჯანდარა, CSG 1 BP პროექტი"
+                        },
+                        new
+                        {
+                            Id = 45,
+                            Name = "გარდაბანი, დავით აღმაშენებლის ქ. 34"
+                        },
+                        new
+                        {
+                            Id = 46,
+                            Name = "თბილისი, ქიზიყის 28"
+                        },
+                        new
+                        {
+                            Id = 47,
+                            Name = "თბილისი, ნიზამიშვილის 262ბ"
+                        },
+                        new
+                        {
+                            Id = 48,
+                            Name = "რუსთავი ,ახმეტელის ქ#8 (25-ე საბავშვო ბაღთან)"
+                        },
+                        new
+                        {
+                            Id = 49,
+                            Name = "საგარეჯო, სოფელი ლამბალო"
+                        },
+                        new
+                        {
+                            Id = 50,
+                            Name = "ფოთი, დანელიას ჟ#84"
+                        },
+                        new
+                        {
+                            Id = 51,
+                            Name = "ფოთი, წმინდა გიორგის ქ."
+                        },
+                        new
+                        {
+                            Id = 52,
+                            Name = "თბილისი, ქავთარაძის 20"
+                        },
+                        new
+                        {
+                            Id = 53,
+                            Name = "გურჯაანი, სოფ.კაჭრეთი"
+                        },
+                        new
+                        {
+                            Id = 54,
+                            Name = "გურჯაანი, სოფელი კაჭრეთის მიმდებარედ"
                         });
                 });
 
@@ -86,12 +327,10 @@ namespace Data.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
+                        .IsUnicode(true)
                         .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
 
                     b.ToTable("Companies", (string)null);
 
@@ -99,17 +338,207 @@ namespace Data.Migrations
                         new
                         {
                             Id = 1,
-                            Name = "Company 1"
+                            Name = "შპს ირ.აბაშიძე 555 (402204299)"
                         },
                         new
                         {
                             Id = 2,
-                            Name = "Company 2"
+                            Name = "შპს ისთ საიდ დეველოფმენტი 405758997"
                         },
                         new
                         {
                             Id = 3,
-                            Name = "Company 3"
+                            Name = "შპს ისთ საიდ ლოჯისტიკს (404724937)"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "შპს ისთვისის მენეჯმენტ კომპანი 406374490"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "შპს კ სამი 405382955"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Name = "შპს კ სამი თაუერ 405580198"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Name = "შპს კ სამი ინვესტმენტი (405745234)"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Name = "შპს კავკასუს როუდ პროჯექტ (202258243)"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Name = "შპს კაზა კალდა დეველოფმენტი 404675026"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Name = "შპს კაპიტალ ინვესტი (405307877)"
+                        },
+                        new
+                        {
+                            Id = 11,
+                            Name = "შპს კაპიტალ ქონსთრაქშენ საქართველო (406514829)"
+                        },
+                        new
+                        {
+                            Id = 12,
+                            Name = "შპს კერა + (205219351)"
+                        },
+                        new
+                        {
+                            Id = 13,
+                            Name = "შპს კერა 76 448426454"
+                        },
+                        new
+                        {
+                            Id = 14,
+                            Name = "შპს კერა ქონსთრაქშენი 400298316"
+                        },
+                        new
+                        {
+                            Id = 15,
+                            Name = "შპს კომპანია ბლექ სი გრუპი (204477734)"
+                        },
+                        new
+                        {
+                            Id = 16,
+                            Name = "შპს კონსოლი 405059378"
+                        },
+                        new
+                        {
+                            Id = 17,
+                            Name = "შპს კონსთრაქშენ გრუპი 445550216"
+                        },
+                        new
+                        {
+                            Id = 18,
+                            Name = "შპს კონცეპტ ჰაუსი(405637244)"
+                        },
+                        new
+                        {
+                            Id = 19,
+                            Name = "შპს კორძან ელექტრონიქს 406221921"
+                        },
+                        new
+                        {
+                            Id = 20,
+                            Name = "შპს ლაზერი+(402186228)"
+                        },
+                        new
+                        {
+                            Id = 21,
+                            Name = "შპს ლაზიკა 416332221"
+                        },
+                        new
+                        {
+                            Id = 22,
+                            Name = "შპს ლაიფ ჰაუსი (445478563)"
+                        },
+                        new
+                        {
+                            Id = 23,
+                            Name = "შპს ლეგაცი გრუპ (406325285)"
+                        },
+                        new
+                        {
+                            Id = 24,
+                            Name = "შპს ლევილი პირველი 445595598"
+                        },
+                        new
+                        {
+                            Id = 25,
+                            Name = "შპს ლიდერ ბეტონი (248384449)"
+                        },
+                        new
+                        {
+                            Id = 26,
+                            Name = "შპს ლისი არეა (405525668)"
+                        },
+                        new
+                        {
+                            Id = 27,
+                            Name = "შპს ლისი თაუერსი 405535915"
+                        },
+                        new
+                        {
+                            Id = 28,
+                            Name = "შპს ლიტ ჯეო ინვესტ 243859749"
+                        },
+                        new
+                        {
+                            Id = 29,
+                            Name = "შპს ლივიორი (401968082)"
+                        },
+                        new
+                        {
+                            Id = 30,
+                            Name = "შპს მ.გ.ფ.გ. (406099270)"
+                        },
+                        new
+                        {
+                            Id = 31,
+                            Name = "შპს მალუ კვადრატი 417899180"
+                        },
+                        new
+                        {
+                            Id = 32,
+                            Name = "შპს მარნეული რუსთავი 405391428"
+                        },
+                        new
+                        {
+                            Id = 33,
+                            Name = "შპს მაურო დეველოფმენტი 405682603"
+                        },
+                        new
+                        {
+                            Id = 34,
+                            Name = "შპს მაურო ქონსთრაქშენ (445433120)"
+                        },
+                        new
+                        {
+                            Id = 35,
+                            Name = "შპს მბ აგრო 436035559"
+                        },
+                        new
+                        {
+                            Id = 36,
+                            Name = "შპს მგს-ს საქართველოს ფილიალი (205168539)"
+                        },
+                        new
+                        {
+                            Id = 37,
+                            Name = "შპს მეგა ცენტრი (402192943)"
+                        },
+                        new
+                        {
+                            Id = 38,
+                            Name = "შპს მეგა ჰოლდინგი (ყოფილი თბილცემენტ გრუპი)"
+                        },
+                        new
+                        {
+                            Id = 39,
+                            Name = "შპს მეტონტაჟი 2014 (415091457)"
+                        },
+                        new
+                        {
+                            Id = 40,
+                            Name = "შპს მეონ ინტერნეიშენალ 208213084"
+                        },
+                        new
+                        {
+                            Id = 41,
+                            Name = "შპს მურაჟი მოუნთი (405625015)"
                         });
                 });
 
@@ -146,105 +575,331 @@ namespace Data.Migrations
                         {
                             Id = 2,
                             AddressId = 2,
-                            CompanyId = 1
+                            CompanyId = 2
                         },
                         new
                         {
                             Id = 3,
                             AddressId = 3,
-                            CompanyId = 2
+                            CompanyId = 3
                         },
                         new
                         {
                             Id = 4,
                             AddressId = 4,
-                            CompanyId = 2
+                            CompanyId = 4
                         },
                         new
                         {
                             Id = 5,
                             AddressId = 5,
-                            CompanyId = 3
+                            CompanyId = 5
                         },
                         new
                         {
                             Id = 6,
                             AddressId = 6,
-                            CompanyId = 3
-                        });
-                });
-
-            modelBuilder.Entity("Data.Entities.LicensePlatePermission", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("LicensePlate")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<int>("Permission")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("LicensePlate")
-                        .IsUnique();
-
-                    b.ToTable("LicensePlatePermissions", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            LicensePlate = "II210NI",
-                            Permission = 52
-                        },
-                        new
-                        {
-                            Id = 2,
-                            LicensePlate = "PB107PB",
-                            Permission = 42
-                        },
-                        new
-                        {
-                            Id = 3,
-                            LicensePlate = "BB685FF",
-                            Permission = 42
-                        },
-                        new
-                        {
-                            Id = 4,
-                            LicensePlate = "VQ632QV",
-                            Permission = 42
-                        },
-                        new
-                        {
-                            Id = 5,
-                            LicensePlate = "CG368CG",
-                            Permission = 48
-                        },
-                        new
-                        {
-                            Id = 6,
-                            LicensePlate = "CC178LC",
-                            Permission = 60
+                            CompanyId = 5
                         },
                         new
                         {
                             Id = 7,
-                            LicensePlate = "WW832GW",
-                            Permission = 60
+                            AddressId = 7,
+                            CompanyId = 6
                         },
                         new
                         {
                             Id = 8,
-                            LicensePlate = "OV247VO",
-                            Permission = 47
+                            AddressId = 8,
+                            CompanyId = 6
+                        },
+                        new
+                        {
+                            Id = 9,
+                            AddressId = 9,
+                            CompanyId = 7
+                        },
+                        new
+                        {
+                            Id = 10,
+                            AddressId = 10,
+                            CompanyId = 7
+                        },
+                        new
+                        {
+                            Id = 11,
+                            AddressId = 11,
+                            CompanyId = 8
+                        },
+                        new
+                        {
+                            Id = 12,
+                            AddressId = 12,
+                            CompanyId = 9
+                        },
+                        new
+                        {
+                            Id = 13,
+                            AddressId = 13,
+                            CompanyId = 9
+                        },
+                        new
+                        {
+                            Id = 14,
+                            AddressId = 14,
+                            CompanyId = 9
+                        },
+                        new
+                        {
+                            Id = 15,
+                            AddressId = 15,
+                            CompanyId = 10
+                        },
+                        new
+                        {
+                            Id = 16,
+                            AddressId = 16,
+                            CompanyId = 11
+                        },
+                        new
+                        {
+                            Id = 17,
+                            AddressId = 17,
+                            CompanyId = 12
+                        },
+                        new
+                        {
+                            Id = 18,
+                            AddressId = 18,
+                            CompanyId = 13
+                        },
+                        new
+                        {
+                            Id = 19,
+                            AddressId = 19,
+                            CompanyId = 14
+                        },
+                        new
+                        {
+                            Id = 20,
+                            AddressId = 20,
+                            CompanyId = 15
+                        },
+                        new
+                        {
+                            Id = 21,
+                            AddressId = 21,
+                            CompanyId = 16
+                        },
+                        new
+                        {
+                            Id = 22,
+                            AddressId = 22,
+                            CompanyId = 16
+                        },
+                        new
+                        {
+                            Id = 23,
+                            AddressId = 23,
+                            CompanyId = 17
+                        },
+                        new
+                        {
+                            Id = 24,
+                            AddressId = 24,
+                            CompanyId = 17
+                        },
+                        new
+                        {
+                            Id = 25,
+                            AddressId = 25,
+                            CompanyId = 18
+                        },
+                        new
+                        {
+                            Id = 26,
+                            AddressId = 26,
+                            CompanyId = 19
+                        },
+                        new
+                        {
+                            Id = 27,
+                            AddressId = 27,
+                            CompanyId = 20
+                        },
+                        new
+                        {
+                            Id = 28,
+                            AddressId = 28,
+                            CompanyId = 21
+                        },
+                        new
+                        {
+                            Id = 29,
+                            AddressId = 29,
+                            CompanyId = 22
+                        },
+                        new
+                        {
+                            Id = 30,
+                            AddressId = 30,
+                            CompanyId = 22
+                        },
+                        new
+                        {
+                            Id = 31,
+                            AddressId = 31,
+                            CompanyId = 22
+                        },
+                        new
+                        {
+                            Id = 32,
+                            AddressId = 32,
+                            CompanyId = 23
+                        },
+                        new
+                        {
+                            Id = 33,
+                            AddressId = 33,
+                            CompanyId = 24
+                        },
+                        new
+                        {
+                            Id = 34,
+                            AddressId = 34,
+                            CompanyId = 25
+                        },
+                        new
+                        {
+                            Id = 35,
+                            AddressId = 35,
+                            CompanyId = 26
+                        },
+                        new
+                        {
+                            Id = 36,
+                            AddressId = 36,
+                            CompanyId = 27
+                        },
+                        new
+                        {
+                            Id = 37,
+                            AddressId = 37,
+                            CompanyId = 28
+                        },
+                        new
+                        {
+                            Id = 38,
+                            AddressId = 38,
+                            CompanyId = 29
+                        },
+                        new
+                        {
+                            Id = 39,
+                            AddressId = 39,
+                            CompanyId = 30
+                        },
+                        new
+                        {
+                            Id = 40,
+                            AddressId = 20,
+                            CompanyId = 31
+                        },
+                        new
+                        {
+                            Id = 41,
+                            AddressId = 40,
+                            CompanyId = 32
+                        },
+                        new
+                        {
+                            Id = 42,
+                            AddressId = 41,
+                            CompanyId = 33
+                        },
+                        new
+                        {
+                            Id = 43,
+                            AddressId = 42,
+                            CompanyId = 34
+                        },
+                        new
+                        {
+                            Id = 44,
+                            AddressId = 41,
+                            CompanyId = 34
+                        },
+                        new
+                        {
+                            Id = 45,
+                            AddressId = 43,
+                            CompanyId = 35
+                        },
+                        new
+                        {
+                            Id = 46,
+                            AddressId = 44,
+                            CompanyId = 36
+                        },
+                        new
+                        {
+                            Id = 47,
+                            AddressId = 45,
+                            CompanyId = 37
+                        },
+                        new
+                        {
+                            Id = 48,
+                            AddressId = 46,
+                            CompanyId = 38
+                        },
+                        new
+                        {
+                            Id = 49,
+                            AddressId = 47,
+                            CompanyId = 38
+                        },
+                        new
+                        {
+                            Id = 50,
+                            AddressId = 48,
+                            CompanyId = 38
+                        },
+                        new
+                        {
+                            Id = 51,
+                            AddressId = 49,
+                            CompanyId = 38
+                        },
+                        new
+                        {
+                            Id = 52,
+                            AddressId = 50,
+                            CompanyId = 39
+                        },
+                        new
+                        {
+                            Id = 53,
+                            AddressId = 51,
+                            CompanyId = 39
+                        },
+                        new
+                        {
+                            Id = 54,
+                            AddressId = 52,
+                            CompanyId = 40
+                        },
+                        new
+                        {
+                            Id = 55,
+                            AddressId = 53,
+                            CompanyId = 41
+                        },
+                        new
+                        {
+                            Id = 56,
+                            AddressId = 54,
+                            CompanyId = 41
                         });
                 });
 
@@ -374,6 +1029,9 @@ namespace Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("PersonalId")
+                        .IsUnique();
+
                     b.HasIndex("PhoneNumber")
                         .IsUnique();
 
@@ -383,7 +1041,17 @@ namespace Data.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2026, 5, 28, 16, 0, 0, 0, DateTimeKind.Local),
+                            CreatedAt = new DateTime(2026, 6, 16, 16, 0, 0, 0, DateTimeKind.Local),
+                            FirstName = "გაგა",
+                            LastName = "ლორთქიფანიძე",
+                            PersonalId = "11111111111",
+                            PhoneNumber = "577574401",
+                            Role = "Admin"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedAt = new DateTime(2026, 6, 16, 16, 0, 0, 0, DateTimeKind.Local),
                             FirstName = "ჯემალ",
                             LastName = "გიორგობიანი",
                             PersonalId = "1001055244",
@@ -392,43 +1060,163 @@ namespace Data.Migrations
                         },
                         new
                         {
-                            Id = 2,
-                            CreatedAt = new DateTime(2026, 5, 28, 16, 0, 0, 0, DateTimeKind.Local),
+                            Id = 3,
+                            CreatedAt = new DateTime(2026, 6, 16, 16, 0, 0, 0, DateTimeKind.Local),
                             FirstName = "გიორგი",
                             LastName = "გუჯეჯიანი",
-                            PersonalId = "01005027479",
+                            PersonalId = "1005027479",
                             PhoneNumber = "598606823",
                             Role = "User"
                         },
                         new
                         {
-                            Id = 3,
-                            CreatedAt = new DateTime(2026, 5, 28, 16, 0, 0, 0, DateTimeKind.Local),
+                            Id = 4,
+                            CreatedAt = new DateTime(2026, 6, 16, 16, 0, 0, 0, DateTimeKind.Local),
                             FirstName = "დათო",
                             LastName = "ელგენდარაშვილი",
-                            PersonalId = "01008045338",
-                            PhoneNumber = "01008045338",
+                            PersonalId = "1008045338",
+                            PhoneNumber = "577251148",
                             Role = "User"
                         },
                         new
                         {
-                            Id = 4,
-                            CreatedAt = new DateTime(2026, 5, 28, 16, 0, 0, 0, DateTimeKind.Local),
+                            Id = 5,
+                            CreatedAt = new DateTime(2026, 6, 16, 16, 0, 0, 0, DateTimeKind.Local),
                             FirstName = "ზვიადი",
                             LastName = "ენუქიძე",
                             PersonalId = "38001031038",
                             PhoneNumber = "591207381",
-                            Role = "Accountant"
+                            Role = "User"
                         },
                         new
                         {
-                            Id = 5,
-                            CreatedAt = new DateTime(2026, 5, 28, 16, 0, 0, 0, DateTimeKind.Local),
-                            FirstName = "ნიკოლოზ",
-                            LastName = "ლორთქიფანიძე",
-                            PersonalId = "11111111111",
-                            PhoneNumber = "575780323",
-                            Role = "Admin"
+                            Id = 6,
+                            CreatedAt = new DateTime(2026, 6, 16, 16, 0, 0, 0, DateTimeKind.Local),
+                            FirstName = "ლაშა",
+                            LastName = "ენუქიძე",
+                            PersonalId = "38001045932",
+                            PhoneNumber = "599061209",
+                            Role = "User"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            CreatedAt = new DateTime(2026, 6, 16, 16, 0, 0, 0, DateTimeKind.Local),
+                            FirstName = "მამუკა",
+                            LastName = "კაპანაძე",
+                            PersonalId = "5400104439",
+                            PhoneNumber = "591662688",
+                            Role = "User"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            CreatedAt = new DateTime(2026, 6, 16, 16, 0, 0, 0, DateTimeKind.Local),
+                            FirstName = "გელა",
+                            LastName = "მერებაშვილი",
+                            PersonalId = "24001038417",
+                            PhoneNumber = "595880560",
+                            Role = "User"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            CreatedAt = new DateTime(2026, 6, 16, 16, 0, 0, 0, DateTimeKind.Local),
+                            FirstName = "გიორგი",
+                            LastName = "მილაძე",
+                            PersonalId = "24001043433",
+                            PhoneNumber = "551404068",
+                            Role = "User"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            CreatedAt = new DateTime(2026, 6, 16, 16, 0, 0, 0, DateTimeKind.Local),
+                            FirstName = "მამუკა",
+                            LastName = "სამხარაძე",
+                            PersonalId = "38001011164",
+                            PhoneNumber = "597726630",
+                            Role = "User"
+                        },
+                        new
+                        {
+                            Id = 11,
+                            CreatedAt = new DateTime(2026, 6, 16, 16, 0, 0, 0, DateTimeKind.Local),
+                            FirstName = "ნუგზარი",
+                            LastName = "სამხარაძე",
+                            PersonalId = "38001008077",
+                            PhoneNumber = "599868887",
+                            Role = "User"
+                        },
+                        new
+                        {
+                            Id = 12,
+                            CreatedAt = new DateTime(2026, 6, 16, 16, 0, 0, 0, DateTimeKind.Local),
+                            FirstName = "ჯამბული",
+                            LastName = "ფავლენიშვილი",
+                            PersonalId = "18001063162",
+                            PhoneNumber = "555727171",
+                            Role = "User"
+                        },
+                        new
+                        {
+                            Id = 13,
+                            CreatedAt = new DateTime(2026, 6, 16, 16, 0, 0, 0, DateTimeKind.Local),
+                            FirstName = "გიორგი",
+                            LastName = "ფხაკაძე",
+                            PersonalId = "62001036043",
+                            PhoneNumber = "595417709",
+                            Role = "User"
+                        },
+                        new
+                        {
+                            Id = 14,
+                            CreatedAt = new DateTime(2026, 6, 16, 16, 0, 0, 0, DateTimeKind.Local),
+                            FirstName = "ედიშერ",
+                            LastName = "ცხვიტაშვილი",
+                            PersonalId = "38001035765",
+                            PhoneNumber = "571410088",
+                            Role = "User"
+                        },
+                        new
+                        {
+                            Id = 15,
+                            CreatedAt = new DateTime(2026, 6, 16, 16, 0, 0, 0, DateTimeKind.Local),
+                            FirstName = "ლევანი",
+                            LastName = "ცხვიტაშვილი",
+                            PersonalId = "38001013339",
+                            PhoneNumber = "571511331",
+                            Role = "User"
+                        },
+                        new
+                        {
+                            Id = 16,
+                            CreatedAt = new DateTime(2026, 6, 16, 16, 0, 0, 0, DateTimeKind.Local),
+                            FirstName = "დავითი",
+                            LastName = "ხუხია",
+                            PersonalId = "39001008605",
+                            PhoneNumber = "591504051",
+                            Role = "User"
+                        },
+                        new
+                        {
+                            Id = 17,
+                            CreatedAt = new DateTime(2026, 6, 16, 16, 0, 0, 0, DateTimeKind.Local),
+                            FirstName = "ნოდარ",
+                            LastName = "ჯიქური",
+                            PersonalId = "24001046661",
+                            PhoneNumber = "551157052",
+                            Role = "User"
+                        },
+                        new
+                        {
+                            Id = 18,
+                            CreatedAt = new DateTime(2026, 6, 16, 16, 0, 0, 0, DateTimeKind.Local),
+                            FirstName = "ასიფ",
+                            LastName = "ვალიევი",
+                            PersonalId = "12001008021",
+                            PhoneNumber = "579904646",
+                            Role = "User"
                         });
                 });
 

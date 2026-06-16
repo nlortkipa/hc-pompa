@@ -32,8 +32,19 @@ namespace API.Controllers
         [HttpPost]
         public async Task<ActionResult<UserDTO>> Create(CreateUserDTO dto)
         {
-            var user = await userService.CreateAsync(dto);
-            return CreatedAtAction(nameof(GetById), new { id = user.Id }, user);
+            try
+            {
+                var user = await userService.CreateAsync(dto);
+                return CreatedAtAction(nameof(GetById), new { id = user.Id }, user);
+            }
+            catch (Service.Exceptions.ConflictException ex)
+            {
+                return Conflict(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [Authorize(Roles = "Admin")]

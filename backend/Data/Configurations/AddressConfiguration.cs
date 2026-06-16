@@ -15,7 +15,8 @@ namespace Data.Configurations
                 .HasKey(a => a.Id);
             builder.Property(a => a.Name)
                 .IsRequired()
-                .HasMaxLength(100);
+                .HasMaxLength(100)
+                .IsUnicode(true);
             builder.HasIndex(a => a.Id)
                 .IsUnique();
 

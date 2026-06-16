@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BACKEND_URL } from '../globals';
+import { ConfigService } from './config.service';
 import { Observable } from 'rxjs';
 import { UserModel } from '../models/user-model';
 
@@ -8,25 +8,27 @@ import { UserModel } from '../models/user-model';
   providedIn: 'root',
 })
 export class UserService {
+  private configService = inject(ConfigService);
+
   constructor(private http: HttpClient) {}
 
   getAll(): Observable<UserModel[]> {
-    return this.http.get<UserModel[]>(`${BACKEND_URL}/api/users`);
+    return this.http.get<UserModel[]>(`${this.configService.backendUrl}/api/users`);
   }
 
   getById(id: number): Observable<UserModel> {
-    return this.http.get<UserModel>(`${BACKEND_URL}/api/users/${id}`);
+    return this.http.get<UserModel>(`${this.configService.backendUrl}/api/users/${id}`);
   }
 
   create(user: any): Observable<UserModel> {
-    return this.http.post<UserModel>(`${BACKEND_URL}/api/users`, user);
+    return this.http.post<UserModel>(`${this.configService.backendUrl}/api/users`, user);
   }
 
   update(id: number, user: any): Observable<UserModel> {
-    return this.http.put<UserModel>(`${BACKEND_URL}/api/users/${id}`, user);
+    return this.http.put<UserModel>(`${this.configService.backendUrl}/api/users/${id}`, user);
   }
 
   delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${BACKEND_URL}/api/users/${id}`);
+    return this.http.delete<void>(`${this.configService.backendUrl}/api/users/${id}`);
   }
 }
