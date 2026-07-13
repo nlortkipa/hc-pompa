@@ -22,7 +22,7 @@ namespace Dal.Repositories
             return await _context.CompanyAddresses
                 .Where(ca => ca.CompanyId == companyId)
                 .Include(ca => ca.Address)
-                .Select(ca => ca.Address)
+                .Select(ca => ca.Address!)
                 .ToListAsync();
         }
     }

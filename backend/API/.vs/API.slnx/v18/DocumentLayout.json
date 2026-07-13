@@ -3,12 +3,62 @@
   "WorkspaceRootPath": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\API\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|API.csproj|c:\\users\\administrator\\desktop\\pompa\\backend\\api\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|API.csproj|solutionrelative:properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|API.csproj|c:\\users\\administrator\\desktop\\pompa\\backend\\api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|API.csproj|solutionrelative:appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{41120729-9A79-414D-957E-573D058BE244}|..\\Data\\Data.csproj|c:\\users\\administrator\\desktop\\pompa\\backend\\data\\seeddata\\companyaddressseeddata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{41120729-9A79-414D-957E-573D058BE244}|..\\Data\\Data.csproj|c:\\users\\administrator\\desktop\\pompa\\backend\\data\\projectcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{41120729-9A79-414D-957E-573D058BE244}|..\\Data\\Data.csproj|c:\\users\\administrator\\desktop\\pompa\\backend\\data\\baserepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|API.csproj|c:\\users\\administrator\\desktop\\pompa\\backend\\api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|API.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|API.csproj|c:\\users\\administrator\\desktop\\pompa\\backend\\api\\.env||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|API.csproj|solutionrelative:.env||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|API.csproj|c:\\users\\administrator\\desktop\\pompa\\backend\\api\\api.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|API.csproj|solutionrelative:api.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|API.csproj|c:\\users\\administrator\\desktop\\pompa\\backend\\api\\controllers\\pumpoperationscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|API.csproj|solutionrelative:controllers\\pumpoperationscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|API.csproj|c:\\users\\administrator\\desktop\\pompa\\backend\\api\\controllers\\userscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|API.csproj|solutionrelative:controllers\\userscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63858A8F-7DA1-49F5-952F-AD01CAA13083}|..\\Service\\Service.csproj|c:\\users\\administrator\\desktop\\pompa\\backend\\service\\services\\smscodeservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{41120729-9A79-414D-957E-573D058BE244}|..\\Data\\Data.csproj|c:\\users\\administrator\\desktop\\pompa\\backend\\data\\migrations\\20260616130536_v676.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{41120729-9A79-414D-957E-573D058BE244}|..\\Data\\Data.csproj|c:\\users\\administrator\\desktop\\pompa\\backend\\data\\migrations\\20260705093511_v677.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{41120729-9A79-414D-957E-573D058BE244}|..\\Data\\Data.csproj|c:\\users\\administrator\\desktop\\pompa\\backend\\data\\migrations\\20260708151101_iswearitsfinal.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{41120729-9A79-414D-957E-573D058BE244}|..\\Data\\Data.csproj|c:\\users\\administrator\\desktop\\pompa\\backend\\data\\migrations\\20260708142704_final.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{41120729-9A79-414D-957E-573D058BE244}|..\\Data\\Data.csproj|c:\\users\\administrator\\desktop\\pompa\\backend\\data\\migrations\\20260708150541_final67.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{41120729-9A79-414D-957E-573D058BE244}|..\\Data\\Data.csproj|c:\\users\\administrator\\desktop\\pompa\\backend\\data\\migrations\\20260708151138_676767.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -18,32 +68,212 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 7,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\API\\appsettings.json",
               "RelativeDocumentMoniker": "appsettings.json",
               "ToolTip": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\API\\appsettings.json",
               "RelativeToolTip": "appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAVAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAEAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-06-15T17:23:52.265Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-06-15T17:23:52.265Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
+              "Title": "CompanyAddressSeedData.cs",
+              "DocumentMoniker": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Data\\SeedData\\CompanyAddressSeedData.cs",
+              "RelativeDocumentMoniker": "..\\Data\\SeedData\\CompanyAddressSeedData.cs",
+              "ToolTip": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Data\\SeedData\\CompanyAddressSeedData.cs",
+              "RelativeToolTip": "..\\Data\\SeedData\\CompanyAddressSeedData.cs",
+              "ViewState": "AgIAABUCAAAAAAAAAAAjwB4CAAAhAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-08T15:58:42.59Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "BaseRepository.cs",
+              "DocumentMoniker": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Data\\BaseRepository.cs",
+              "RelativeDocumentMoniker": "..\\Data\\BaseRepository.cs",
+              "ToolTip": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Data\\BaseRepository.cs",
+              "RelativeToolTip": "..\\Data\\BaseRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-08T16:00:01.047Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "20260708142704_final.cs",
+              "DocumentMoniker": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Data\\Migrations\\20260708142704_final.cs",
+              "RelativeDocumentMoniker": "..\\Data\\Migrations\\20260708142704_final.cs",
+              "ToolTip": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Data\\Migrations\\20260708142704_final.cs",
+              "RelativeToolTip": "..\\Data\\Migrations\\20260708142704_final.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-08T14:27:04.684Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": ".env",
+              "DocumentMoniker": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\API\\.env",
+              "RelativeDocumentMoniker": ".env",
+              "ToolTip": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\API\\.env",
+              "RelativeToolTip": ".env",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-07-08T15:43:34.576Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "API.csproj",
+              "DocumentMoniker": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\API\\API.csproj",
+              "RelativeDocumentMoniker": "API.csproj",
+              "ToolTip": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\API\\API.csproj",
+              "RelativeToolTip": "API.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-07-06T12:04:15.68Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\API\\Program.cs",
               "RelativeDocumentMoniker": "Program.cs",
               "ToolTip": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\API\\Program.cs",
               "RelativeToolTip": "Program.cs",
-              "ViewState": "AgIAABgAAAAAAAAAAAAIwCEAAAA6AAAAAAAAAA==",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAowCEAAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-06-15T16:16:58.358Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "launchSettings.json",
+              "DocumentMoniker": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\API\\Properties\\launchSettings.json",
+              "RelativeDocumentMoniker": "Properties\\launchSettings.json",
+              "ToolTip": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\API\\Properties\\launchSettings.json",
+              "RelativeToolTip": "Properties\\launchSettings.json",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAAABEAAAAuAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-07-05T09:31:26.564Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "ProjectContext.cs",
+              "DocumentMoniker": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Data\\ProjectContext.cs",
+              "RelativeDocumentMoniker": "..\\Data\\ProjectContext.cs",
+              "ToolTip": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Data\\ProjectContext.cs",
+              "RelativeToolTip": "..\\Data\\ProjectContext.cs",
+              "ViewState": "AgIAACoAAAAAAAAAAAAIwD8AAAAsAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-05T09:30:40.968Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "20260708151101_iswearitsfinal.cs",
+              "DocumentMoniker": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Data\\Migrations\\20260708151101_iswearitsfinal.cs",
+              "RelativeDocumentMoniker": "..\\Data\\Migrations\\20260708151101_iswearitsfinal.cs",
+              "ToolTip": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Data\\Migrations\\20260708151101_iswearitsfinal.cs",
+              "RelativeToolTip": "..\\Data\\Migrations\\20260708151101_iswearitsfinal.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-08T15:11:01.833Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "20260708150541_final67.cs",
+              "DocumentMoniker": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Data\\Migrations\\20260708150541_final67.cs",
+              "RelativeDocumentMoniker": "..\\Data\\Migrations\\20260708150541_final67.cs",
+              "ToolTip": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Data\\Migrations\\20260708150541_final67.cs",
+              "RelativeToolTip": "..\\Data\\Migrations\\20260708150541_final67.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-08T15:05:41.541Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "20260708151138_676767.cs",
+              "DocumentMoniker": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Data\\Migrations\\20260708151138_676767.cs",
+              "RelativeDocumentMoniker": "..\\Data\\Migrations\\20260708151138_676767.cs",
+              "ToolTip": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Data\\Migrations\\20260708151138_676767.cs",
+              "RelativeToolTip": "..\\Data\\Migrations\\20260708151138_676767.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-08T15:11:38.999Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "PumpOperationsController.cs",
+              "DocumentMoniker": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\API\\Controllers\\PumpOperationsController.cs",
+              "RelativeDocumentMoniker": "Controllers\\PumpOperationsController.cs",
+              "ToolTip": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\API\\Controllers\\PumpOperationsController.cs",
+              "RelativeToolTip": "Controllers\\PumpOperationsController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-05T10:09:11.926Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "UsersController.cs",
+              "DocumentMoniker": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\API\\Controllers\\UsersController.cs",
+              "RelativeDocumentMoniker": "Controllers\\UsersController.cs",
+              "ToolTip": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\API\\Controllers\\UsersController.cs",
+              "RelativeToolTip": "Controllers\\UsersController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-05T10:09:10.889Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "20260705093511_V677.cs",
+              "DocumentMoniker": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Data\\Migrations\\20260705093511_V677.cs",
+              "RelativeDocumentMoniker": "..\\Data\\Migrations\\20260705093511_V677.cs",
+              "ToolTip": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Data\\Migrations\\20260705093511_V677.cs",
+              "RelativeToolTip": "..\\Data\\Migrations\\20260705093511_V677.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-05T09:35:11.747Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "20260616130536_v676.cs",
+              "DocumentMoniker": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Data\\Migrations\\20260616130536_v676.cs",
+              "RelativeDocumentMoniker": "..\\Data\\Migrations\\20260616130536_v676.cs",
+              "ToolTip": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Data\\Migrations\\20260616130536_v676.cs",
+              "RelativeToolTip": "..\\Data\\Migrations\\20260616130536_v676.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-16T13:05:36.947Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "SmsCodeService.cs",
+              "DocumentMoniker": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Service\\Services\\SmsCodeService.cs",
+              "RelativeDocumentMoniker": "..\\Service\\Services\\SmsCodeService.cs",
+              "ToolTip": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Service\\Services\\SmsCodeService.cs",
+              "RelativeToolTip": "..\\Service\\Services\\SmsCodeService.cs",
+              "ViewState": "AgIAAD0AAAAAAAAAAAAwwEsAAAAPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-16T12:03:05.915Z"
             }
           ]
         }

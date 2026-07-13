@@ -29,6 +29,11 @@ namespace Service.Mapping
             CreateMap<CreateAddressDTO, Address>();
             CreateMap<UpdateAddressDTO, Address>();
 
+            // Plate
+            CreateMap<Plate, PlateDTO>();
+            CreateMap<PlateDTO, Plate>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore());
+
             // PumpOperation
             CreateMap<PumpOperation, PumpOperationDto>()
                 .ForMember(dest => dest.OperatorFirstName, opt => opt.MapFrom(src => src.Operator.FirstName))

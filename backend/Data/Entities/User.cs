@@ -31,6 +31,12 @@ namespace Data.Entities
         [Required]
         [MaxLength(20)]
         public string Role { get; set; } = "User";
+        [MaxLength(75)]
+        [Unicode(true)]
+        public string? Username { get; set; }
+        public string? AvatarUrl { get; set; }
+        [Required]
+        public int TokenVersion { get; set; }
 
         public ICollection<SmsCode> SmsCodes { get; set; } = new List<SmsCode>();
         public ICollection<PumpOperation> PumpOperations { get; set; } = new List<PumpOperation>();

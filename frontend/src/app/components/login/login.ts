@@ -46,7 +46,7 @@ export class Login {
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.error.set(err.error);
+        this.error.set('კოდის გაგზავნა ვერ მოხერხდა.');
         this.showError.set(true);
       }
     });

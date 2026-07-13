@@ -68,12 +68,11 @@ export class Companies implements OnInit {
 
   selectCompany(id: number): void {
     this.selectedCompanyId = id;
-    this.addressForm.name = ''; // Reset address input on switch
+    this.addressForm.name = '';
     this.companyService.getAddresses(id);
     this.cancelAddressEdit();
   }
 
-  // Company Actions
   editCompany(company: CompanyModel): void {
     this.isEditingCompany = true;
     this.companyForm = { ...company };
@@ -101,7 +100,7 @@ export class Companies implements OnInit {
       },
       error: (err) => {
         if (err.status === 409) {
-          alert(err.error || 'კომპანია მსგავსი სახელით უკვე არსებობს.');
+          alert('კომპანია მსგავსი სახელით უკვე არსებობს.');
         } else {
           alert('შენახვა ვერ მოხერხდა.');
         }
@@ -120,7 +119,6 @@ export class Companies implements OnInit {
     });
   }
 
-  // Address Actions
   editAddress(address: AddressModel): void {
     this.isEditingAddress = true;
     this.addressForm = { ...address };
@@ -136,7 +134,6 @@ export class Companies implements OnInit {
   saveAddress(): void {
     if (!this.selectedCompanyId || !this.addressForm.name.trim()) return;
 
-    // Check for duplicate address name
     const addressName = this.addressForm.name.trim();
     const isDuplicate = this.companyService.addresses().some(
       (a) => a.name.toLowerCase() === addressName.toLowerCase() && 

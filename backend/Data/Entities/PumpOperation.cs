@@ -35,9 +35,14 @@ namespace Data.Entities
         public int DismantleAssemble { get; set; }
         [Required]
         public string PlateNumber { get; set; } = null!;
+        [Required]
+        public string ReviewStatus { get; set; } = "Pending";
+        public DateTime? ReviewedAt { get; set; }
+        public string? ReviewedByCheckerGmail { get; set; }
 
         public User Operator { get; set; } = null!;
         public Company Company { get; set; } = null!;
         public Address Address { get; set; } = null!;
+        public ICollection<PumpOperationReviewRequest> ReviewRequests { get; set; } = new List<PumpOperationReviewRequest>();
     }
 }

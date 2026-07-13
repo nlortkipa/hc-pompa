@@ -1,9 +1,59 @@
 <div class="section-header">
-    <div class="section-title">ჩანაწერების ისტორია</div>
+    <div>
+        <div class="section-title">ჩანაწერების ისტორია</div>
+        <p class="section-subtitle">გადახედეთ ოპერაციებს, სტატუსებს და მოცულობებს.</p>
+    </div>
     <div class="section-actions">
+        <button class="btn btn-secondary btn-sm" *ngIf="canViewDetails()" (click)="exportExcel()" [disabled]="isExporting || records().length === 0">
+            <span *ngIf="!isExporting">ექსპორტი</span>
+            <span *ngIf="isExporting">ექსპორტირდება...</span>
+        </button>
         <button class="btn btn-secondary btn-sm" (click)="loadRecords()">
             <span class="icon" aria-hidden="true">↻</span> განახლება
         </button>
+    </div>
+</div>
+
+<div class="summary-grid">
+    <div class="summary-item">
+        <span>ჩანაწერები</span>
+        <strong>{{ acceptedRecords().length }}</strong>
+    </div>
+    <div class="summary-item">
+        <span>ბეტონი</span>
+        <strong>{{ totals().concreteVolume | number:'1.0-2' }} მ³</strong>
+    </div>
+    <div class="summary-item">
+        <span>ტუმბოს გადადგმა</span>
+        <strong>{{ totals().pumpRelocation | number:'1.0-0' }}</strong>
+    </div>
+    <div class="summary-item">
+        <span>სტაც. გადადგმა</span>
+        <strong>{{ totals().stationaryRelocation | number:'1.0-0' }}</strong>
+    </div>
+    <div class="summary-item">
+        <span>ჰიდრ. გადადგმა</span>
+        <strong>{{ totals().hydraulicRelocation | number:'1.0-0' }}</strong>
+    </div>
+    <div class="summary-item">
+        <span>გადაწყობა</span>
+        <strong>{{ totals().stationaryReposition | number:'1.0-0' }}</strong>
+    </div>
+    <div class="summary-item">
+        <span>დაშლა/აწყობა</span>
+        <strong>{{ totals().dismantleAssemble | number:'1.0-0' }}</strong>
+    </div>
+    <div class="summary-item">
+        <span>მოცდენა</span>
+        <strong>{{ totals().idleTime | number:'1.0-2' }} სთ</strong>
+    </div>
+    <div class="summary-item">
+        <span>მოლოდინში</span>
+        <strong>{{ pendingCount() }}</strong>
+    </div>
+    <div class="summary-item">
+        <span>დადასტურებული</span>
+        <strong>{{ acceptedCount() }}</strong>
     </div>
 </div>
 
@@ -34,13 +84,13 @@
         </div>
         <div class="form-group">
             <label>პომპის ნომერი</label>
-            <input type="text" [(ngModel)]="filter.plateNumber" placeholder="GE-000-XX">
+            <input type="text" [(ngModel)]="filter.plateNumber" placeholder="სანომრე ნიშანი">
         </div>
     </div>
     <div class="filter-footer">
         <button class="btn btn-primary" (click)="loadRecords()" [disabled]="isLoading">
             <span *ngIf="!isLoading">გაფილტვრა</span>
-            <span *ngIf="isLoading">...</span>
+            <span *ngIf="isLoading">იტვირთება...</span>
         </button>
         <button class="btn btn-secondary" (click)="clearFilters()">გასუფთავება</button>
     </div>
@@ -52,6 +102,7 @@
             <thead>
                 <tr>
                     <th>თარიღი</th>
+                    <th>სტატუსი</th>
                     <th *ngIf="canViewDetails()">ოპერატორი</th>
                     <th *ngIf="canViewDetails()">კომპანია</th>
                     <th *ngIf="canViewDetails()">მისამართი</th>
@@ -69,6 +120,9 @@
                 <tr *ngFor="let r of records()">
                     <td>
                         <strong>{{r.date | date:'dd.MM.yyyy'}}</strong>
+                    </td>
+                    <td>
+                        <span class="badge" [ngClass]="reviewStatusClass(r)">{{reviewStatusLabel(r)}}</span>
                     </td>
                     <td *ngIf="canViewDetails()">
                         <div class="user-info">
@@ -93,7 +147,7 @@
                     </td>
                 </tr>
                 <tr *ngIf="records().length === 0 && !isLoading">
-                    <td [attr.colspan]="canViewDetails() ? 12 : 9" class="empty">
+                    <td [attr.colspan]="canViewDetails() ? 13 : 10" class="empty">
                         <div class="empty-state">
                             <span class="empty-icon">∅</span>
                             <p>ჩანაწერები არ მოიძებნა</p>
@@ -105,24 +159,27 @@
     </div>
 </div>
 
-<!-- Mobile View (All properties) -->
+<!-- მობილური ხედი -->
 <div class="mobile-records">
     <div *ngFor="let r of records()" class="card record-card">
         <div class="record-header">
             <span class="record-date">{{r.date | date:'dd.MM.yyyy'}}</span>
+            <span class="badge" [ngClass]="reviewStatusClass(r)">{{reviewStatusLabel(r)}}</span>
             <span class="badge badge-blue">{{r.concreteVolume}} მ³</span>
         </div>
         
         <div class="record-body">
-            <!-- Basic Info -->
+            <!-- ძირითადი ინფორმაცია -->
             <div class="record-section">
                 <div class="info-row"><span>სახ. ნომერი:</span> <strong>{{r.plateNumber}}</strong></div>
                 <div class="info-row" *ngIf="canViewDetails()"><span>კომპანია:</span> <strong>{{r.companyName}}</strong></div>
                 <div class="info-row" *ngIf="canViewDetails()"><span>ლოკაცია:</span> <strong>{{r.addressName}}</strong></div>
                 <div class="info-row" *ngIf="canViewDetails()"><span>ოპერატორი:</span> <strong>{{r.operatorFirstName}} {{r.operatorLastName}}</strong></div>
+                <div class="info-row"><span>სტატუსი:</span> <strong>{{reviewStatusLabel(r)}}</strong></div>
+                <div class="info-row" *ngIf="canViewDetails() && r.reviewedByCheckerGmail"><span>შემმოწმებელი:</span> <strong>{{r.reviewedByCheckerGmail}}</strong></div>
             </div>
 
-            <!-- Operations Grid -->
+            <!-- ოპერაციები -->
             <div class="record-section">
                 <div class="ops-grid">
                     <div class="op-stat">

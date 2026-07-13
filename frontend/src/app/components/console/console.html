@@ -1,63 +1,93 @@
-<div id="topbar">
-    <div class="logo">
-        <span class="logo-icon">P</span>
-        <span>{{appName}}</span>
+<header id="topbar">
+  <div class="logo" aria-label="პომპა">
+    <span class="logo-icon">პ</span>
+    <span class="logo-copy">
+      <span>{{appName}}</span>
+      <small>ოპერაციების პანელი</small>
+    </span>
+  </div>
+
+  <div class="topbar-right">
+    <div class="role-pill" *ngIf="profile()?.role">{{ roleLabel(profile()?.role) }}</div>
+    <div class="user-chip">
+      <div class="avatar">
+        <img *ngIf="profile()?.avatarUrl; else headerInitials" [src]="profile()?.avatarUrl || ''" alt="" />
+        <ng-template #headerInitials>{{ initials(profile()) }}</ng-template>
+      </div>
+      <span id="user-name">{{ displayName(profile()) }}</span>
     </div>
-    
-    <div class="topbar-right">
-        <div class="role-pill" *ngIf="profile()?.role">{{profile()?.role}}</div>
-        <div class="user-chip">
-            <div class="avatar">{{profile()?.firstName?.charAt(0)}}{{profile()?.lastName?.charAt(0)}}</div>
-            <span id="user-name">{{profile()?.firstName}} {{profile()?.lastName}}</span>
-        </div>
-        <button (click)="logout()" class="logout-btn" title="გამოსვლა">
-            <span class="icon">⎋</span>
-        </button>
-    </div>
-</div>
+    <button (click)="logout()" class="logout-btn" title="გასვლა" aria-label="გასვლა">
+      <span class="icon" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+      </span>
+    </button>
+  </div>
+</header>
 
 <div id="main">
-    <div id="sidebar">
-        <a *ngIf="profile()?.role !== 'Accountant'" class="nav-item" routerLink="new" routerLinkActive="active">
-            <span class="nav-icon">+</span>
-            <span class="nav-label">ახალი ჩანაწერი</span>
-        </a>
-        <a class="nav-item" routerLink="history" routerLinkActive="active">
-            <span class="nav-icon">▤</span>
-            <span class="nav-label">ჩანაწერები</span>
-        </a>
-        <a *ngIf="profile()?.role === 'Admin'" class="nav-item" routerLink="users" routerLinkActive="active">
-            <span class="nav-icon">U</span>
-            <span class="nav-label">მომხმარებლები</span>
-        </a>
-        <a *ngIf="profile()?.role === 'Admin'" class="nav-item" routerLink="companies" routerLinkActive="active">
-            <span class="nav-icon">▦</span>
-            <span class="nav-label">კომპანიები</span>
-        </a>
-    </div>
+  <nav id="sidebar" aria-label="პანელის ნავიგაცია">
+    <div class="nav-section-label">მენიუ</div>
+    <a *ngIf="profile()?.role !== 'Accountant'" class="nav-item" routerLink="new" routerLinkActive="active">
+      <span class="nav-icon">+</span>
+      <span class="nav-label">ახალი ჩანაწერი</span>
+    </a>
+    <a class="nav-item" routerLink="history" routerLinkActive="active">
+      <span class="nav-icon">▤</span>
+      <span class="nav-label">ჩანაწერები</span>
+    </a>
+    <a *ngIf="profile()?.role === 'Admin'" class="nav-item" routerLink="users" routerLinkActive="active">
+      <span class="nav-icon">მ</span>
+      <span class="nav-label">მომხმარებლები</span>
+    </a>
+    <a *ngIf="profile()?.role === 'Admin'" class="nav-item" routerLink="companies" routerLinkActive="active">
+      <span class="nav-icon">▦</span>
+      <span class="nav-label">კომპანიები</span>
+    </a>
+    <a *ngIf="profile()?.role === 'Admin'" class="nav-item" routerLink="plates" routerLinkActive="active">
+      <span class="nav-icon">№</span>
+      <span class="nav-label">სანომრე ნიშნები</span>
+    </a>
+    <a class="nav-item" routerLink="settings" routerLinkActive="active">
+      <span class="nav-icon">@</span>
+      <span class="nav-label">პარამეტრები</span>
+    </a>
+  </nav>
 
-    <div id="content">
-        <router-outlet></router-outlet>
-    </div>
+  <main id="content">
+    <router-outlet></router-outlet>
+  </main>
 
-    <div id="mobile-nav">
-        <div class="mobile-nav-inner">
-            <a *ngIf="profile()?.role !== 'Accountant'" class="mnav" routerLink="new" routerLinkActive="active">
-                <div class="mnav-icon">+</div>
-                <span>ახალი</span>
-            </a>
-            <a class="mnav" routerLink="history" routerLinkActive="active">
-                <div class="mnav-icon">▤</div>
-                <span>ჩანაწერები</span>
-            </a>
-            <a *ngIf="profile()?.role === 'Admin'" class="mnav" routerLink="users" routerLinkActive="active">
-                <div class="mnav-icon">U</div>
-                <span>მომხმარებლები</span>
-            </a>
-            <a *ngIf="profile()?.role === 'Admin'" class="mnav" routerLink="companies" routerLinkActive="active">
-                <div class="mnav-icon">▦</div>
-                <span>კომპანიები</span>
-            </a>
-        </div>
+  <nav id="mobile-nav" aria-label="მობილური ნავიგაცია">
+    <div class="mobile-nav-inner">
+      <a *ngIf="profile()?.role !== 'Accountant'" class="mnav" routerLink="new" routerLinkActive="active">
+        <div class="mnav-icon">+</div>
+        <span>ახალი</span>
+      </a>
+      <a class="mnav" routerLink="history" routerLinkActive="active">
+        <div class="mnav-icon">▤</div>
+        <span>ისტორია</span>
+      </a>
+      <a *ngIf="profile()?.role === 'Admin'" class="mnav" routerLink="users" routerLinkActive="active">
+        <div class="mnav-icon">მ</div>
+        <span>მომხმარებლები</span>
+      </a>
+      <a *ngIf="profile()?.role === 'Admin'" class="mnav" routerLink="companies" routerLinkActive="active">
+        <div class="mnav-icon">▦</div>
+        <span>კომპანიები</span>
+      </a>
+      <a *ngIf="profile()?.role === 'Admin'" class="mnav" routerLink="plates" routerLinkActive="active">
+        <div class="mnav-icon">№</div>
+        <span>ნომრები</span>
+      </a>
+      <a class="mnav" routerLink="settings" routerLinkActive="active">
+        <div class="mnav-icon">@</div>
+        <span>პარამეტრები</span>
+      </a>
     </div>
+  </nav>
 </div>

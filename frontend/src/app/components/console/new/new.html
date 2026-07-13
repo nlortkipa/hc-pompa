@@ -1,8 +1,11 @@
 <div class="wizard-container">
     <div class="wizard-header">
         <div class="wizard-heading">
-            <div class="wizard-kicker">POMPA</div>
-            <h1>ახალი ჩანაწერი</h1>
+            <div>
+                <div class="wizard-kicker">პომპა</div>
+                <h1>ახალი ჩანაწერი</h1>
+                <p class="section-subtitle">შეავსეთ ოპერაციის ძირითადი მონაცემები ეტაპობრივად.</p>
+            </div>
         </div>
         <div class="wizard-progress">
             <div *ngFor="let i of stepRange" class="progress-step" [class.done]="stepStatus(i) === 'done'"
@@ -33,17 +36,24 @@
                 <div class="form-group">
                     <label>კომპანია</label>
                     <div class="custom-dropdown">
-                        <input type="text" [ngModel]="companySearch()" (ngModelChange)="companySearch.set($event)" 
-                               placeholder="ძებნა..." class="dropdown-search">
-                        <div class="dropdown-list">
-                            <div *ngFor="let c of filteredCompanies()" 
-                                 class="dropdown-item" 
-                                 [class.selected]="wiz.companyId === c.id"
-                                 (click)="wiz.companyId = c.id; onCompanyChange()">
-                                {{ c.name }}
+                        <ng-container *ngIf="!isDropdownOpen('company') && selectedCompanyName; else companyPicker">
+                            <button type="button" class="dropdown-trigger" (click)="openDropdown('company')">
+                                <span>{{ selectedCompanyName }}</span>
+                                <span class="dropdown-trigger-action">შეცვლა</span>
+                            </button>
+                        </ng-container>
+                        <ng-template #companyPicker>
+                            <input type="text" [ngModel]="companySearch()" (ngModelChange)="companySearch.set($event)"
+                                placeholder="ძებნა..." class="dropdown-search">
+                            <div class="dropdown-list">
+                                <div *ngFor="let c of filteredCompanies()" class="dropdown-item"
+                                    [class.selected]="wiz.companyId === c.id" (click)="selectCompany(c.id)">
+                                    {{ c.name }}
+                                </div>
+                                <div *ngIf="filteredCompanies().length === 0" class="no-results">კომპანია ვერ მოიძებნა
+                                </div>
                             </div>
-                            <div *ngIf="filteredCompanies().length === 0" class="no-results">კომპანია ვერ მოიძებნა</div>
-                        </div>
+                        </ng-template>
                     </div>
                     <span class="field-error-msg" *ngIf="errors['companyId']">{{ errors['companyId'] }}</span>
                 </div>
@@ -53,17 +63,24 @@
                 <div class="form-group">
                     <label>მისამართი / ლოკაცია</label>
                     <div class="custom-dropdown">
-                        <input type="text" [ngModel]="addressSearch()" (ngModelChange)="addressSearch.set($event)" 
-                               placeholder="ძებნა..." class="dropdown-search">
-                        <div class="dropdown-list">
-                            <div *ngFor="let a of filteredAddresses" 
-                                 class="dropdown-item" 
-                                 [class.selected]="wiz.addressId === a.id"
-                                 (click)="wiz.addressId = a.id; clearError('addressId')">
-                                {{ a.name }}
+                        <ng-container *ngIf="!isDropdownOpen('address') && selectedAddressName; else addressPicker">
+                            <button type="button" class="dropdown-trigger" (click)="openDropdown('address')">
+                                <span>{{ selectedAddressName }}</span>
+                                <span class="dropdown-trigger-action">შეცვლა</span>
+                            </button>
+                        </ng-container>
+                        <ng-template #addressPicker>
+                            <input type="text" [ngModel]="addressSearch()" (ngModelChange)="addressSearch.set($event)"
+                                placeholder="ძებნა..." class="dropdown-search">
+                            <div class="dropdown-list">
+                                <div *ngFor="let a of filteredAddresses" class="dropdown-item"
+                                    [class.selected]="wiz.addressId === a.id" (click)="selectAddress(a.id)">
+                                    {{ a.name }}
+                                </div>
+                                <div *ngIf="filteredAddresses.length === 0" class="no-results">მისამართი ვერ მოიძებნა
+                                </div>
                             </div>
-                            <div *ngIf="filteredAddresses.length === 0" class="no-results">მისამართი ვერ მოიძებნა</div>
-                        </div>
+                        </ng-template>
                     </div>
                     <span class="field-error-msg" *ngIf="errors['addressId']">{{ errors['addressId'] }}</span>
                 </div>
@@ -72,30 +89,47 @@
             <ng-container *ngIf="wiz.step === 3">
                 <div class="form-group">
                     <label>პომპის სანომრე ნიშანი</label>
-                    <input type="text" [(ngModel)]="wiz.pumpPlate" name="pumpPlate" placeholder="GE-000-XX"
-                        [class.field-error]="errors['pumpPlate']" [disabled]="isLoading" (input)="autoDetectPump()" />
+                    <div class="custom-dropdown">
+                        <ng-container *ngIf="!isDropdownOpen('plate') && wiz.pumpPlate; else platePicker">
+                            <button type="button" class="dropdown-trigger" (click)="openDropdown('plate')">
+                                <span>{{ wiz.pumpPlate }}</span>
+                                <span class="dropdown-trigger-action">შეცვლა</span>
+                            </button>
+                        </ng-container>
+                        <ng-template #platePicker>
+                            <input type="text" [ngModel]="plateSearch()" (ngModelChange)="plateSearch.set($event)"
+                                placeholder="ძებნა..." class="dropdown-search">
+                            <div class="dropdown-list">
+                                <div *ngFor="let p of filteredPlates()" class="dropdown-item"
+                                    [class.selected]="wiz.pumpPlate === p.number" (click)="selectPlate(p.number)">
+                                    {{ p.number }}
+                                </div>
+                                <div *ngIf="filteredPlates().length === 0" class="no-results">ნომერი ვერ მოიძებნა</div>
+                            </div>
+                        </ng-template>
+                    </div>
                     <span class="field-error-msg" *ngIf="errors['pumpPlate']">{{ errors['pumpPlate'] }}</span>
                 </div>
-                <div class="pump-info" *ngIf="wiz.pumpType">
-                    ტიპი: <strong>{{ wiz.pumpType }}</strong>
+                <div class="pump-info" *ngIf="wiz.pumpPlate">
+                    არჩეული ნომერი: <strong>{{ wiz.pumpPlate }}</strong>
                 </div>
             </ng-container>
 
             <ng-container *ngIf="wiz.step === 4">
                 <div class="form-group">
-                    <label>ბეტონის მოცულობა (m³)</label>
+                    <label>ბეტონის მოცულობა (მ³)</label>
                     <div class="volume-input-wrapper">
                         <input type="number" [(ngModel)]="wiz.concreteVolume" name="concrete" min="0.5" step="0.5"
                             placeholder="0.0" [class.field-error]="errors['concreteVolume']"
                             (ngModelChange)="onConcreteVolumeChange()" />
-                        <span class="unit-tag">m³</span>
+                        <span class="unit-tag">მ³</span>
                     </div>
                     <span class="field-error-msg" *ngIf="errors['concreteVolume']">{{ errors['concreteVolume'] }}</span>
                 </div>
 
                 <div class="quick-chips">
                     <button *ngFor="let v of [5, 7, 9, 10, 12]" type="button" class="chip" (click)="setConcreteVolume(v)">
-                        {{ v }} m³
+                        {{ v }} მ³
                     </button>
                 </div>
             </ng-container>
@@ -130,11 +164,14 @@
                     </div>
                     <div class="review-item">
                         <span class="review-label">პომპა</span>
-                        <span class="review-value">{{ wiz.pumpPlate }} <span class="pill">{{ wiz.pumpType }}</span></span>
+                        <span class="review-value">
+                            {{ wiz.pumpPlate }}
+                            <span class="pill" *ngIf="wiz.pumpType">{{ wiz.pumpType }}</span>
+                        </span>
                     </div>
                     <div class="review-item highlight">
                         <span class="review-label">ბეტონის მოცულობა</span>
-                        <span class="review-value">{{ wiz.concreteVolume }} m³</span>
+                        <span class="review-value">{{ wiz.concreteVolume }} მ³</span>
                     </div>
                 </div>
 

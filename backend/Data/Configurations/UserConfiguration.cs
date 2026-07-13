@@ -37,6 +37,13 @@ namespace Data.Configurations
                 .IsRequired()
                 .HasMaxLength(20)
                 .HasDefaultValue("User");
+            builder.Property(u => u.Username)
+                .HasMaxLength(75)
+                .IsUnicode(true);
+            builder.Property(u => u.AvatarUrl);
+            builder.Property(u => u.TokenVersion)
+                .IsRequired()
+                .HasDefaultValue(0);
 
             builder.HasMany(u => u.SmsCodes)
                 .WithOne(sc => sc.User)

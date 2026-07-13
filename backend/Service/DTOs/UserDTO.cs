@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace Service.DTOs
 {
@@ -14,6 +15,10 @@ namespace Service.DTOs
         public string PhoneNumber { get; set; } = null!;
         public DateTime CreatedAt { get; set; }
         public string Role { get; set; } = null!;
+        public string? Username { get; set; }
+        public string? AvatarUrl { get; set; }
+        [JsonIgnore]
+        public int TokenVersion { get; set; }
     }
 
     public class CreateUserDTO
@@ -24,6 +29,8 @@ namespace Service.DTOs
         public string PhoneNumber { get; set; } = null!;
         public DateTime CreatedAt { get; set; }
         public string Role { get; set; } = "User";
+        public string? Username { get; set; }
+        public string? AvatarUrl { get; set; }
     }
 
     public class UpdateUserDTO
@@ -33,5 +40,11 @@ namespace Service.DTOs
         public string PersonalId { get; set; } = null!;
         public string PhoneNumber { get; set; } = null!;
         public string Role { get; set; } = null!;
+    }
+
+    public class UpdateProfileDTO
+    {
+        public string Username { get; set; } = null!;
+        public string? AvatarUrl { get; set; }
     }
 }

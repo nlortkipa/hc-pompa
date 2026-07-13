@@ -11,5 +11,8 @@ namespace Service.Interfaces
         Task<PumpOperationDto> CreateAsync(CreatePumpOperationDto dto, int operatorId);
         Task<IEnumerable<PumpOperationDto>> GetAllAsync(int userId, string role, PumpOperationFilterDto? filter = null);
         Task<PumpOperationDto?> GetByIdAsync(int id, int userId, string role);
+        Task<IEnumerable<PumpOperationReviewRequestLinkDto>> GetReviewRequestsForOperationAsync(int pumpOperationId);
+        Task<PumpOperationReviewDto?> GetReviewByTokenAsync(string token);
+        Task<PumpOperationReviewDto?> SubmitReviewDecisionAsync(string token, string decision);
     }
 }

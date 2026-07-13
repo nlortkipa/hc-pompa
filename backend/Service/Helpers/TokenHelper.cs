@@ -10,12 +10,15 @@ namespace Service.Helpers
 {
     public class TokenHelper
     {
-        public static string GenerateToken(int userId, string number, string role, IConfiguration configuration)
+        public const string TokenVersionClaim = "token_version";
+
+        public static string GenerateToken(int userId, string number, string role, int tokenVersion, IConfiguration configuration)
         {
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, number),
-                new Claim(ClaimTypes.NameIdentifier, userId.ToString())
+                new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+                new Claim(TokenVersionClaim, tokenVersion.ToString())
             };
 
             //foreach (var role in roles)

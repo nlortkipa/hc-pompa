@@ -7,6 +7,9 @@ import { New } from './components/console/new/new';
 import { History } from './components/console/history/history';
 import { Users } from './components/console/users/users';
 import { Companies } from './components/console/companies/companies';
+import { Plates } from './components/console/plates/plates';
+import { Review } from './components/review/review';
+import { Settings } from './components/console/settings/settings';
 
 export const routes: Routes = [
     {
@@ -17,18 +20,28 @@ export const routes: Routes = [
     {
         path: 'login',
         component: Login,
-        title: `${APP_NAME} - Login`
+        title: `${APP_NAME} - შესვლა`
     },
     {
         path: 'verify',
         component: Verify,
-        title: `${APP_NAME} - Verify`
+        title: `${APP_NAME} - დადასტურება`
+    },
+    {
+        path: 'review/:token',
+        component: Review,
+        title: `${APP_NAME} - შემოწმება`
     },
     {
         path: 'console',
         component: Console,
-        title: `${APP_NAME} - Console`,
+        title: `${APP_NAME} - პანელი`,
         children: [
+            {
+                path: '',
+                redirectTo: 'history',
+                pathMatch: 'full'
+            },
             {
                 path: 'new',
                 component: New
@@ -44,6 +57,14 @@ export const routes: Routes = [
             {
                 path: 'companies',
                 component: Companies
+            },
+            {
+                path: 'plates',
+                component: Plates
+            },
+            {
+                path: 'settings',
+                component: Settings
             }
         ]
     }

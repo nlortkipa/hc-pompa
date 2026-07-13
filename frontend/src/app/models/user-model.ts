@@ -6,4 +6,6 @@ export interface UserModel {
     phoneNumber: string
     createdAt: Date
     role: string
+    username?: string | null
+    avatarUrl?: string | null
 }

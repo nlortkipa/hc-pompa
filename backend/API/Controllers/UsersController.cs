@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Service.DTOs;
 using Service.Interfaces;
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace API.Controllers
@@ -51,10 +52,17 @@ namespace API.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult<UserDTO>> Update(int id, UpdateUserDTO dto)
         {
+            var currentUserId = GetCurrentUserId();
+            if (currentUserId == null) return Unauthorized();
+
             try
             {
-                var user = await userService.UpdateAsync(id, dto);
+                var user = await userService.UpdateAsync(id, dto, currentUserId.Value);
                 return Ok(user);
+            }
+            catch (Service.Exceptions.ConflictException ex)
+            {
+                return Conflict(ex.Message);
             }
             catch (Exception ex)
             {
@@ -66,8 +74,28 @@ namespace API.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id)
         {
-            await userService.DeleteAsync(id);
-            return NoContent();
+            var currentUserId = GetCurrentUserId();
+            if (currentUserId == null) return Unauthorized();
+
+            try
+            {
+                await userService.DeleteAsync(id, currentUserId.Value);
+                return NoContent();
+            }
+            catch (Service.Exceptions.ConflictException ex)
+            {
+                return Conflict(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        private int? GetCurrentUserId()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return int.TryParse(userId, out var id) ? id : null;
         }
     }
 }

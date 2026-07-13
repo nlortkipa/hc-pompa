@@ -1,1 +1,1 @@
-export const APP_NAME = 'POMPA'
+export const APP_NAME = 'პომპა'

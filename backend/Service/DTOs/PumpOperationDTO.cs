@@ -23,6 +23,9 @@ namespace Service.DTOs
         public decimal IdleTime { get; set; }
         public int DismantleAssemble { get; set; }
         public string PlateNumber { get; set; } = null!;
+        public string ReviewStatus { get; set; } = null!;
+        public DateTime? ReviewedAt { get; set; }
+        public string? ReviewedByCheckerGmail { get; set; }
     }
     
     public class CreatePumpOperationDto

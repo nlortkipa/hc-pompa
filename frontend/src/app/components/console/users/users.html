@@ -1,4 +1,9 @@
-<div class="section-title">მომხმარებლების მართვა</div>
+<div class="section-header">
+    <div>
+        <div class="section-title">მომხმარებლების მართვა</div>
+        <p class="section-subtitle">შექმენით ოპერატორები, ბუღალტრები და ადმინისტრატორები.</p>
+    </div>
+</div>
 
 <div class="card form-card">
     <div class="card-title">{{ isEditing ? 'მომხმარებლის რედაქტირება' : 'ახალი მომხმარებლის დამატება' }}</div>
@@ -21,15 +26,15 @@
         </div>
         <div class="form-group">
             <label>ტელეფონი</label>
-            <input type="text" [(ngModel)]="userForm.phoneNumber" [class.field-error]="errors['phoneNumber']" placeholder="599 XXX XXX">
+            <input type="text" [(ngModel)]="userForm.phoneNumber" [class.field-error]="errors['phoneNumber']" placeholder="599 123 456">
             <div class="field-error-msg" *ngIf="errors['phoneNumber']">{{errors['phoneNumber']}}</div>
         </div>
         <div class="form-group">
             <label>როლი</label>
-            <select [(ngModel)]="userForm.role">
-                <option value="User">ოპერატორი (User)</option>
-                <option value="Accountant">ბუღალტერი (Accountant)</option>
-                <option value="Admin">ადმინისტრატორი (Admin)</option>
+            <select [(ngModel)]="userForm.role" [disabled]="isEditingOwnLastAdmin()">
+                <option value="User">ოპერატორი</option>
+                <option value="Accountant">ბუღალტერი</option>
+                <option value="Admin">ადმინისტრატორი</option>
             </select>
         </div>
     </div>
@@ -70,7 +75,7 @@
                             'badge-red': u.role === 'Admin',
                             'badge-blue': u.role === 'User',
                             'badge-yellow': u.role === 'Accountant'
-                        }">{{u.role}}</span>
+                        }">{{ roleLabel(u.role) }}</span>
                     </td>
                     <td>
                         <div class="actions-cell">
@@ -99,7 +104,7 @@
                 'badge-red': u.role === 'Admin',
                 'badge-blue': u.role === 'User',
                 'badge-yellow': u.role === 'Accountant'
-            }">{{u.role}}</span>
+            }">{{ roleLabel(u.role) }}</span>
         </div>
         <div class="user-mobile-body">
             <div class="info-row"><span>პირადი #:</span> <span class="mono">{{u.personalId}}</span></div>

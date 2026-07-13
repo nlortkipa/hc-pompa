@@ -12,6 +12,10 @@ namespace Service.Services
 {
     public class UserService(IMapper mapper, IUserRepository userRepository) : IUserService
     {
+        private const string AdminRole = "Admin";
+        private const int MaxUsernameLength = 75;
+        private const int MaxAvatarUrlLength = 2_100_000;
+
         public async Task<UserDTO?> GetByIdAsync(int id)
         {
             var user = await userRepository.GetByIdAsync(id);
@@ -59,12 +63,15 @@ namespace Service.Services
 
             var user = mapper.Map<User>(dto);
             user.CreatedAt = DateTime.Now;
+            user.Username = NormalizeUsername(dto.Username, dto.FirstName, dto.LastName);
+            user.AvatarUrl = NormalizeAvatarUrl(dto.AvatarUrl);
+            user.TokenVersion = 0;
 
             await userRepository.AddAsync(user);
             return mapper.Map<UserDTO>(user);
         }
 
-        public async Task<UserDTO> UpdateAsync(int id, UpdateUserDTO dto)
+        public async Task<UserDTO> UpdateAsync(int id, UpdateUserDTO dto, int currentUserId)
         {
             if (string.IsNullOrWhiteSpace(dto.FirstName) || 
                 string.IsNullOrWhiteSpace(dto.LastName) || 
@@ -84,15 +91,102 @@ namespace Service.Services
             var user = await userRepository.GetByIdAsync(id);
             if (user == null) throw new Exception("User not found");
 
+            if (IsAdmin(user.Role) && !IsAdmin(dto.Role) && await IsOnlyAdminAsync(user.Id))
+            {
+                var message = id == currentUserId
+                    ? "You cannot change your own role because you are the only remaining admin."
+                    : "You cannot remove the only remaining admin role.";
+                throw new Service.Exceptions.ConflictException(message);
+            }
+
             mapper.Map(dto, user);
             await userRepository.UpdateAsync(user);
             
             return mapper.Map<UserDTO>(user);
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task<UserDTO> UpdateProfileAsync(int id, UpdateProfileDTO dto)
         {
+            var user = await userRepository.GetByIdAsync(id);
+            if (user == null) throw new Exception("User not found");
+
+            user.Username = NormalizeUsername(dto.Username, user.FirstName, user.LastName);
+            user.AvatarUrl = NormalizeAvatarUrl(dto.AvatarUrl);
+
+            await userRepository.UpdateAsync(user);
+            return mapper.Map<UserDTO>(user);
+        }
+
+        public async Task LogoutAllDevicesAsync(int id)
+        {
+            var user = await userRepository.GetByIdAsync(id);
+            if (user == null) throw new Exception("User not found");
+
+            user.TokenVersion++;
+            await userRepository.UpdateAsync(user);
+        }
+
+        public async Task DeleteAsync(int id, int currentUserId)
+        {
+            var user = await userRepository.GetByIdAsync(id);
+            if (user == null) throw new Exception("User not found");
+
+            if (IsAdmin(user.Role) && await IsOnlyAdminAsync(user.Id))
+            {
+                var message = id == currentUserId
+                    ? "You cannot delete yourself because you are the only remaining admin."
+                    : "You cannot delete the only remaining admin.";
+                throw new Service.Exceptions.ConflictException(message);
+            }
+
             await userRepository.DeleteAsync(id);
+        }
+
+        private async Task<bool> IsOnlyAdminAsync(int userId)
+        {
+            var users = await userRepository.GetAllAsync();
+            return users.Count(u => u.Id != userId && IsAdmin(u.Role)) == 0;
+        }
+
+        private static bool IsAdmin(string? role)
+        {
+            return string.Equals(role, AdminRole, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static string NormalizeUsername(string? username, string firstName, string lastName)
+        {
+            var value = string.IsNullOrWhiteSpace(username)
+                ? $"{firstName} {lastName}".Trim()
+                : username.Trim();
+
+            if (value.Length > MaxUsernameLength)
+            {
+                throw new Exception($"Username must be {MaxUsernameLength} characters or fewer");
+            }
+
+            return value;
+        }
+
+        private static string? NormalizeAvatarUrl(string? avatarUrl)
+        {
+            if (string.IsNullOrWhiteSpace(avatarUrl))
+            {
+                return null;
+            }
+
+            var value = avatarUrl.Trim();
+            if (value.Length > MaxAvatarUrlLength)
+            {
+                throw new Exception("Avatar image is too large");
+            }
+
+            if (!value.StartsWith("data:image/", StringComparison.OrdinalIgnoreCase) &&
+                !Uri.TryCreate(value, UriKind.Absolute, out _))
+            {
+                throw new Exception("Avatar must be an image data URL or an absolute URL");
+            }
+
+            return value;
         }
     }
 }

@@ -1,30 +1,28 @@
 ﻿using AutoMapper;
 using Dal.Interfaces;
-using Dal.Repositories;
 using Data.Entities;
-using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.Extensions.Configuration;
 using Service.DTOs;
 using Service.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
-using System.Web;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Service.Services
 {
     public class SmsCodeService : ISmsCodeService
     {
-        private readonly string _smsKey;
+        private readonly string? _smsKey;
+        private readonly bool _sendSms;
         private readonly HttpClient _httpClient;
         private readonly IMapper _mapper;
         private readonly ISmsCodeRepository _smsCodeRepository;
 
-        public SmsCodeService(HttpClient httpClient, IMapper mapper, ISmsCodeRepository smsCodeRepository)
+        public SmsCodeService(HttpClient httpClient, IMapper mapper, ISmsCodeRepository smsCodeRepository, IConfiguration configuration)
         {
-            _smsKey = Environment.GetEnvironmentVariable("SMS_KEY")
-                ?? throw new Exception("SMS_KEY Not Set.");
+            _smsKey = Environment.GetEnvironmentVariable("SMS_KEY");
+            _sendSms = !bool.TryParse(configuration["Sms:SendSms"], out var sendSms) || sendSms;
+
+            if (_sendSms && string.IsNullOrWhiteSpace(_smsKey))
+                throw new Exception("SMS_KEY Not Set.");
+
             _httpClient = httpClient;
             _mapper = mapper;
             _smsCodeRepository = smsCodeRepository;
@@ -53,27 +51,10 @@ namespace Service.Services
 
             await _smsCodeRepository.AddAsync(smsCode);
 
-            Console.WriteLine($"[SMS SEND] {phoneNumber} -> {code}");
-            try
-            {
-                var queryParameters = $"key={HttpUtility.UrlEncode(_smsKey)}" +
-                                      $"&destination={HttpUtility.UrlEncode(phoneNumber)}" +
-                                      $"&sender={HttpUtility.UrlEncode("Beton.ge")}" +
-                                      $"&content={HttpUtility.UrlEncode(code)}";
-
-                string baseUrl = "http://smsoffice.ge/api/v2/send";
-                string fullUrl = $"{baseUrl}?{queryParameters}";
-
-                HttpResponseMessage response = await _httpClient.GetAsync(fullUrl);
-
-                response.EnsureSuccessStatusCode();
-                string responseData = await response.Content.ReadAsStringAsync();
-            }
-            catch (HttpRequestException ex)
-            {
-                Console.WriteLine($"Error sending SMS: {ex.Message}");
-                throw;
-            }
+            if (_sendSms)
+                await SendSmsAsync(phoneNumber, code);
+            else
+                Console.WriteLine($"[SMS DEV] {phoneNumber} -> {code}");
 
             var smsCodeModel = _mapper.Map<SmsCodeDTO>(smsCode);
             smsCodeModel.UserNumber = phoneNumber;
@@ -90,6 +71,36 @@ namespace Service.Services
                 return false;
 
             return code.Code == model.Code;
+        }
+
+        private async Task SendSmsAsync(string phoneNumber, string code)
+        {
+            if (string.IsNullOrWhiteSpace(_smsKey))
+                throw new Exception("SMS_KEY Not Set.");
+
+            try
+            {
+                var queryParameters = $"key={Encode(_smsKey)}" +
+                                      $"&destination={Encode(phoneNumber)}" +
+                                      $"&sender={Encode("Beton.ge")}" +
+                                      $"&content={Encode(code)}";
+
+                string baseUrl = "http://smsoffice.ge/api/v2/send";
+                string fullUrl = $"{baseUrl}?{queryParameters}";
+
+                HttpResponseMessage response = await _httpClient.GetAsync(fullUrl);
+                response.EnsureSuccessStatusCode();
+            }
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine($"Error sending SMS: {ex.Message}");
+                throw;
+            }
+        }
+
+        private static string Encode(string value)
+        {
+            return Uri.EscapeDataString(value);
         }
     }
 }

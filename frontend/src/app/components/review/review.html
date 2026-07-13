@@ -1,0 +1,100 @@
+<main class="review-shell">
+  <section class="review-card">
+    <div class="review-top">
+      <div>
+        <div class="kicker">შემოწმება</div>
+        <h1>ჩანაწერის დადასტურება</h1>
+      </div>
+      <span *ngIf="operation()" class="badge" [ngClass]="statusClass(operation()?.reviewStatus)">
+        {{ statusLabel(operation()?.reviewStatus) }}
+      </span>
+    </div>
+
+    <div *ngIf="isLoading" class="notice">იტვირთება...</div>
+    <div *ngIf="error" class="notice error">{{ error }}</div>
+    <div *ngIf="message" class="notice success">{{ message }}</div>
+
+    <ng-container *ngIf="operation() as op">
+      <div class="meta-strip">
+        <div>
+          <span>შემმოწმებლის ელფოსტა</span>
+          <strong>{{ op.checkerGmail }}</strong>
+        </div>
+        <div>
+          <span>ჩანაწერი</span>
+          <strong>#{{ op.pumpOperationId }}</strong>
+        </div>
+      </div>
+
+      <div class="details-grid">
+        <div class="detail">
+          <span>თარიღი</span>
+          <strong>{{ op.date | date:'dd.MM.yyyy' }}</strong>
+        </div>
+        <div class="detail">
+          <span>ოპერატორი</span>
+          <strong>{{ op.operatorFirstName }} {{ op.operatorLastName }}</strong>
+        </div>
+        <div class="detail wide">
+          <span>კომპანია</span>
+          <strong>{{ op.companyName }}</strong>
+        </div>
+        <div class="detail wide">
+          <span>მისამართი</span>
+          <strong>{{ op.addressName }}</strong>
+        </div>
+        <div class="detail">
+          <span>სანომრე ნიშანი</span>
+          <strong>{{ op.plateNumber }}</strong>
+        </div>
+        <div class="detail">
+          <span>ბეტონი</span>
+          <strong>{{ op.concreteVolume }} მ³</strong>
+        </div>
+      </div>
+
+      <div class="ops-table">
+        <div class="ops-row">
+          <span>პომპის გადადგმა</span>
+          <strong>{{ op.pumpRelocation }}</strong>
+        </div>
+        <div class="ops-row">
+          <span>სტაციონარის გადადგმა</span>
+          <strong>{{ op.stationaryRelocation }}</strong>
+        </div>
+        <div class="ops-row">
+          <span>ჰიდრავლიკის გადადგმა</span>
+          <strong>{{ op.hydraulicRelocation }}</strong>
+        </div>
+        <div class="ops-row">
+          <span>სტაციონარის გადაწყობა</span>
+          <strong>{{ op.stationaryReposition }}</strong>
+        </div>
+        <div class="ops-row">
+          <span>დაშლა / აწყობა</span>
+          <strong>{{ op.dismantleAssemble }}</strong>
+        </div>
+        <div class="ops-row">
+          <span>მოცდენა</span>
+          <strong>{{ op.idleTime }} სთ</strong>
+        </div>
+      </div>
+
+      <div *ngIf="op.reviewStatus === 'Pending'; else reviewedState" class="review-actions">
+        <button class="btn btn-secondary" type="button" (click)="reject()" [disabled]="isSubmitting">
+          უარყოფა
+        </button>
+        <button class="btn btn-primary" type="button" (click)="accept()" [disabled]="isSubmitting">
+          დადასტურება
+        </button>
+      </div>
+
+      <ng-template #reviewedState>
+        <div class="reviewed-state">
+          <strong>ჩანაწერი {{ statusLabel(op.reviewStatus) }}.</strong>
+          <span *ngIf="op.reviewedAt">შემოწმდა {{ op.reviewedAt | date:'dd.MM.yyyy HH:mm' }}</span>
+        </div>
+      </ng-template>
+    </ng-container>
+  </section>
+</main>

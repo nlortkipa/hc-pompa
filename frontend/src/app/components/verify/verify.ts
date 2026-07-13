@@ -76,7 +76,7 @@ export class Verify implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.error.set(err.error);
+        this.error.set('კოდის დადასტურება ვერ მოხერხდა.');
         localStorage.removeItem('token')
         this.showError.set(true);
       }

@@ -41,7 +41,7 @@ export class AuthService {
 
   verifyCode(code: string) {
     const smsCode = this.smsCode();
-    if (!smsCode) return throwError(() => new Error('No active SMS code'));
+    if (!smsCode) return throwError(() => new Error('აქტიური სმს კოდი არ არის'));
 
     return this.http.post(
       `${this.configService.backendUrl}/api/auth/verify-code`,

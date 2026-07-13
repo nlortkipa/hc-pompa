@@ -51,7 +51,7 @@ namespace API.Controllers
             if (!res) 
                 return BadRequest("შეყვანილია ვადაგასული ან არასწორი კოდი");
 
-            var token = TokenHelper.GenerateToken(user.Id, user.PhoneNumber, user.Role, _configuration);
+            var token = TokenHelper.GenerateToken(user.Id, user.PhoneNumber, user.Role, user.TokenVersion, _configuration);
             return Ok(token);
         }
     }

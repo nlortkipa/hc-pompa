@@ -40,6 +40,11 @@ namespace Data.Configurations
             builder.Property(p => p.PlateNumber)
                 .IsRequired()
                 .HasMaxLength(20);
+            builder.Property(p => p.ReviewStatus)
+                .IsRequired()
+                .HasMaxLength(20);
+            builder.Property(p => p.ReviewedByCheckerGmail)
+                .HasMaxLength(120);
 
             builder.HasOne(p => p.Operator)
                 .WithMany(o => o.PumpOperations)

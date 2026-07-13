@@ -4,7 +4,9 @@
   align-items: start;
   gap: 18px;
   width: 100%;
-  max-width: 1120px;
+  max-width: var(--content-max);
+  margin-right: auto;
+  margin-left: auto;
 }
 
 .list-card {
@@ -144,16 +146,27 @@
 
 @media (max-width: 560px) {
   .form-inline {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    gap: 6px;
   }
 
   .compact-btn {
-    width: 100%;
+    width: 38px;
   }
 
   .item-row {
-    align-items: stretch;
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding: 10px;
+    gap: 10px;
+    min-height: 48px;
+    align-items: center;
+  }
+
+  .item-name {
+    font-size: 14px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
   }
 
   .item-actions {

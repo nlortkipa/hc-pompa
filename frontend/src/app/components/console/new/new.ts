@@ -5,8 +5,10 @@ import { finalize } from 'rxjs/operators';
 import { CompanyModel } from '../../../models/company-model';
 import { AddressModel } from '../../../models/address-model';
 import { CompanyService } from '../../../services/company-service';
+import { PlateService } from '../../../services/plate-service';
 import { PumpOperationService } from '../../../services/pump-operation-service';
 import { PumpOperationModel } from '../../../models/pump-operation';
+import { Plate } from '../../../models/plate-model';
 import { ProfileService } from '../../../services/profile-service';
 import { Router } from '@angular/router';
 
@@ -39,6 +41,8 @@ interface OpItem {
   unit: string;
 }
 
+type DropdownName = 'company' | 'address' | 'plate';
+
 @Component({
   selector: 'app-pompa-wizard',
   standalone: true,
@@ -54,11 +58,6 @@ export class New implements OnInit {
     { id: 2, name: 'ლევან ბერიძე', phone: '+995 577 200 002', active: true },
     { id: 3, name: 'დავით ჩიქოვანი', phone: '+995 598 300 003', active: true },
   ];
-  pumps: Pump[] = [
-    { id: 1, plate: 'GE-001-AA', type: 'Pump' },
-    { id: 2, plate: 'GE-002-BB', type: 'Stationary Pump' },
-    { id: 3, plate: 'GE-003-CC', type: 'Hydraulic Distributor' },
-  ];
 
   operations: Operation[] = [];
   nextOpId = 6;
@@ -71,6 +70,9 @@ export class New implements OnInit {
 
   companySearch = signal('');
   addressSearch = signal('');
+  plateSearch = signal('');
+  openPicker = signal<DropdownName | null>(null);
+  plates = signal<Plate[]>([]);
 
   filteredCompanies = computed(() => {
     const search = this.companySearch().toLowerCase();
@@ -79,13 +81,20 @@ export class New implements OnInit {
     );
   });
 
+  filteredPlates = computed(() => {
+    const search = this.plateSearch().toLowerCase();
+    return this.plates().filter(p => 
+      p.number.toLowerCase().includes(search)
+    );
+  });
+
   wiz: WizardState = this.defaultWiz();
   isLoading = false;
 
   readonly opItems: OpItem[] = [
-    { key: 'pumpRelocation',        label: 'Pump Relocation (გადადგომა)', unit: 'ცალი' },
-    { key: 'stationaryRelocation',  label: 'Stationary Relocation',       unit: 'ცალი' },
-    { key: 'hydraulicRelocation',   label: 'Hydraulic Relocation',        unit: 'ცალი' },
+    { key: 'pumpRelocation',        label: 'პომპის გადადგმა',             unit: 'ცალი' },
+    { key: 'stationaryRelocation',  label: 'სტაციონარის გადადგმა',        unit: 'ცალი' },
+    { key: 'hydraulicRelocation',   label: 'ჰიდრავლიკის გადადგმა',        unit: 'ცალი' },
     { key: 'stationaryReposition',  label: 'სტაციონარის გადაწყობა',       unit: 'ცალი' },
     { key: 'idleTime',              label: 'მოცდენა',                     unit: 'სთ'   },
     { key: 'dismantleAssemble',     label: 'დაშლა / აწყობა',        unit: 'ცალი' },
@@ -99,16 +108,17 @@ export class New implements OnInit {
 
   /* ── REVIEW LABELS ── */
   readonly opLabels: Record<string, string> = {
-    pumpRelocation:       'Pump Relocation',
-    stationaryRelocation: 'Stationary Relocation',
-    hydraulicRelocation:  'Hydraulic Relocation',
+    pumpRelocation:       'პომპის გადადგმა',
+    stationaryRelocation: 'სტაციონარის გადადგმა',
+    hydraulicRelocation:  'ჰიდრავლიკის გადადგმა',
     stationaryReposition: 'გადაწყობა',
     idleTime:             'მოცდენა',
-    dismantleAssemble:    'Dismantle/Assemble',
+    dismantleAssemble:    'დაშლა / აწყობა',
   };
 
   constructor(
     public companyService: CompanyService,
+    private plateService: PlateService,
     private pumpOperationService: PumpOperationService,
     private profileService: ProfileService,
     private router: Router,
@@ -125,6 +135,9 @@ export class New implements OnInit {
 
   ngOnInit(): void {
     this.resetWizard();
+    this.plateService.getPlates().subscribe(res => {
+      this.plates.set(res);
+    });
   }
 
   private defaultWiz(): WizardState {
@@ -143,6 +156,10 @@ export class New implements OnInit {
   resetWizard(): void {
     this.wiz = this.defaultWiz();
     this.errors = {};
+    this.companySearch.set('');
+    this.addressSearch.set('');
+    this.plateSearch.set('');
+    this.closeDropdown();
     // this.platePermission = null;
     this.companyService.addresses.set([]);
   }
@@ -174,6 +191,44 @@ export class New implements OnInit {
     }
   }
 
+  selectCompany(id: number): void {
+    this.wiz.companyId = id;
+    this.onCompanyChange();
+    this.closeDropdown();
+  }
+
+  selectAddress(id: number): void {
+    this.wiz.addressId = id;
+    this.addressSearch.set('');
+    this.clearError('addressId');
+    this.closeDropdown();
+  }
+
+  selectPlate(number: string): void {
+    this.wiz.pumpPlate = number;
+    this.onPlateChange();
+    this.closeDropdown();
+  }
+
+  openDropdown(name: DropdownName): void {
+    this.openPicker.set(name);
+  }
+
+  closeDropdown(): void {
+    this.openPicker.set(null);
+  }
+
+  isDropdownOpen(name: DropdownName): boolean {
+    return this.openPicker() === name;
+  }
+
+  onPlateChange(): void {
+    const plate = this.plates().find(p => p.number === this.wiz.pumpPlate);
+    this.wiz.pumpId = plate?.id ?? null;
+    this.plateSearch.set('');
+    this.clearError('pumpPlate');
+  }
+
   get filteredAddresses(): AddressModel[] { 
     const search = this.addressSearch().toLowerCase();
     return this.companyService.addresses().filter(a => 
@@ -182,18 +237,13 @@ export class New implements OnInit {
   }
   get selectedCompany(): CompanyModel | undefined { return this.companyService.companies().find(c => c.id === this.wiz.companyId); }
   get selectedAddress(): AddressModel | undefined { return this.companyService.addresses().find(a => a.id === this.wiz.addressId); }
+  get selectedCompanyName(): string { return this.selectedCompany?.name ?? ''; }
+  get selectedAddressName(): string { return this.selectedAddress?.name ?? ''; }
 
   get reviewOps(): { label: string; val: number; unit: string }[] {
     return this.opItems
       .filter(op => this.wiz[op.key] > 0)
       .map(op => ({ label: this.opLabels[op.key], val: this.wiz[op.key], unit: op.unit }));
-  }
-
-  autoDetectPump(): void {
-    const p = this.pumps.find(p => p.plate.toLowerCase() === this.wiz.pumpPlate.toLowerCase());
-    this.wiz.pumpType = p ? p.type : '';
-    this.wiz.pumpId = p ? p.id : null;
-    this.clearError('pumpPlate');
   }
 
   onOpQtyChange(key: OpItem['key'], val: number): void {
@@ -245,7 +295,7 @@ export class New implements OnInit {
     }
 
     if (s === 4) {
-      if (this.wiz.concreteVolume === null || this.wiz.concreteVolume < 0) {
+      if (this.wiz.concreteVolume === null || this.wiz.concreteVolume <= 0) {
         this.errors['concreteVolume'] = 'ბეტონის მოცულობა სავალდებულოა';
       }
     }
@@ -302,7 +352,7 @@ export class New implements OnInit {
         },
         error: (err: any) => {
           this.zone.run(() => {
-            console.error('Failed to save pump operation:', err);
+            console.error('ოპერაციის შენახვა ვერ მოხერხდა:', err);
             this.showToast('❌ შენახვა ვერ მოხერხდა');
           });
         }

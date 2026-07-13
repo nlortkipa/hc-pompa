@@ -12,7 +12,9 @@ namespace Service.Interfaces
         Task<UserDTO?> GetByNumberAsync(string number);
         Task<IEnumerable<UserDTO>> GetAllAsync();
         Task<UserDTO> CreateAsync(CreateUserDTO dto);
-        Task<UserDTO> UpdateAsync(int id, UpdateUserDTO dto);
-        Task DeleteAsync(int id);
+        Task<UserDTO> UpdateAsync(int id, UpdateUserDTO dto, int currentUserId);
+        Task<UserDTO> UpdateProfileAsync(int id, UpdateProfileDTO dto);
+        Task LogoutAllDevicesAsync(int id);
+        Task DeleteAsync(int id, int currentUserId);
     }
 }

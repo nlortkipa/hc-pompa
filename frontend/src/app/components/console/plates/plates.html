@@ -1,0 +1,54 @@
+<div class="section-header">
+    <div>
+        <div class="section-title">სანომრე ნიშნები</div>
+        <p class="section-subtitle">თითოეულ ნომერს მიაბით შემმოწმებლის ელფოსტა, რომ ოპერაციის დადასტურების ბმული სწორ მისამართზე წავიდეს.</p>
+    </div>
+</div>
+
+<div class="management-grid single-col">
+    <div class="card list-card">
+        <div class="form-inline mb-4">
+            <div class="form-group compact-group">
+                <label>ნომერი</label>
+                <input type="text" [(ngModel)]="plateForm.number" placeholder="სანომრე ნიშანი" class="form-control"
+                    [class.field-error]="errors['number']">
+                <div class="field-error-msg" *ngIf="errors['number']">{{errors['number']}}</div>
+            </div>
+            <div class="form-group compact-group">
+                <label>შემმოწმებლის ელფოსტა</label>
+                <input type="email" [(ngModel)]="plateForm.checkerGmail" placeholder="ელფოსტა"
+                    class="form-control" [class.field-error]="errors['checkerGmail']">
+                <div class="field-error-msg" *ngIf="errors['checkerGmail']">{{errors['checkerGmail']}}</div>
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-primary" (click)="savePlate()" [disabled]="isLoading">
+                    {{ isEditing ? 'განახლება' : 'დამატება' }}
+                </button>
+                <button *ngIf="isEditing" class="btn btn-secondary compact-btn" title="გაუქმება"
+                    (click)="cancelEdit()">×</button>
+            </div>
+        </div>
+
+        <div class="list-toolbar">
+            <input type="search" [ngModel]="plateSearch()" (ngModelChange)="plateSearch.set($event); filterPlates()"
+                placeholder="ძებნა ნომრით">
+            <span class="pill">{{ filteredPlates().length }} ნომერი</span>
+        </div>
+
+        <div class="item-list">
+            <div *ngFor="let p of filteredPlates()" class="item-row no-hover">
+                <div class="plate-info">
+                    <span class="item-name">{{p.number}}</span>
+                    <span class="checker-gmail">{{p.checkerGmail || 'ელფოსტა არ არის მითითებული'}}</span>
+                </div>
+                <div class="item-actions">
+                    <button class="icon-btn" title="შეცვლა" (click)="editPlate(p)">✎</button>
+                    <button class="icon-btn text-danger" title="წაშლა" (click)="deletePlate(p.id)">×</button>
+                </div>
+            </div>
+            <div *ngIf="filteredPlates().length === 0" class="empty-msg">
+                ნომერი ვერ მოიძებნა
+            </div>
+        </div>
+    </div>
+</div>

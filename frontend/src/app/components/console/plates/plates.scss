@@ -1,0 +1,187 @@
+.section-header {
+    max-width: 760px;
+}
+
+.management-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 18px;
+    width: 100%;
+    max-width: 1120px;
+    margin: 0 auto;
+
+    &.single-col {
+        grid-template-columns: minmax(0, 1fr);
+        max-width: 760px;
+    }
+}
+
+.list-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    max-height: 70vh;
+    min-height: 360px;
+    border-top: 4px solid var(--primary);
+}
+
+.form-inline {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) auto;
+    align-items: start;
+    gap: 10px;
+    margin-bottom: 18px;
+    flex-shrink: 0;
+}
+
+.compact-group {
+    margin-bottom: 0;
+}
+
+.form-actions {
+    display: flex;
+    gap: 8px;
+    padding-top: 29px;
+}
+
+.form-control {
+    min-width: 0;
+}
+
+.list-toolbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.compact-btn {
+    width: 44px;
+    padding-right: 0;
+    padding-left: 0;
+    font-size: 18px;
+}
+
+.item-list {
+    display: grid;
+    gap: 8px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.item-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+    min-height: 54px;
+    padding: 10px 11px 10px 13px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    transition: background 160ms ease, border-color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+
+    &.no-hover {
+        cursor: default;
+    }
+
+    &:not(.no-hover) {
+        cursor: pointer;
+        &:hover {
+            background: var(--surface-hover);
+            border-color: var(--border-strong);
+            transform: translateY(-1px);
+        }
+    }
+}
+
+.item-name {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 800;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.plate-info {
+    display: grid;
+    min-width: 0;
+    gap: 4px;
+}
+
+.checker-gmail {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.item-actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.empty-msg {
+    padding: 22px;
+    color: var(--text-muted);
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+}
+
+@media (max-width: 920px) {
+    .management-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .list-card {
+        min-height: 0;
+    }
+}
+
+@media (max-width: 560px) {
+    .form-inline {
+        grid-template-columns: 1fr;
+        gap: 6px;
+    }
+
+    .form-actions {
+        padding-top: 0;
+    }
+
+    .list-toolbar {
+        grid-template-columns: 1fr;
+        align-items: stretch;
+    }
+
+    .compact-btn {
+        width: 38px;
+    }
+
+    .item-row {
+        grid-template-columns: minmax(0, 1fr) auto;
+        padding: 10px;
+        gap: 10px;
+        min-height: 48px;
+    }
+
+    .item-name {
+        font-size: 14px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    .item-actions {
+        border-top: none;
+        padding-top: 0;
+    }
+}

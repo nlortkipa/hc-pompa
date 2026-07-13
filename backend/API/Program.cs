@@ -1,11 +1,13 @@
 using Dal.Interfaces;
 using Dal.Repositories;
-using Data;using DotNetEnv;
+using Data;
+using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Service.Interfaces;
+using Service.Helpers;
 using Service.Mapping;
 using Service.Services;
 using System.Security.Claims;
@@ -49,7 +51,7 @@ namespace API
                         ValidateAudience = false,
                         ValidateLifetime = true,
 
-                        // 🔥 Tell ASP.NET which claim to use for roles
+                        // Use the same role claim type that TokenHelper emits.
                         RoleClaimType = ClaimTypes.Role,
                         NameClaimType = ClaimTypes.NameIdentifier
                     };
@@ -74,6 +76,29 @@ namespace API
                             }
 
                             return Task.CompletedTask;
+                        },
+                        OnTokenValidated = async context =>
+                        {
+                            var userIdClaim = context.Principal?.FindFirstValue(ClaimTypes.NameIdentifier);
+                            var tokenVersionClaim = context.Principal?.FindFirstValue(TokenHelper.TokenVersionClaim);
+
+                            if (!int.TryParse(userIdClaim, out var userId) ||
+                                !int.TryParse(tokenVersionClaim, out var tokenVersion))
+                            {
+                                context.Fail("Invalid token.");
+                                return;
+                            }
+
+                            var db = context.HttpContext.RequestServices.GetRequiredService<ProjectContext>();
+                            var currentTokenVersion = await db.Users
+                                .Where(user => user.Id == userId)
+                                .Select(user => (int?)user.TokenVersion)
+                                .FirstOrDefaultAsync();
+
+                            if (currentTokenVersion == null || currentTokenVersion.Value != tokenVersion)
+                            {
+                                context.Fail("Token has been invalidated.");
+                            }
                         }
                     };
                 });
@@ -85,12 +110,16 @@ namespace API
             builder.Services.AddScoped<IAddressRepository, AddressRepository>();
             builder.Services.AddScoped<ICompanyAddressRepository, CompanyAddressRepository>();
             builder.Services.AddScoped<IPumpOperationRepository, PumpOperationRepository>();
+            builder.Services.AddScoped<IPlateRepository, PlateRepository>();
+            builder.Services.AddScoped<IPumpOperationReviewRequestRepository, PumpOperationReviewRequestRepository>();
 
             // Add services to the container
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<ISmsCodeService, SmsCodeService>();
+            builder.Services.AddScoped<IEmailService, EmailService>();
             builder.Services.AddScoped<ICompanyService, CompanyService>();
             builder.Services.AddScoped<IPumpOperationService, PumpOperationService>();
+            builder.Services.AddScoped<IPlateService, PlateService>();
 
             builder.Services.AddAutoMapper(cfg => { }, typeof(MappingProfile).Assembly);
 
@@ -109,12 +138,13 @@ namespace API
                 try
                 {
                     var context = services.GetRequiredService<ProjectContext>();
+                    await context.Database.EnsureDeletedAsync();
                     await context.Database.MigrateAsync();
                 }
                 catch (Exception ex)
                 {
                     var logger = services.GetRequiredService<ILogger<Program>>();
-                    logger.LogError(ex, "An error occurred while creating or migrating the database.");
+                    logger.LogError(ex, "An error occurred while resetting or migrating the database.");
                 }
             }
             // -----------------------------------------

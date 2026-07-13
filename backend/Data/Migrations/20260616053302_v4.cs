@@ -12,6 +12,16 @@ namespace Data.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.Sql("""
+                IF EXISTS (
+                    SELECT 1
+                    FROM sys.indexes
+                    WHERE [name] = N'IX_Companies_Name'
+                        AND [object_id] = OBJECT_ID(N'[dbo].[Companies]')
+                )
+                    DROP INDEX [IX_Companies_Name] ON [dbo].[Companies];
+                """);
+
             migrationBuilder.DeleteData(
                 table: "Addresses",
                 keyColumn: "Id",
@@ -101,6 +111,33 @@ namespace Data.Migrations
                 table: "Companies",
                 keyColumn: "Id",
                 keyValue: 57);
+
+            migrationBuilder.Sql("""
+                SET IDENTITY_INSERT [dbo].[Companies] ON;
+
+                IF NOT EXISTS (SELECT 1 FROM [dbo].[Companies] WHERE [Id] = 6)
+                    INSERT INTO [dbo].[Companies] ([Id], [Name]) VALUES (6, N'__migration_company_6');
+                IF NOT EXISTS (SELECT 1 FROM [dbo].[Companies] WHERE [Id] = 8)
+                    INSERT INTO [dbo].[Companies] ([Id], [Name]) VALUES (8, N'__migration_company_8');
+                IF NOT EXISTS (SELECT 1 FROM [dbo].[Companies] WHERE [Id] = 10)
+                    INSERT INTO [dbo].[Companies] ([Id], [Name]) VALUES (10, N'__migration_company_10');
+                IF NOT EXISTS (SELECT 1 FROM [dbo].[Companies] WHERE [Id] = 13)
+                    INSERT INTO [dbo].[Companies] ([Id], [Name]) VALUES (13, N'__migration_company_13');
+                IF NOT EXISTS (SELECT 1 FROM [dbo].[Companies] WHERE [Id] = 14)
+                    INSERT INTO [dbo].[Companies] ([Id], [Name]) VALUES (14, N'__migration_company_14');
+                IF NOT EXISTS (SELECT 1 FROM [dbo].[Companies] WHERE [Id] = 22)
+                    INSERT INTO [dbo].[Companies] ([Id], [Name]) VALUES (22, N'__migration_company_22');
+                IF NOT EXISTS (SELECT 1 FROM [dbo].[Companies] WHERE [Id] = 24)
+                    INSERT INTO [dbo].[Companies] ([Id], [Name]) VALUES (24, N'__migration_company_24');
+                IF NOT EXISTS (SELECT 1 FROM [dbo].[Companies] WHERE [Id] = 25)
+                    INSERT INTO [dbo].[Companies] ([Id], [Name]) VALUES (25, N'__migration_company_25');
+                IF NOT EXISTS (SELECT 1 FROM [dbo].[Companies] WHERE [Id] = 31)
+                    INSERT INTO [dbo].[Companies] ([Id], [Name]) VALUES (31, N'__migration_company_31');
+                IF NOT EXISTS (SELECT 1 FROM [dbo].[Companies] WHERE [Id] = 32)
+                    INSERT INTO [dbo].[Companies] ([Id], [Name]) VALUES (32, N'__migration_company_32');
+
+                SET IDENTITY_INSERT [dbo].[Companies] OFF;
+                """);
 
             migrationBuilder.UpdateData(
                 table: "Addresses",
@@ -899,6 +936,16 @@ namespace Data.Migrations
                     { 56, 54, 41 },
                     { 57, 55, 41 }
                 });
+
+            migrationBuilder.Sql("""
+                IF NOT EXISTS (
+                    SELECT 1
+                    FROM sys.indexes
+                    WHERE [name] = N'IX_Companies_Name'
+                        AND [object_id] = OBJECT_ID(N'[dbo].[Companies]')
+                )
+                    CREATE UNIQUE INDEX [IX_Companies_Name] ON [dbo].[Companies] ([Name]);
+                """);
         }
 
         /// <inheritdoc />
