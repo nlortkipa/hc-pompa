@@ -25,21 +25,20 @@ namespace Data.Configurations
                 .IsRequired();
             builder.Property(p => p.ConcreteVolume)
                 .IsRequired();
-            builder.Property(p => p.PumpRelocation)
+            builder.Property(p => p.AdditionalStanding)
                 .IsRequired();
-            builder.Property(p => p.StationaryRelocation)
-                .IsRequired();
-            builder.Property(p => p.HydraulicRelocation)
-                .IsRequired();
-            builder.Property(p => p.StationaryReposition)
-                .IsRequired();
-            builder.Property(p => p.IdleTime)
+            builder.Property(p => p.IsIdle)
                 .IsRequired();
             builder.Property(p => p.DismantleAssemble)
                 .IsRequired();
             builder.Property(p => p.PlateNumber)
                 .IsRequired()
                 .HasMaxLength(20);
+            builder.Property(p => p.PumpType)
+                .IsRequired()
+                .HasMaxLength(20);
+            builder.Property(p => p.DistanceRange)
+                .HasMaxLength(10);
             builder.Property(p => p.ReviewStatus)
                 .IsRequired()
                 .HasMaxLength(20);

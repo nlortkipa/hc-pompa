@@ -22,19 +22,16 @@ namespace Data.Entities
         [Required]
         public decimal ConcreteVolume { get; set; }
         [Required]
-        public int PumpRelocation { get; set; }
+        public int AdditionalStanding { get; set; }
         [Required]
-        public int StationaryRelocation { get; set; }
-        [Required]
-        public int HydraulicRelocation { get; set; }
-        [Required]
-        public int StationaryReposition { get; set; }
-        [Required]
-        public decimal IdleTime { get; set; }
+        public bool IsIdle { get; set; }
         [Required]
         public int DismantleAssemble { get; set; }
         [Required]
         public string PlateNumber { get; set; } = null!;
+        [Required]
+        public string PumpType { get; set; } = string.Empty;
+        public string? DistanceRange { get; set; }
         [Required]
         public string ReviewStatus { get; set; } = "Pending";
         public DateTime? ReviewedAt { get; set; }

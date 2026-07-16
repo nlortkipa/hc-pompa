@@ -18,6 +18,7 @@ namespace Data
         public DbSet<CompanyAddress> CompanyAddresses { get; set; }
         public DbSet<PumpOperation> PumpOperations { get; set; }
         public DbSet<Plate> Plates { get; set; }
+        public DbSet<PlateCheckerEmail> PlateCheckerEmails { get; set; }
         public DbSet<PumpOperationReviewRequest> PumpOperationReviewRequests { get; set; }
 
         public ProjectContext()
@@ -41,17 +42,20 @@ namespace Data
             modelBuilder.ApplyConfiguration(new CompanyAddressConfiguration());
             modelBuilder.ApplyConfiguration(new PumpOperationConfiguration());
             modelBuilder.ApplyConfiguration(new PlateConfiguration());
+            modelBuilder.ApplyConfiguration(new PlateCheckerEmailConfiguration());
             modelBuilder.ApplyConfiguration(new PumpOperationReviewRequestConfiguration());
 
             // seeding
             modelBuilder.Entity<Plate>().HasData(
-                new Plate { Id = 1, Number = "II210NI", CheckerGmail = "" },
-                new Plate { Id = 2, Number = "PB107PB", CheckerGmail = "" },
-                new Plate { Id = 3, Number = "BB685FF", CheckerGmail = "" },
-                new Plate { Id = 4, Number = "VQ632QV", CheckerGmail = "" },
-                new Plate { Id = 5, Number = "CC178LC", CheckerGmail = "" },
-                new Plate { Id = 6, Number = "WW832GW", CheckerGmail = "" },
-                new Plate { Id = 7, Number = "OV247VO", CheckerGmail = "" }
+                new Plate { Id = 1, Number = "II210NI", Type = "52მ" },
+                new Plate { Id = 2, Number = "PB107PB", Type = "42მ" },
+                new Plate { Id = 3, Number = "BB685FF", Type = "42მ" },
+                new Plate { Id = 4, Number = "VQ632QV", Type = "42მ" },
+                new Plate { Id = 5, Number = "CC178LC", Type = "<60მ" },
+                new Plate { Id = 6, Number = "WW832GW", Type = "<60მ" },
+                new Plate { Id = 7, Number = "OV247VO", Type = "47მ" },
+                new Plate { Id = 8, Number = "CG368CG", Type = "48მ" },
+                new Plate { Id = 9, Number = "ᲰᲘᲓ. ᲒᲐᲛᲐᲜᲐᲬᲘᲚᲔᲑᲔᲚᲘ", Type = "18მ" }
             );
 
             modelBuilder.Entity<User>().HasData(
@@ -236,9 +240,6 @@ namespace Data
                     Role = "User"
                 }
             );
-            modelBuilder.Entity<Company>().HasData(CompanyAddressSeedData.Companies);
-            modelBuilder.Entity<Address>().HasData(CompanyAddressSeedData.Addresses);
-            modelBuilder.Entity<CompanyAddress>().HasData(CompanyAddressSeedData.CompanyAddresses);
         }
     }
 }

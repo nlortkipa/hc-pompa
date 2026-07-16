@@ -20,6 +20,9 @@ namespace Service.Services
         private const string PendingStatus = "Pending";
         private const string AcceptedStatus = "Accepted";
         private const string RejectedStatus = "Rejected";
+        private const string UnderSixtyMeterPumpType = "<60მ";
+        private static readonly HashSet<string> AllowedDistanceRanges =
+            new(StringComparer.Ordinal) { "<100მ", "> 100მ" };
 
         public async Task<PumpOperationDto> CreateAsync(CreatePumpOperationDto dto, int operatorId)
         {
@@ -31,26 +34,37 @@ namespace Service.Services
                 throw new InvalidOperationException("Plate was not found");
             }
 
-            if (string.IsNullOrWhiteSpace(plate.CheckerGmail))
+            var checkerEmails = plate.CheckerEmails
+                .Select(checker => checker.Email)
+                .Where(email => !string.IsNullOrWhiteSpace(email))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            if (checkerEmails.Count == 0)
             {
-                throw new InvalidOperationException("Checker Gmail is required for this plate");
+                throw new InvalidOperationException("At least one checker email is required for this plate");
             }
 
             var entity = mapper.Map<PumpOperation>(dto);
             entity.OperatorId = operatorId;
             entity.PlateNumber = plate.Number;
+            entity.PumpType = plate.Type;
+            entity.DistanceRange = NormalizeDistanceRange(dto.DistanceRange, plate.Type);
             entity.ReviewStatus = PendingStatus;
 
             await repository.AddAsync(entity);
 
-            await reviewRequestRepository.AddAsync(new PumpOperationReviewRequest
+            foreach (var checkerEmail in checkerEmails)
             {
-                PumpOperationId = entity.Id,
-                CheckerGmail = plate.CheckerGmail,
-                Token = Guid.NewGuid().ToString("N"),
-                Status = PendingStatus,
-                CreatedAt = DateTime.Now
-            });
+                await reviewRequestRepository.AddAsync(new PumpOperationReviewRequest
+                {
+                    PumpOperationId = entity.Id,
+                    CheckerGmail = checkerEmail,
+                    Token = Guid.NewGuid().ToString("N"),
+                    Status = PendingStatus,
+                    CreatedAt = DateTime.Now
+                });
+            }
 
             var createdEntity = await repository.GetByIdAsync(entity.Id) ?? entity;
             return mapper.Map<PumpOperationDto>(createdEntity);
@@ -72,10 +86,19 @@ namespace Service.Services
                     entities = entities.Where(x => x.Date.Date <= filter.ToDate.Value.Date);
                 if (filter.CompanyId.HasValue)
                     entities = entities.Where(x => x.CompanyId == filter.CompanyId.Value);
+                if (!string.IsNullOrWhiteSpace(filter.CompanyName))
+                    entities = entities.Where(x => x.Company.Name.Contains(filter.CompanyName.Trim(), StringComparison.OrdinalIgnoreCase));
                 if (filter.AddressId.HasValue)
                     entities = entities.Where(x => x.AddressId == filter.AddressId.Value);
                 if (filter.OperatorId.HasValue)
                     entities = entities.Where(x => x.OperatorId == filter.OperatorId.Value);
+                if (!string.IsNullOrWhiteSpace(filter.OperatorName))
+                {
+                    var operatorName = filter.OperatorName.Trim();
+                    entities = entities.Where(x =>
+                        $"{x.Operator.FirstName} {x.Operator.LastName}"
+                            .Contains(operatorName, StringComparison.OrdinalIgnoreCase));
+                }
                 if (!string.IsNullOrWhiteSpace(filter.PlateNumber))
                     entities = entities.Where(x => x.PlateNumber.Contains(filter.PlateNumber.Trim(), StringComparison.OrdinalIgnoreCase));
             }
@@ -135,15 +158,14 @@ namespace Service.Services
 
             if (request.PumpOperation.ReviewStatus == PendingStatus)
             {
-                var reviewedAt = DateTime.Now;
+                await reviewRequestRepository.TrySetFirstDecisionAsync(
+                    request.PumpOperationId,
+                    decision,
+                    request.CheckerGmail,
+                    DateTime.Now);
 
-                request.Status = decision;
-                request.ReviewedAt = reviewedAt;
-                request.PumpOperation.ReviewStatus = decision;
-                request.PumpOperation.ReviewedAt = reviewedAt;
-                request.PumpOperation.ReviewedByCheckerGmail = request.CheckerGmail;
-
-                await reviewRequestRepository.UpdateAsync(request);
+                request = await reviewRequestRepository.GetByTokenAsync(token);
+                if (request == null) return null;
             }
 
             return MapReviewDto(request);
@@ -158,6 +180,7 @@ namespace Service.Services
                 Token = request.Token,
                 ReviewStatus = operation.ReviewStatus,
                 ReviewedAt = operation.ReviewedAt,
+                ReviewedByCheckerGmail = operation.ReviewedByCheckerGmail,
                 CheckerGmail = request.CheckerGmail,
                 PumpOperationId = operation.Id,
                 Date = operation.Date,
@@ -169,14 +192,34 @@ namespace Service.Services
                 AddressId = operation.AddressId,
                 AddressName = operation.Address.Name,
                 ConcreteVolume = operation.ConcreteVolume,
-                PumpRelocation = operation.PumpRelocation,
-                StationaryRelocation = operation.StationaryRelocation,
-                HydraulicRelocation = operation.HydraulicRelocation,
-                StationaryReposition = operation.StationaryReposition,
-                IdleTime = operation.IdleTime,
+                AdditionalStanding = operation.AdditionalStanding,
+                IsIdle = operation.IsIdle,
                 DismantleAssemble = operation.DismantleAssemble,
-                PlateNumber = operation.PlateNumber
+                PlateNumber = operation.PlateNumber,
+                PumpType = operation.PumpType,
+                DistanceRange = operation.DistanceRange
             };
+        }
+
+        private static string? NormalizeDistanceRange(string? distanceRange, string pumpType)
+        {
+            if (!string.Equals(pumpType, UnderSixtyMeterPumpType, StringComparison.Ordinal))
+            {
+                return null;
+            }
+
+            var normalized = distanceRange?.Trim();
+            if (string.IsNullOrEmpty(normalized))
+            {
+                return null;
+            }
+
+            if (!AllowedDistanceRanges.Contains(normalized))
+            {
+                throw new InvalidOperationException("Distance range must be '<100მ', '> 100მ', or empty");
+            }
+
+            return normalized;
         }
     }
 }

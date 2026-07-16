@@ -9,13 +9,12 @@ export interface PumpOperationModel {
     addressId: number
     addressName: string
     concreteVolume: number
-    pumpRelocation: number
-    stationaryRelocation: number
-    hydraulicRelocation: number
-    stationaryReposition: number
+    additionalStanding: number
     dismantleAssemble: number
-    idleTime: number
+    isIdle: boolean
     plateNumber: string
+    pumpType: string
+    distanceRange?: '<100მ' | '> 100მ' | null
     reviewStatus?: 'Pending' | 'Accepted' | 'Rejected' | string
     reviewedAt?: Date | null
     reviewedByCheckerGmail?: string | null
@@ -25,8 +24,10 @@ export interface PumpOperationFilter {
     fromDate?: string
     toDate?: string
     companyId?: number | null
+    companyName?: string
     addressId?: number | null
     operatorId?: number | null
+    operatorName?: string
     plateNumber?: string
 }
 
@@ -34,6 +35,7 @@ export interface PumpOperationReviewModel {
     token: string
     reviewStatus: 'Pending' | 'Accepted' | 'Rejected' | string
     reviewedAt?: Date | null
+    reviewedByCheckerGmail?: string | null
     checkerGmail: string
     pumpOperationId: number
     date: Date
@@ -45,11 +47,10 @@ export interface PumpOperationReviewModel {
     addressId: number
     addressName: string
     concreteVolume: number
-    pumpRelocation: number
-    stationaryRelocation: number
-    hydraulicRelocation: number
-    stationaryReposition: number
+    additionalStanding: number
     dismantleAssemble: number
-    idleTime: number
+    isIdle: boolean
     plateNumber: string
+    pumpType: string
+    distanceRange?: '<100მ' | '> 100მ' | null
 }

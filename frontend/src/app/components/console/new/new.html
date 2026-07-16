@@ -1,9 +1,8 @@
 <div class="wizard-container">
     <div class="wizard-header">
-        <div class="wizard-heading">
+        <div class="section-header">
             <div>
-                <div class="wizard-kicker">პომპა</div>
-                <h1>ახალი ჩანაწერი</h1>
+                <div class="section-title">ახალი ჩანაწერი</div>
                 <p class="section-subtitle">შეავსეთ ოპერაციის ძირითადი მონაცემები ეტაპობრივად.</p>
             </div>
         </div>
@@ -119,7 +118,7 @@
                 <div class="form-group">
                     <label>ბეტონის მოცულობა (მ³)</label>
                     <div class="volume-input-wrapper">
-                        <input type="number" [(ngModel)]="wiz.concreteVolume" name="concrete" min="0.5" step="0.5"
+                        <input type="number" [(ngModel)]="wiz.concreteVolume" name="concrete" min="0" step="0.5"
                             placeholder="0.0" [class.field-error]="errors['concreteVolume']"
                             (ngModelChange)="onConcreteVolumeChange()" />
                         <span class="unit-tag">მ³</span>
@@ -136,14 +135,39 @@
 
             <ng-container *ngIf="wiz.step === 5">
                 <div class="ops-list">
-                    <div *ngFor="let op of opItems" class="op-item" [class.has-value]="wiz[op.key] > 0">
-                        <div class="op-label">{{ op.label }}</div>
-                        <div class="op-control">
-                            <input type="number" [min]="op.key === 'idleTime' ? 0.5 : 0"
-                                [step]="op.key === 'idleTime' ? 0.5 : 1" [(ngModel)]="wiz[op.key]"
-                                (ngModelChange)="onOpQtyChange(op.key, $event)" />
-                            <span class="op-unit">{{ op.unit }}</span>
+                    <ng-container *ngFor="let op of opItems; let index = index">
+                        <div class="op-item" [class.has-value]="wiz[op.key] > 0">
+                            <div class="op-label">{{ op.label }}</div>
+                            <div class="op-control">
+                                <input type="number" min="0" step="1" [(ngModel)]="wiz[op.key]"
+                                    (ngModelChange)="onOpQtyChange(op.key, $event)" />
+                                <span class="op-unit">{{ op.unit }}</span>
+                            </div>
                         </div>
+                        <label *ngIf="index === 0" class="op-item op-checkbox-item" [class.has-value]="wiz.isIdle">
+                            <span class="op-label">მოცდენა</span>
+                            <input class="op-checkbox" type="checkbox" [(ngModel)]="wiz.isIdle" />
+                        </label>
+                    </ng-container>
+                </div>
+
+                <div *ngIf="showDistanceRangeOptions" class="distance-range-section">
+                    <div class="review-title">მანძილი (არასავალდებულო)</div>
+                    <div class="distance-range-options">
+                        <label class="distance-range-option" [class.selected]="wiz.distanceRange === '<100მ'">
+                            <input
+                                type="checkbox"
+                                [checked]="wiz.distanceRange === '<100მ'"
+                                (change)="toggleDistanceRange('<100მ')" />
+                            <span>&lt;100მ</span>
+                        </label>
+                        <label class="distance-range-option" [class.selected]="wiz.distanceRange === '> 100მ'">
+                            <input
+                                type="checkbox"
+                                [checked]="wiz.distanceRange === '> 100მ'"
+                                (change)="toggleDistanceRange('> 100მ')" />
+                            <span>&gt; 100მ</span>
+                        </label>
                     </div>
                 </div>
             </ng-container>
@@ -164,10 +188,11 @@
                     </div>
                     <div class="review-item">
                         <span class="review-label">პომპა</span>
-                        <span class="review-value">
-                            {{ wiz.pumpPlate }}
-                            <span class="pill" *ngIf="wiz.pumpType">{{ wiz.pumpType }}</span>
-                        </span>
+                        <span class="review-value">{{ wiz.pumpPlate }}</span>
+                    </div>
+                    <div class="review-item" *ngIf="showDistanceRangeOptions">
+                        <span class="review-label">მანძილი</span>
+                        <span class="review-value">{{ wiz.distanceRange || '60მ-მდე' }}</span>
                     </div>
                     <div class="review-item highlight">
                         <span class="review-label">ბეტონის მოცულობა</span>
@@ -185,6 +210,7 @@
                         <div *ngIf="reviewOps.length === 0" class="empty-small">ოპერაციები არ არის</div>
                     </div>
                 </div>
+
             </ng-container>
         </div>
 

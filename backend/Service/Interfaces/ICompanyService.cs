@@ -9,6 +9,7 @@ namespace Service.Interfaces
     {
         Task<IEnumerable<CompanyDTO>> GetAllAsync();
         Task<IEnumerable<AddressDTO>> GetAddressesAsync(int id);
+        Task<CompanyExcelImportResultDTO> ImportExcelAsync(Stream excelStream);
         
         // Company CRUD
         Task<CompanyDTO> CreateAsync(CreateCompanyDTO dto);

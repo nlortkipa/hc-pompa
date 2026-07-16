@@ -5,6 +5,33 @@
     </div>
 </div>
 
+<div class="card import-card">
+    <div class="import-copy">
+        <div class="card-title">Excel-იდან ავტომატური დამატება</div>
+        <p>პირველ სვეტში უნდა იყოს კომპანია, მეორეში — მისამართი. ატვირთვა მთლიანად ჩაანაცვლებს მიმდინარე კატალოგს.</p>
+    </div>
+
+    <div class="import-controls">
+        <label class="file-picker">
+            <input type="file" accept=".xlsx,.xlsm" (change)="onExcelSelected($event)">
+            <span>{{ selectedExcelFile()?.name || 'Excel ფაილის არჩევა' }}</span>
+        </label>
+        <button class="btn btn-primary" (click)="importExcel()" [disabled]="!selectedExcelFile() || isImporting()">
+            {{ isImporting() ? 'იტვირთება...' : 'კატალოგის ჩანაცვლება' }}
+        </button>
+    </div>
+
+    <div class="import-message success" *ngIf="importResult() as result">
+        კატალოგი ჩანაცვლდა: {{ result.createdCompanies + result.existingCompanies }} კომპანია,
+        {{ result.createdAddresses + result.existingAddresses }} მისამართი და
+        {{ result.uniquePairs }} კავშირი.
+        <span *ngIf="result.duplicateRowsSkipped">
+            გამოტოვებულია {{ result.duplicateRowsSkipped }} დუბლირებული სტრიქონი.
+        </span>
+    </div>
+    <div class="import-message error" *ngIf="importError() as error">{{ error }}</div>
+</div>
+
 <div class="management-grid">
     <!-- Companies List -->
     <div class="card list-card">

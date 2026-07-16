@@ -680,34 +680,6 @@ tbody tr:hover td {
   margin-bottom: 18px;
 }
 
-.wizard-heading {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 18px;
-}
-
-.wizard-heading h1 {
-  color: var(--text);
-  font-size: 27px;
-  font-weight: 900;
-  line-height: 1.15;
-}
-
-.wizard-kicker {
-  display: inline-flex;
-  align-items: center;
-  min-height: 29px;
-  padding: 5px 10px;
-  background: var(--accent-soft);
-  border: 1px solid rgb(49 95 157 / 0.20);
-  border-radius: var(--radius-full);
-  color: var(--accent);
-  font-size: 12px;
-  font-weight: 900;
-}
-
 .wizard-progress {
   display: grid;
   grid-template-columns: repeat(7, minmax(56px, 1fr));
@@ -997,6 +969,17 @@ tbody tr:hover td {
   font-weight: 900;
 }
 
+.op-checkbox-item {
+  cursor: pointer;
+}
+
+.op-checkbox {
+  width: 22px;
+  height: 22px;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
 .review-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1145,16 +1128,6 @@ tbody tr:hover td {
 }
 
 @media (max-width: 700px) {
-  .wizard-heading {
-    align-items: start;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .wizard-heading h1 {
-    font-size: 22px;
-  }
-
   .wizard-progress {
     grid-template-columns: repeat(7, minmax(36px, 1fr));
     gap: 4px;

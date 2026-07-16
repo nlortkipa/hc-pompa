@@ -2,3 +2,45 @@
   display: block;
   width: 100%;
 }
+
+.distance-range-section {
+  margin-top: 20px;
+}
+
+.distance-range-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.distance-range-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 54px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-muted);
+  color: var(--text);
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.distance-range-option.selected {
+  border-color: var(--primary);
+  background: var(--primary-wash);
+}
+
+.distance-range-option input {
+  width: 22px;
+  height: 22px;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+@media (max-width: 560px) {
+  .distance-range-options {
+    grid-template-columns: 1fr;
+  }
+}

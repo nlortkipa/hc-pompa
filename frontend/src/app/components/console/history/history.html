@@ -17,27 +17,15 @@
 <div class="summary-grid">
     <div class="summary-item">
         <span>ჩანაწერები</span>
-        <strong>{{ acceptedRecords().length }}</strong>
+        <strong>{{ records().length }}</strong>
     </div>
     <div class="summary-item">
         <span>ბეტონი</span>
         <strong>{{ totals().concreteVolume | number:'1.0-2' }} მ³</strong>
     </div>
     <div class="summary-item">
-        <span>ტუმბოს გადადგმა</span>
-        <strong>{{ totals().pumpRelocation | number:'1.0-0' }}</strong>
-    </div>
-    <div class="summary-item">
-        <span>სტაც. გადადგმა</span>
-        <strong>{{ totals().stationaryRelocation | number:'1.0-0' }}</strong>
-    </div>
-    <div class="summary-item">
-        <span>ჰიდრ. გადადგმა</span>
-        <strong>{{ totals().hydraulicRelocation | number:'1.0-0' }}</strong>
-    </div>
-    <div class="summary-item">
-        <span>გადაწყობა</span>
-        <strong>{{ totals().stationaryReposition | number:'1.0-0' }}</strong>
+        <span>დამატებითი დგომა</span>
+        <strong>{{ totals().additionalStanding | number:'1.0-0' }}</strong>
     </div>
     <div class="summary-item">
         <span>დაშლა/აწყობა</span>
@@ -45,7 +33,7 @@
     </div>
     <div class="summary-item">
         <span>მოცდენა</span>
-        <strong>{{ totals().idleTime | number:'1.0-2' }} სთ</strong>
+        <strong>{{ totals().idleCount }}</strong>
     </div>
     <div class="summary-item">
         <span>მოლოდინში</span>
@@ -70,21 +58,34 @@
         </div>
         <div class="form-group">
             <label>კომპანია</label>
-            <select [(ngModel)]="filter.companyId">
-                <option [ngValue]="null">ყველა კომპანია</option>
-                <option *ngFor="let c of companyService.companies()" [ngValue]="c.id">{{c.name}}</option>
-            </select>
+            <app-searchable-select
+                [(value)]="filter.companyId"
+                [(query)]="filter.companyName"
+                [options]="companyOptions()"
+                placeholder="მოძებნეთ კომპანია"
+                allLabel="ყველა კომპანია">
+            </app-searchable-select>
         </div>
         <div class="form-group">
             <label>ოპერატორი</label>
-            <select [(ngModel)]="filter.operatorId">
-                <option [ngValue]="null">ყველა ოპერატორი</option>
-                <option *ngFor="let u of users()" [ngValue]="u.id">{{u.firstName}} {{u.lastName}}</option>
-            </select>
+            <app-searchable-select
+                [(value)]="filter.operatorId"
+                [(query)]="filter.operatorName"
+                [options]="operatorOptions()"
+                placeholder="მოძებნეთ ოპერატორი"
+                allLabel="ყველა ოპერატორი">
+            </app-searchable-select>
         </div>
         <div class="form-group">
             <label>პომპის ნომერი</label>
-            <input type="text" [(ngModel)]="filter.plateNumber" placeholder="სანომრე ნიშანი">
+            <app-searchable-select
+                [value]="selectedPlateId"
+                (valueChange)="selectPlate($event)"
+                [(query)]="filter.plateNumber"
+                [options]="plateOptions()"
+                placeholder="მოძებნეთ პომპის ნომერი"
+                allLabel="ყველა პომპა">
+            </app-searchable-select>
         </div>
     </div>
     <div class="filter-footer">
@@ -107,11 +108,10 @@
                     <th *ngIf="canViewDetails()">კომპანია</th>
                     <th *ngIf="canViewDetails()">მისამართი</th>
                     <th>სახ. ნომერი</th>
+                    <th>პომპის ტიპი</th>
+                    <th>მანძილი</th>
                     <th>ბეტონი</th>
-                    <th>გადადგომა</th>
-                    <th>სტაც. გადადგ.</th>
-                    <th>ჰიდრ. გადადგ.</th>
-                    <th>გადაწყობა</th>
+                    <th>დამატებითი დგომა</th>
                     <th>დაშლა/აწყობა</th>
                     <th>მოცდენა</th>
                 </tr>
@@ -132,22 +132,21 @@
                     <td *ngIf="canViewDetails()">{{r.companyName}}</td>
                     <td *ngIf="canViewDetails()">{{r.addressName}}</td>
                     <td>{{r.plateNumber}}</td>
+                    <td>{{r.pumpType || '—'}}</td>
+                    <td>{{distanceRangeLabel(r)}}</td>
                     <td>
                         <span class="badge badge-blue">{{r.concreteVolume}} მ³</span>
                     </td>
-                    <td>{{r.pumpRelocation}}</td>
-                    <td>{{r.stationaryRelocation}}</td>
-                    <td>{{r.hydraulicRelocation}}</td>
-                    <td>{{r.stationaryReposition}}</td>
+                    <td>{{r.additionalStanding}}</td>
                     <td>{{r.dismantleAssemble}}</td>
                     <td>
-                        <span class="badge" [class.badge-yellow]="r.idleTime > 0" [class.badge-green]="r.idleTime === 0">
-                            {{r.idleTime}} სთ
+                        <span class="badge" [class.badge-green]="r.isIdle" [class.badge-red]="!r.isIdle">
+                            {{r.isIdle ? 'კი' : 'არა'}}
                         </span>
                     </td>
                 </tr>
                 <tr *ngIf="records().length === 0 && !isLoading">
-                    <td [attr.colspan]="canViewDetails() ? 13 : 10" class="empty">
+                    <td [attr.colspan]="canViewDetails() ? 12 : 9" class="empty">
                         <div class="empty-state">
                             <span class="empty-icon">∅</span>
                             <p>ჩანაწერები არ მოიძებნა</p>
@@ -172,6 +171,8 @@
             <!-- ძირითადი ინფორმაცია -->
             <div class="record-section">
                 <div class="info-row"><span>სახ. ნომერი:</span> <strong>{{r.plateNumber}}</strong></div>
+                <div class="info-row"><span>პომპის ტიპი:</span> <strong>{{r.pumpType || '—'}}</strong></div>
+                <div class="info-row"><span>მანძილი:</span> <strong>{{distanceRangeLabel(r)}}</strong></div>
                 <div class="info-row" *ngIf="canViewDetails()"><span>კომპანია:</span> <strong>{{r.companyName}}</strong></div>
                 <div class="info-row" *ngIf="canViewDetails()"><span>ლოკაცია:</span> <strong>{{r.addressName}}</strong></div>
                 <div class="info-row" *ngIf="canViewDetails()"><span>ოპერატორი:</span> <strong>{{r.operatorFirstName}} {{r.operatorLastName}}</strong></div>
@@ -183,20 +184,8 @@
             <div class="record-section">
                 <div class="ops-grid">
                     <div class="op-stat">
-                        <span class="op-label">გადადგომა</span>
-                        <span class="op-val">{{r.pumpRelocation}}</span>
-                    </div>
-                    <div class="op-stat">
-                        <span class="op-label">სტაც. გადადგ.</span>
-                        <span class="op-val">{{r.stationaryRelocation}}</span>
-                    </div>
-                    <div class="op-stat">
-                        <span class="op-label">ჰიდრ. გადადგ.</span>
-                        <span class="op-val">{{r.hydraulicRelocation}}</span>
-                    </div>
-                    <div class="op-stat">
-                        <span class="op-label">გადაწყობა</span>
-                        <span class="op-val">{{r.stationaryReposition}}</span>
+                        <span class="op-label">დამატებითი დგომა</span>
+                        <span class="op-val">{{r.additionalStanding}}</span>
                     </div>
                     <div class="op-stat">
                         <span class="op-label">დაშლა/აწყობა</span>
@@ -204,7 +193,7 @@
                     </div>
                     <div class="op-stat highlight">
                         <span class="op-label">მოცდენა</span>
-                        <span class="op-val">{{r.idleTime}} სთ</span>
+                        <span class="op-val">{{r.isIdle ? 'კი' : 'არა'}}</span>
                     </div>
                 </div>
             </div>

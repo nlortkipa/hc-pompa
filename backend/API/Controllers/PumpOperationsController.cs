@@ -43,11 +43,9 @@ namespace API.Controllers
             "კომპანია",
             "მისამართი",
             "სახ. ნომერი",
+            "მილსადენის სიგრძე",
             "ბეტონი",
-            "ტუმბოს გადადგმა",
-            "სტაც. გადადგმა",
-            "ჰიდრ. გადადგმა",
-            "გადაწყობა",
+            "დამატებითი დგომა",
             "დაშლა/აწყობა",
             "მოცდენა"
         ];
@@ -464,12 +462,9 @@ namespace API.Controllers
             XNamespace ns = "http://schemas.openxmlformats.org/spreadsheetml/2006/main";
 
             var totalConcrete = operations.Sum(x => x.ConcreteVolume);
-            var totalPumpRelocation = operations.Sum(x => x.PumpRelocation);
-            var totalStationaryRelocation = operations.Sum(x => x.StationaryRelocation);
-            var totalHydraulicRelocation = operations.Sum(x => x.HydraulicRelocation);
-            var totalStationaryReposition = operations.Sum(x => x.StationaryReposition);
+            var totalAdditionalStanding = operations.Sum(x => x.AdditionalStanding);
             var totalDismantleAssemble = operations.Sum(x => x.DismantleAssemble);
-            var totalIdleTime = operations.Sum(x => x.IdleTime);
+            var totalIdleCount = operations.Count(x => x.IsIdle);
 
             var rows = new List<XElement>();
             var row = 1;
@@ -488,13 +483,11 @@ namespace API.Controllers
                     Cell(operation.CompanyName, TextStyle),
                     Cell(operation.AddressName, TextStyle),
                     Cell(operation.PlateNumber, TextStyle),
+                    Cell(GetDistanceRangeLabel(operation), TextStyle),
                     Cell(operation.ConcreteVolume, DecimalStyle),
-                    Cell(operation.PumpRelocation, IntegerStyle),
-                    Cell(operation.StationaryRelocation, IntegerStyle),
-                    Cell(operation.HydraulicRelocation, IntegerStyle),
-                    Cell(operation.StationaryReposition, IntegerStyle),
+                    Cell(operation.AdditionalStanding, IntegerStyle),
                     Cell(operation.DismantleAssemble, IntegerStyle),
-                    Cell(operation.IdleTime, DecimalStyle)
+                    Cell(operation.IsIdle ? "კი" : "არა", TextStyle)
                 }, 24));
             }
 
@@ -509,13 +502,11 @@ namespace API.Controllers
                     Cell("", TextStyle),
                     Cell("", TextStyle),
                     Cell("", TextStyle),
+                    Cell("", TextStyle),
                     Cell(0, DecimalStyle),
                     Cell(0, IntegerStyle),
                     Cell(0, IntegerStyle),
-                    Cell(0, IntegerStyle),
-                    Cell(0, IntegerStyle),
-                    Cell(0, IntegerStyle),
-                    Cell(0, DecimalStyle)
+                    Cell("არა", TextStyle)
                 }, 24));
             }
 
@@ -528,23 +519,21 @@ namespace API.Controllers
                 Cell("", TotalTextStyle),
                 Cell("", TotalTextStyle),
                 Cell("", TotalTextStyle),
+                Cell("", TotalTextStyle),
                 Cell(totalConcrete, TotalDecimalStyle),
-                Cell(totalPumpRelocation, TotalIntegerStyle),
-                Cell(totalStationaryRelocation, TotalIntegerStyle),
-                Cell(totalHydraulicRelocation, TotalIntegerStyle),
-                Cell(totalStationaryReposition, TotalIntegerStyle),
+                Cell(totalAdditionalStanding, TotalIntegerStyle),
                 Cell(totalDismantleAssemble, TotalIntegerStyle),
-                Cell(totalIdleTime, TotalDecimalStyle)
+                Cell(totalIdleCount, TotalIntegerStyle)
             }, 26));
 
             return new XDocument(
                 new XDeclaration("1.0", "UTF-8", "yes"),
                 new XElement(ns + "worksheet",
-                    new XElement(ns + "dimension", new XAttribute("ref", $"A1:N{GetExportEndRow(operations)}")),
+                    new XElement(ns + "dimension", new XAttribute("ref", $"A1:L{GetExportEndRow(operations)}")),
                     CreateSheetViews(ns),
                     CreateColumns(ns),
                     new XElement(ns + "sheetData", rows),
-                    new XElement(ns + "autoFilter", new XAttribute("ref", $"A1:N{GetDataEndRow(operations)}")),
+                    new XElement(ns + "autoFilter", new XAttribute("ref", $"A1:L{GetDataEndRow(operations)}")),
                     new XElement(ns + "pageMargins",
                         new XAttribute("left", "0.7"),
                         new XAttribute("right", "0.7"),
@@ -582,7 +571,7 @@ namespace API.Controllers
 
         private static XElement CreateColumns(XNamespace ns)
         {
-            var widths = new[] { 6, 13, 15, 24, 26, 30, 16, 14, 18, 20, 20, 16, 18, 14 };
+            var widths = new[] { 6, 13, 15, 24, 26, 30, 16, 22, 14, 20, 18, 14 };
 
             return new XElement(ns + "cols",
                 widths.Select((width, index) =>
@@ -596,6 +585,16 @@ namespace API.Controllers
         private static ExcelCell Cell(object? value, uint styleIndex = DefaultStyle)
         {
             return new ExcelCell(value, styleIndex);
+        }
+
+        private static string GetDistanceRangeLabel(PumpOperationDto operation)
+        {
+            if (!string.Equals(operation.PumpType, "<60მ", StringComparison.Ordinal))
+            {
+                return "—";
+            }
+
+            return operation.DistanceRange ?? "60მ-მდე";
         }
 
         private static XElement CreateRow(

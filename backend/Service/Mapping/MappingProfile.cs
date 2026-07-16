@@ -30,9 +30,11 @@ namespace Service.Mapping
             CreateMap<UpdateAddressDTO, Address>();
 
             // Plate
-            CreateMap<Plate, PlateDTO>();
+            CreateMap<Plate, PlateDTO>()
+                .ForMember(dest => dest.CheckerEmails, opt => opt.MapFrom(src => src.CheckerEmails.Select(x => x.Email)));
             CreateMap<PlateDTO, Plate>()
-                .ForMember(dest => dest.Id, opt => opt.Ignore());
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.CheckerEmails, opt => opt.Ignore());
 
             // PumpOperation
             CreateMap<PumpOperation, PumpOperationDto>()

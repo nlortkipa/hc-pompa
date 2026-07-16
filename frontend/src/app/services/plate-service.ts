@@ -16,12 +16,12 @@ export class PlateService {
     return this.http.get<Plate[]>(`${this.configService.backendUrl}/api/Plates`);
   }
 
-  createPlate(number: string, checkerGmail: string): Observable<Plate> {
-    return this.http.post<Plate>(`${this.configService.backendUrl}/api/Plates`, { number, checkerGmail });
+  createPlate(number: string, type: string, checkerEmails: string[]): Observable<Plate> {
+    return this.http.post<Plate>(`${this.configService.backendUrl}/api/Plates`, { number, type, checkerEmails });
   }
 
-  updatePlate(id: number, number: string, checkerGmail: string): Observable<void> {
-    return this.http.put<void>(`${this.configService.backendUrl}/api/Plates/${id}`, { number, checkerGmail });
+  updatePlate(id: number, number: string, type: string, checkerEmails: string[]): Observable<void> {
+    return this.http.put<void>(`${this.configService.backendUrl}/api/Plates/${id}`, { number, type, checkerEmails });
   }
 
   deletePlate(id: number): Observable<void> {

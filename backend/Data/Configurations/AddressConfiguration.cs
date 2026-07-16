@@ -17,8 +17,11 @@ namespace Data.Configurations
                 .IsRequired()
                 .HasMaxLength(100)
                 .IsUnicode(true);
-            builder.HasIndex(a => a.Id)
+            builder.HasIndex(a => a.Name)
                 .IsUnique();
+            builder.Property(a => a.IsActive)
+                .HasDefaultValue(true)
+                .IsRequired();
 
             builder.HasMany(a => a.CompanyAddresses)
                 .WithOne(ca => ca.Address)

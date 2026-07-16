@@ -9,7 +9,7 @@ import { Users } from './components/console/users/users';
 import { Companies } from './components/console/companies/companies';
 import { Plates } from './components/console/plates/plates';
 import { Review } from './components/review/review';
-import { Settings } from './components/console/settings/settings';
+import { NotFound } from './components/not-found/not-found';
 
 export const routes: Routes = [
     {
@@ -61,11 +61,12 @@ export const routes: Routes = [
             {
                 path: 'plates',
                 component: Plates
-            },
-            {
-                path: 'settings',
-                component: Settings
             }
         ]
+    },
+    {
+        path: '**',
+        component: NotFound,
+        title: `${APP_NAME} - გვერდი ვერ მოიძებნა`
     }
 ];

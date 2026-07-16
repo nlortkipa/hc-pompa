@@ -11,3 +11,4 @@ obj/
 *.cache
 *.dll
 *.exe
+*-runtime*.log

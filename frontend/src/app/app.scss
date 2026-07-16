@@ -1,0 +1,81 @@
+.service-unavailable {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(circle at 18% 18%, rgb(49 95 157 / 0.12), transparent 26rem),
+    radial-gradient(circle at 82% 76%, rgb(18 114 79 / 0.12), transparent 22rem),
+    rgb(243 246 248 / 0.98);
+  backdrop-filter: blur(8px);
+}
+
+.service-unavailable__card {
+  width: min(520px, 100%);
+  padding: 38px 30px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  text-align: center;
+}
+
+.service-unavailable__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 20px;
+  background: #fff1f1;
+  border: 1px solid #f3b4b4;
+  border-radius: var(--radius-full);
+  color: var(--danger);
+}
+
+.service-unavailable__icon svg {
+  width: 34px;
+  height: 34px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.service-unavailable__code {
+  margin-bottom: 8px;
+  color: var(--danger);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.service-unavailable h1 {
+  margin-bottom: 12px;
+  color: var(--text);
+  font-size: 28px;
+  line-height: 1.25;
+}
+
+.service-unavailable__message {
+  margin-bottom: 24px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+@media (max-width: 600px) {
+  .service-unavailable {
+    padding: 14px;
+  }
+
+  .service-unavailable__card {
+    padding: 30px 20px;
+  }
+
+  .service-unavailable h1 {
+    font-size: 24px;
+  }
+}

@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { PumpOperationReviewModel } from '../../models/pump-operation';
 import { PumpOperationService } from '../../services/pump-operation-service';
@@ -8,7 +9,7 @@ import { PumpOperationService } from '../../services/pump-operation-service';
 @Component({
   selector: 'app-review',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './review.html',
   styleUrls: ['./review.scss'],
 })
@@ -16,6 +17,8 @@ export class Review implements OnInit {
   operation = signal<PumpOperationReviewModel | null>(null);
   isLoading = true;
   isSubmitting = false;
+  isInvalidReview = false;
+  canRetry = false;
   error = '';
   message = '';
   private token = '';
@@ -27,8 +30,8 @@ export class Review implements OnInit {
 
   ngOnInit(): void {
     this.token = this.route.snapshot.paramMap.get('token') || '';
-    if (!this.token) {
-      this.error = 'შემოწმების ბმული არასწორია.';
+    if (!/^[a-f0-9]{32}$/i.test(this.token)) {
+      this.isInvalidReview = true;
       this.isLoading = false;
       return;
     }
@@ -38,13 +41,24 @@ export class Review implements OnInit {
 
   loadReview(): void {
     this.isLoading = true;
+    this.isInvalidReview = false;
+    this.canRetry = false;
     this.error = '';
+    this.operation.set(null);
 
     this.pumpOperationService.getReview(this.token)
       .pipe(finalize(() => this.isLoading = false))
       .subscribe({
         next: (data) => this.operation.set(data),
-        error: () => this.error = 'ჩანაწერი ვერ მოიძებნა ან ბმული აღარ არის აქტიური.'
+        error: (error: HttpErrorResponse) => {
+          if (error.status === 400 || error.status === 404) {
+            this.isInvalidReview = true;
+            return;
+          }
+
+          this.canRetry = true;
+          this.error = 'მონაცემების ჩატვირთვა ვერ მოხერხდა. გთხოვთ, სცადოთ თავიდან.';
+        }
       });
   }
 
@@ -87,7 +101,15 @@ export class Review implements OnInit {
             ? 'ჩანაწერი დადასტურდა.'
             : 'ჩანაწერი უარყოფილია.';
         },
-        error: () => this.error = 'გადაწყვეტილების შენახვა ვერ მოხერხდა.'
+        error: (error: HttpErrorResponse) => {
+          if (error.status === 400 || error.status === 404) {
+            this.isInvalidReview = true;
+            this.operation.set(null);
+            return;
+          }
+
+          this.error = 'გადაწყვეტილების შენახვა ვერ მოხერხდა.';
+        }
       });
   }
 }

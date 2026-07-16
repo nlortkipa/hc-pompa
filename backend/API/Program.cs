@@ -132,22 +132,24 @@ namespace API
 
             var app = builder.Build();
 
-            using (var scope = app.Services.CreateScope())
+            if (builder.Configuration.GetValue<bool>("RecreateDatabaseOnStartup"))
             {
-                var services = scope.ServiceProvider;
-                try
+                using (var scope = app.Services.CreateScope())
                 {
-                    var context = services.GetRequiredService<ProjectContext>();
-                    await context.Database.EnsureDeletedAsync();
-                    await context.Database.MigrateAsync();
-                }
-                catch (Exception ex)
-                {
-                    var logger = services.GetRequiredService<ILogger<Program>>();
-                    logger.LogError(ex, "An error occurred while resetting or migrating the database.");
+                    var services = scope.ServiceProvider;
+                    try
+                    {
+                        var context = services.GetRequiredService<ProjectContext>();
+                        await context.Database.EnsureDeletedAsync();
+                        await context.Database.MigrateAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        var logger = services.GetRequiredService<ILogger<Program>>();
+                        logger.LogError(ex, "An error occurred while recreating and seeding the database.");
+                    }
                 }
             }
-            // -----------------------------------------
 
             app.UseCors("AllowAll");
 

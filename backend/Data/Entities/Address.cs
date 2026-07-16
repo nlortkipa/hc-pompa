@@ -16,6 +16,7 @@ namespace Data.Entities
         [MaxLength(100)]
         [Unicode]
         public string Name { get; set; } = null!;
+        public bool IsActive { get; set; } = true;
 
         public ICollection<CompanyAddress> CompanyAddresses { get; set; } = new List<CompanyAddress>();
         public ICollection<PumpOperation> PumpOperations { get; set; } = new List<PumpOperation>();

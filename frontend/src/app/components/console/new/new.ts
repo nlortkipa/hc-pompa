@@ -19,8 +19,7 @@ interface Operation {
   companyId: number | null; addressId: number | null;
   pumpId: number | null;
   pumpPlate: string; pumpType: string; concreteVolume: number;
-  pumpRelocation: number; stationaryRelocation: number; hydraulicRelocation: number;
-  stationaryReposition: number; idleTime: number; dismantleAssemble: number;
+  additionalStanding: number; isIdle: boolean; dismantleAssemble: number;
 }
 
 interface WizardState {
@@ -28,15 +27,14 @@ interface WizardState {
   companyId: number | null; addressId: number | null;
   pumpId: number | null;
   pumpPlate: string; pumpType: string;
+  distanceRange: '<100მ' | '> 100მ' | null;
   concreteVolume: number | null;
-  pumpRelocation: number; stationaryRelocation: number; hydraulicRelocation: number;
-  stationaryReposition: number; idleTime: number; dismantleAssemble: number;
+  additionalStanding: number; isIdle: boolean; dismantleAssemble: number;
 }
 
 interface OpItem {
   key: keyof Pick<WizardState,
-    'pumpRelocation' | 'stationaryRelocation' | 'hydraulicRelocation' |
-    'stationaryReposition' | 'idleTime' | 'dismantleAssemble'>;
+    'additionalStanding' | 'dismantleAssemble'>;
   label: string;
   unit: string;
 }
@@ -92,12 +90,8 @@ export class New implements OnInit {
   isLoading = false;
 
   readonly opItems: OpItem[] = [
-    { key: 'pumpRelocation',        label: 'პომპის გადადგმა',             unit: 'ცალი' },
-    { key: 'stationaryRelocation',  label: 'სტაციონარის გადადგმა',        unit: 'ცალი' },
-    { key: 'hydraulicRelocation',   label: 'ჰიდრავლიკის გადადგმა',        unit: 'ცალი' },
-    { key: 'stationaryReposition',  label: 'სტაციონარის გადაწყობა',       unit: 'ცალი' },
-    { key: 'idleTime',              label: 'მოცდენა',                     unit: 'სთ'   },
-    { key: 'dismantleAssemble',     label: 'დაშლა / აწყობა',        unit: 'ცალი' },
+    { key: 'additionalStanding', label: 'დამატებითი დგომა', unit: 'ცალი' },
+    { key: 'dismantleAssemble',  label: 'დაშლა/აწყობა',      unit: 'ცალი' },
   ];
 
   /* ── INLINE ERRORS ── */
@@ -105,16 +99,6 @@ export class New implements OnInit {
 
   toast = { msg: '', visible: false };
   private toastTimer: any;
-
-  /* ── REVIEW LABELS ── */
-  readonly opLabels: Record<string, string> = {
-    pumpRelocation:       'პომპის გადადგმა',
-    stationaryRelocation: 'სტაციონარის გადადგმა',
-    hydraulicRelocation:  'ჰიდრავლიკის გადადგმა',
-    stationaryReposition: 'გადაწყობა',
-    idleTime:             'მოცდენა',
-    dismantleAssemble:    'დაშლა / აწყობა',
-  };
 
   constructor(
     public companyService: CompanyService,
@@ -147,9 +131,9 @@ export class New implements OnInit {
       companyId: null, addressId: null,
       pumpId: null,
       pumpPlate: '', pumpType: '',
+      distanceRange: null,
       concreteVolume: null,
-      pumpRelocation: 0, stationaryRelocation: 0, hydraulicRelocation: 0,
-      stationaryReposition: 0, idleTime: 0, dismantleAssemble: 0,
+      additionalStanding: 0, isIdle: false, dismantleAssemble: 0,
     };
   }
 
@@ -225,8 +209,18 @@ export class New implements OnInit {
   onPlateChange(): void {
     const plate = this.plates().find(p => p.number === this.wiz.pumpPlate);
     this.wiz.pumpId = plate?.id ?? null;
+    this.wiz.pumpType = plate?.type ?? '';
+    this.wiz.distanceRange = null;
     this.plateSearch.set('');
     this.clearError('pumpPlate');
+  }
+
+  get showDistanceRangeOptions(): boolean {
+    return this.wiz.pumpType === '<60მ';
+  }
+
+  toggleDistanceRange(value: '<100მ' | '> 100მ'): void {
+    this.wiz.distanceRange = this.wiz.distanceRange === value ? null : value;
   }
 
   get filteredAddresses(): AddressModel[] { 
@@ -240,15 +234,24 @@ export class New implements OnInit {
   get selectedCompanyName(): string { return this.selectedCompany?.name ?? ''; }
   get selectedAddressName(): string { return this.selectedAddress?.name ?? ''; }
 
-  get reviewOps(): { label: string; val: number; unit: string }[] {
-    return this.opItems
-      .filter(op => this.wiz[op.key] > 0)
-      .map(op => ({ label: this.opLabels[op.key], val: this.wiz[op.key], unit: op.unit }));
+  get reviewOps(): { label: string; val: number | string; unit: string }[] {
+    const operations: { label: string; val: number | string; unit: string }[] = [];
+
+    if (this.wiz.additionalStanding > 0) {
+      operations.push({ label: 'დამატებითი დგომა', val: this.wiz.additionalStanding, unit: 'ცალი' });
+    }
+    if (this.wiz.isIdle) {
+      operations.push({ label: 'მოცდენა', val: 'კი', unit: '' });
+    }
+    if (this.wiz.dismantleAssemble > 0) {
+      operations.push({ label: 'დაშლა/აწყობა', val: this.wiz.dismantleAssemble, unit: 'ცალი' });
+    }
+
+    return operations;
   }
 
   onOpQtyChange(key: OpItem['key'], val: number): void {
-    const min = key === 'idleTime' ? 0.5 : 0;
-    if (val < min) this.wiz[key] = min;
+    if (val < 0) this.wiz[key] = 0;
   }
 
   onConcreteVolumeChange(): void {
@@ -295,7 +298,7 @@ export class New implements OnInit {
     }
 
     if (s === 4) {
-      if (this.wiz.concreteVolume === null || this.wiz.concreteVolume <= 0) {
+      if (this.wiz.concreteVolume === null) {
         this.errors['concreteVolume'] = 'ბეტონის მოცულობა სავალდებულოა';
       }
     }
@@ -329,13 +332,12 @@ export class New implements OnInit {
       companyId: this.wiz.companyId || 0,
       addressId: this.wiz.addressId || 0,
       concreteVolume: this.wiz.concreteVolume || 0,
-      pumpRelocation: this.wiz.pumpRelocation,
-      stationaryRelocation: this.wiz.stationaryRelocation,
-      hydraulicRelocation: this.wiz.hydraulicRelocation,
-      stationaryReposition: this.wiz.stationaryReposition,
+      additionalStanding: this.wiz.additionalStanding,
       dismantleAssemble: this.wiz.dismantleAssemble,
-      idleTime: this.wiz.idleTime || 0,
-      plateNumber: this.wiz.pumpPlate
+      isIdle: this.wiz.isIdle,
+      plateNumber: this.wiz.pumpPlate,
+      pumpType: this.wiz.pumpType,
+      distanceRange: this.wiz.distanceRange
     };
 
     this.pumpOperationService.create(model)

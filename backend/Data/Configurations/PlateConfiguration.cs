@@ -13,7 +13,12 @@ namespace Data.Configurations
         {
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Number).IsRequired().HasMaxLength(20);
-            builder.Property(x => x.CheckerGmail).IsRequired().HasMaxLength(120);
+            builder.Property(x => x.Type).IsRequired().HasMaxLength(20);
+
+            builder.HasMany(x => x.CheckerEmails)
+                .WithOne(x => x.Plate)
+                .HasForeignKey(x => x.PlateId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

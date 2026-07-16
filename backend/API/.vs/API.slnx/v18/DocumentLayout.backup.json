@@ -3,18 +3,22 @@
   "WorkspaceRootPath": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\API\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|API.csproj|c:\\users\\administrator\\desktop\\pompa\\backend\\api\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|API.csproj|solutionrelative:properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|API.csproj|c:\\users\\administrator\\desktop\\pompa\\backend\\api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|API.csproj|solutionrelative:appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{41120729-9A79-414D-957E-573D058BE244}|..\\Data\\Data.csproj|c:\\users\\administrator\\desktop\\pompa\\backend\\data\\seeddata\\companyaddressseeddata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|API.csproj|c:\\users\\administrator\\desktop\\pompa\\backend\\api\\.env||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|API.csproj|solutionrelative:.env||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|API.csproj|c:\\users\\administrator\\desktop\\pompa\\backend\\api\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|API.csproj|solutionrelative:properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{41120729-9A79-414D-957E-573D058BE244}|..\\Data\\Data.csproj|c:\\users\\administrator\\desktop\\pompa\\backend\\data\\projectcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{41120729-9A79-414D-957E-573D058BE244}|..\\Data\\Data.csproj|c:\\users\\administrator\\desktop\\pompa\\backend\\data\\migrations\\20260708142704_final.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{41120729-9A79-414D-957E-573D058BE244}|..\\Data\\Data.csproj|c:\\users\\administrator\\desktop\\pompa\\backend\\data\\baserepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
@@ -22,10 +26,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|API.csproj|c:\\users\\administrator\\desktop\\pompa\\backend\\api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|API.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|API.csproj|c:\\users\\administrator\\desktop\\pompa\\backend\\api\\.env||{8B382828-6202-11D1-8870-0000F87579D2}",
-      "RelativeMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|API.csproj|solutionrelative:.env||{8B382828-6202-11D1-8870-0000F87579D2}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{ED562DFE-B9EF-5F88-771F-EBF333E4D08F}|API.csproj|c:\\users\\administrator\\desktop\\pompa\\backend\\api\\api.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
@@ -52,9 +52,6 @@
       "AbsoluteMoniker": "D:0:0:{41120729-9A79-414D-957E-573D058BE244}|..\\Data\\Data.csproj|c:\\users\\administrator\\desktop\\pompa\\backend\\data\\migrations\\20260708151101_iswearitsfinal.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{41120729-9A79-414D-957E-573D058BE244}|..\\Data\\Data.csproj|c:\\users\\administrator\\desktop\\pompa\\backend\\data\\migrations\\20260708142704_final.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{41120729-9A79-414D-957E-573D058BE244}|..\\Data\\Data.csproj|c:\\users\\administrator\\desktop\\pompa\\backend\\data\\migrations\\20260708150541_final67.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
@@ -68,47 +65,36 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 7,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Document",
               "DocumentIndex": 1,
+              "Title": ".env",
+              "DocumentMoniker": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\API\\.env",
+              "RelativeDocumentMoniker": ".env",
+              "ToolTip": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\API\\.env",
+              "RelativeToolTip": ".env",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-07-16T05:11:22.029Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\API\\appsettings.json",
               "RelativeDocumentMoniker": "appsettings.json",
               "ToolTip": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\API\\appsettings.json",
               "RelativeToolTip": "appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAEAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAkAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-06-15T17:23:52.265Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "CompanyAddressSeedData.cs",
-              "DocumentMoniker": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Data\\SeedData\\CompanyAddressSeedData.cs",
-              "RelativeDocumentMoniker": "..\\Data\\SeedData\\CompanyAddressSeedData.cs",
-              "ToolTip": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Data\\SeedData\\CompanyAddressSeedData.cs",
-              "RelativeToolTip": "..\\Data\\SeedData\\CompanyAddressSeedData.cs",
-              "ViewState": "AgIAABUCAAAAAAAAAAAjwB4CAAAhAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-07-08T15:58:42.59Z"
+              "WhenOpened": "2026-06-15T17:23:52.265Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 4,
-              "Title": "BaseRepository.cs",
-              "DocumentMoniker": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Data\\BaseRepository.cs",
-              "RelativeDocumentMoniker": "..\\Data\\BaseRepository.cs",
-              "ToolTip": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Data\\BaseRepository.cs",
-              "RelativeToolTip": "..\\Data\\BaseRepository.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-07-08T16:00:01.047Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 14,
               "Title": "20260708142704_final.cs",
               "DocumentMoniker": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Data\\Migrations\\20260708142704_final.cs",
               "RelativeDocumentMoniker": "..\\Data\\Migrations\\20260708142704_final.cs",
@@ -120,15 +106,27 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": ".env",
-              "DocumentMoniker": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\API\\.env",
-              "RelativeDocumentMoniker": ".env",
-              "ToolTip": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\API\\.env",
-              "RelativeToolTip": ".env",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAANAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-07-08T15:43:34.576Z"
+              "DocumentIndex": 3,
+              "Title": "ProjectContext.cs",
+              "DocumentMoniker": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Data\\ProjectContext.cs",
+              "RelativeDocumentMoniker": "..\\Data\\ProjectContext.cs",
+              "ToolTip": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Data\\ProjectContext.cs",
+              "RelativeToolTip": "..\\Data\\ProjectContext.cs",
+              "ViewState": "AgIAAEIAAAAAAAAAAAAIwEcAAAAQAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-05T09:30:40.968Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "BaseRepository.cs",
+              "DocumentMoniker": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Data\\BaseRepository.cs",
+              "RelativeDocumentMoniker": "..\\Data\\BaseRepository.cs",
+              "ToolTip": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Data\\BaseRepository.cs",
+              "RelativeToolTip": "..\\Data\\BaseRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-08T16:00:01.047Z"
             },
             {
               "$type": "Document",
@@ -144,7 +142,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 6,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\API\\Program.cs",
               "RelativeDocumentMoniker": "Program.cs",
@@ -156,28 +154,15 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 2,
               "Title": "launchSettings.json",
               "DocumentMoniker": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\API\\Properties\\launchSettings.json",
               "RelativeDocumentMoniker": "Properties\\launchSettings.json",
               "ToolTip": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\API\\Properties\\launchSettings.json",
               "RelativeToolTip": "Properties\\launchSettings.json",
-              "ViewState": "AgIAAAwAAAAAAAAAAAAAABEAAAAuAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAHAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-07-05T09:31:26.564Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "ProjectContext.cs",
-              "DocumentMoniker": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Data\\ProjectContext.cs",
-              "RelativeDocumentMoniker": "..\\Data\\ProjectContext.cs",
-              "ToolTip": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Data\\ProjectContext.cs",
-              "RelativeToolTip": "..\\Data\\ProjectContext.cs",
-              "ViewState": "AgIAACoAAAAAAAAAAAAIwD8AAAAsAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-07-05T09:30:40.968Z"
+              "WhenOpened": "2026-07-05T09:31:26.564Z"
             },
             {
               "$type": "Document",
@@ -193,7 +178,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 14,
               "Title": "20260708150541_final67.cs",
               "DocumentMoniker": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Data\\Migrations\\20260708150541_final67.cs",
               "RelativeDocumentMoniker": "..\\Data\\Migrations\\20260708150541_final67.cs",
@@ -205,7 +190,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 15,
               "Title": "20260708151138_676767.cs",
               "DocumentMoniker": "C:\\Users\\Administrator\\Desktop\\Pompa\\backend\\Data\\Migrations\\20260708151138_676767.cs",
               "RelativeDocumentMoniker": "..\\Data\\Migrations\\20260708151138_676767.cs",

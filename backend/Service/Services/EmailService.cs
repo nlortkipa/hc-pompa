@@ -93,10 +93,22 @@ namespace Service.Services
                 $"Company: {operation.CompanyName}",
                 $"Address: {operation.AddressName}",
                 $"Plate: {operation.PlateNumber}",
+                $"Pump type: {operation.PumpType}",
+                $"Distance range: {GetDistanceRangeLabel(operation)}",
                 $"Concrete volume: {operation.ConcreteVolume}",
                 "",
                 $"Review link: {reviewUrl}"
             });
+        }
+
+        private static string GetDistanceRangeLabel(PumpOperationDto operation)
+        {
+            if (!string.Equals(operation.PumpType, "<60მ", StringComparison.Ordinal))
+            {
+                return "—";
+            }
+
+            return operation.DistanceRange ?? "60მ-მდე";
         }
 
         private static string GetRequiredEnv(string name)

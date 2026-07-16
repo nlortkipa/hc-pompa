@@ -1,0 +1,120 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.search-select {
+  position: relative;
+}
+
+.search-select__control {
+  position: relative;
+}
+
+.search-select__control input {
+  width: 100%;
+  padding-right: 42px;
+  padding-left: 38px;
+}
+
+.search-select__control input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.search-select__icon {
+  position: absolute;
+  top: 50%;
+  left: 13px;
+  z-index: 1;
+  color: var(--text-muted);
+  font-size: 18px;
+  line-height: 1;
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+.search-select__action {
+  position: absolute;
+  top: 50%;
+  right: 7px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: 19px;
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+
+.search-select__action:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+.search-select__action svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.search-select__menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 30;
+  display: grid;
+  width: 100%;
+  max-height: 260px;
+  padding: 6px;
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.search-select__option {
+  width: 100%;
+  padding: 10px;
+  overflow: hidden;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 700;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.search-select__option:hover,
+.search-select__option--selected {
+  background: var(--primary-soft);
+  color: var(--primary-strong);
+}
+
+.search-select__option--all {
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+}
+
+.search-select__empty {
+  padding: 16px 10px;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+}

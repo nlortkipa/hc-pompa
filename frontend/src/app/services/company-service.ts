@@ -3,8 +3,19 @@ import { CompanyModel } from '../models/company-model';
 import { AddressModel } from '../models/address-model';
 import { HttpClient } from '@angular/common/http';
 import { ConfigService } from './config.service';
-import { Observable, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+
+export interface CompanyExcelImportResult {
+  totalRows: number;
+  uniquePairs: number;
+  duplicateRowsSkipped: number;
+  createdCompanies: number;
+  existingCompanies: number;
+  createdAddresses: number;
+  existingAddresses: number;
+  createdLinks: number;
+  existingLinks: number;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -57,5 +68,15 @@ export class CompanyService {
 
   deleteAddress(companyId: number, addressId: number): Observable<void> {
     return this.http.delete<void>(`${this.configService.backendUrl}/api/companies/${companyId}/addresses/${addressId}`);
+  }
+
+  importExcel(file: File): Observable<CompanyExcelImportResult> {
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+
+    return this.http.post<CompanyExcelImportResult>(
+      `${this.configService.backendUrl}/api/companies/import-excel`,
+      formData
+    );
   }
 }

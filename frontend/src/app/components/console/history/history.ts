@@ -5,15 +5,17 @@ import { PumpOperationService } from '../../../services/pump-operation-service';
 import { CompanyService } from '../../../services/company-service';
 import { UserService } from '../../../services/user-service';
 import { ProfileService } from '../../../services/profile-service';
+import { PlateService } from '../../../services/plate-service';
 import { PumpOperationFilter, PumpOperationModel } from '../../../models/pump-operation';
-import { CompanyModel } from '../../../models/company-model';
+import { Plate } from '../../../models/plate-model';
 import { UserModel } from '../../../models/user-model';
 import { finalize } from 'rxjs';
+import { SearchableSelect, SearchableSelectOption } from '../../searchable-select/searchable-select';
 
 @Component({
   selector: 'app-history',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, SearchableSelect],
   templateUrl: './history.html',
   styleUrls: ['./history.scss'],
 })
@@ -28,28 +30,42 @@ export class History implements OnInit {
   });
 
   users = signal<UserModel[]>([]);
+  plates = signal<Plate[]>([]);
+  selectedPlateId: number | null = null;
+  companyOptions = computed<SearchableSelectOption[]>(() =>
+    this.companyService.companies().map(company => ({
+      value: company.id,
+      label: company.name
+    }))
+  );
+  operatorOptions = computed<SearchableSelectOption[]>(() =>
+    this.users().map(user => ({
+      value: user.id,
+      label: `${user.firstName} ${user.lastName}`.trim()
+    }))
+  );
+  plateOptions = computed<SearchableSelectOption[]>(() =>
+    this.plates().map(plate => ({
+      value: plate.id,
+      label: plate.number
+    }))
+  );
   acceptedRecords = computed(() =>
     this.records().filter(record => this.reviewStatusValue(record) === 'Accepted')
   );
   totals = computed(() => {
     const result = {
       concreteVolume: 0,
-      pumpRelocation: 0,
-      stationaryRelocation: 0,
-      hydraulicRelocation: 0,
-      stationaryReposition: 0,
+      additionalStanding: 0,
       dismantleAssemble: 0,
-      idleTime: 0
+      idleCount: 0
     };
 
-    for (const record of this.acceptedRecords()) {
+    for (const record of this.records()) {
       result.concreteVolume += this.toNumber(record.concreteVolume);
-      result.pumpRelocation += this.toNumber(record.pumpRelocation);
-      result.stationaryRelocation += this.toNumber(record.stationaryRelocation);
-      result.hydraulicRelocation += this.toNumber(record.hydraulicRelocation);
-      result.stationaryReposition += this.toNumber(record.stationaryReposition);
+      result.additionalStanding += this.toNumber(record.additionalStanding);
       result.dismantleAssemble += this.toNumber(record.dismantleAssemble);
-      result.idleTime += this.toNumber(record.idleTime);
+      if (record.isIdle) result.idleCount++;
     }
 
     return result;
@@ -62,10 +78,12 @@ export class History implements OnInit {
   );
 
   filter = {
-    fromDate: '',
+    fromDate: this.getCurrentMonthStart(),
     toDate: '',
     companyId: null as number | null,
+    companyName: '',
     operatorId: null as number | null,
+    operatorName: '',
     plateNumber: ''
   };
 
@@ -73,12 +91,17 @@ export class History implements OnInit {
     private pumpOperationService: PumpOperationService,
     public companyService: CompanyService,
     private userService: UserService,
+    private plateService: PlateService,
     private profileService: ProfileService,
     private cdr: ChangeDetectorRef
   ) {
     effect(() => {
       if (this.canViewDetails()) {
         this.userService.getAll().subscribe(data => this.users.set(data));
+        this.plateService.getPlates().subscribe({
+          next: data => this.plates.set(data),
+          error: () => this.plates.set([])
+        });
       }
     });
   }
@@ -103,14 +126,22 @@ export class History implements OnInit {
   }
 
   clearFilters(): void {
+    this.selectedPlateId = null;
     this.filter = {
-      fromDate: '',
+      fromDate: this.getCurrentMonthStart(),
       toDate: '',
       companyId: null,
+      companyName: '',
       operatorId: null,
+      operatorName: '',
       plateNumber: ''
     };
     this.loadRecords();
+  }
+
+  selectPlate(plateId: number | null): void {
+    this.selectedPlateId = plateId;
+    this.filter.plateNumber = this.plates().find(plate => plate.id === plateId)?.number ?? '';
   }
 
   exportExcel(): void {
@@ -146,15 +177,28 @@ export class History implements OnInit {
     return 'badge-yellow';
   }
 
+  distanceRangeLabel(record: PumpOperationModel): string {
+    if (record.pumpType !== '<60მ') return '—';
+    return record.distanceRange || '60მ-მდე';
+  }
+
   private buildFilter(): PumpOperationFilter {
     const f: PumpOperationFilter = {};
     if (this.filter.fromDate) f.fromDate = this.filter.fromDate;
     if (this.filter.toDate) f.toDate = this.filter.toDate;
     if (this.filter.companyId != null) f.companyId = this.filter.companyId;
+    if (this.filter.companyName) f.companyName = this.filter.companyName;
     if (this.filter.operatorId != null) f.operatorId = this.filter.operatorId;
+    if (this.filter.operatorName) f.operatorName = this.filter.operatorName;
     if (this.filter.plateNumber) f.plateNumber = this.filter.plateNumber;
 
     return f;
+  }
+
+  private getCurrentMonthStart(): string {
+    const now = new Date();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    return `${now.getFullYear()}-${month}-01`;
   }
 
   private toNumber(value: number | null | undefined): number {

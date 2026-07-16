@@ -1,1 +1,31 @@
 <router-outlet></router-outlet>
+
+<div
+  *ngIf="backendAvailability.isUnavailable()"
+  class="service-unavailable"
+  role="alert"
+  aria-live="assertive">
+  <section class="service-unavailable__card">
+    <div class="service-unavailable__icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24">
+        <path d="M6.5 18.5h10a4 4 0 0 0 .8-7.9A6 6 0 0 0 6 8.5a5 5 0 0 0 .5 10Z"></path>
+        <path d="m5 5 14 14"></path>
+      </svg>
+    </div>
+
+    <p class="service-unavailable__code">კავშირის შეცდომა</p>
+    <h1>სერვერთან დაკავშირება ვერ მოხერხდა</h1>
+    <p class="service-unavailable__message">
+      სერვერი დროებით მიუწვდომელია. კავშირი ავტომატურად აღდგება, როგორც კი სერვერი კვლავ უპასუხებს.
+    </p>
+
+    <button
+      class="btn btn-primary"
+      type="button"
+      [disabled]="backendAvailability.isChecking()"
+      (click)="backendAvailability.retry()">
+      <span *ngIf="!backendAvailability.isChecking()">თავიდან ცდა</span>
+      <span *ngIf="backendAvailability.isChecking()">მოწმდება...</span>
+    </button>
+  </section>
+</div>

@@ -6,6 +6,7 @@ using Service.Exceptions;
 using Service.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -47,6 +48,9 @@ namespace Service.Services
             }
 
             var entity = _mapper.Map<Plate>(dto);
+            entity.CheckerEmails = dto.CheckerEmails
+                .Select(email => new PlateCheckerEmail { Email = email })
+                .ToList();
             await _plateRepository.AddAsync(entity);
             return _mapper.Map<PlateDTO>(entity);
         }
@@ -66,6 +70,28 @@ namespace Service.Services
             }
 
             _mapper.Map(dto, entity);
+            var requestedEmails = dto.CheckerEmails.ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var removedEmails = entity.CheckerEmails
+                .Where(x => !requestedEmails.Contains(x.Email))
+                .ToList();
+
+            foreach (var removedEmail in removedEmails)
+            {
+                entity.CheckerEmails.Remove(removedEmail);
+            }
+
+            var existingEmails = entity.CheckerEmails
+                .Select(x => x.Email)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var email in dto.CheckerEmails.Where(email => !existingEmails.Contains(email)))
+            {
+                entity.CheckerEmails.Add(new PlateCheckerEmail
+                {
+                    PlateId = entity.Id,
+                    Email = email
+                });
+            }
             await _plateRepository.UpdateAsync(entity);
         }
 
@@ -77,7 +103,12 @@ namespace Service.Services
         private static void Normalize(PlateDTO dto)
         {
             dto.Number = dto.Number?.Trim().ToUpperInvariant() ?? string.Empty;
-            dto.CheckerGmail = dto.CheckerGmail?.Trim().ToLowerInvariant() ?? string.Empty;
+            dto.Type = dto.Type?.Trim() ?? string.Empty;
+            dto.CheckerEmails = (dto.CheckerEmails ?? new List<string>())
+                .Select(email => email?.Trim().ToLowerInvariant() ?? string.Empty)
+                .Where(email => !string.IsNullOrWhiteSpace(email))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
         }
 
         private static void Validate(PlateDTO dto)
@@ -87,14 +118,19 @@ namespace Service.Services
                 throw new Exception("Plate number is required");
             }
 
-            if (string.IsNullOrWhiteSpace(dto.CheckerGmail))
+            if (string.IsNullOrWhiteSpace(dto.Type))
             {
-                throw new Exception("Checker Gmail is required");
+                throw new Exception("Pump type is required");
             }
 
-            if (!dto.CheckerGmail.Contains('@') || !dto.CheckerGmail.Contains('.'))
+            if (dto.CheckerEmails.Count == 0)
             {
-                throw new Exception("Checker Gmail is not valid");
+                throw new Exception("At least one checker email is required");
+            }
+
+            if (dto.CheckerEmails.Any(email => !new EmailAddressAttribute().IsValid(email)))
+            {
+                throw new Exception("One or more checker emails are not valid");
             }
         }
     }

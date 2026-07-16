@@ -1,0 +1,61 @@
+<div class="search-select" [class.search-select--open]="isOpen">
+  <div class="search-select__control">
+    <span class="search-select__icon" aria-hidden="true">⌕</span>
+    <input
+      type="search"
+      autocomplete="off"
+      role="combobox"
+      aria-autocomplete="list"
+      [attr.aria-expanded]="isOpen"
+      [placeholder]="placeholder"
+      [value]="query"
+      (input)="onInput($event)"
+      (focus)="open()"
+      (keydown.escape)="closeOnEscape()">
+
+    <button
+      *ngIf="query; else toggleButton"
+      class="search-select__action"
+      type="button"
+      aria-label="გასუფთავება"
+      (click)="clear($event)">×</button>
+
+    <ng-template #toggleButton>
+      <button
+        class="search-select__action"
+        type="button"
+        aria-label="ჩამონათვალის გახსნა"
+        (click)="toggle($event)">
+        <svg viewBox="0 0 20 20" aria-hidden="true">
+          <path d="M5 7.5 10 12.5 15 7.5"></path>
+        </svg>
+      </button>
+    </ng-template>
+  </div>
+
+  <div *ngIf="isOpen" class="search-select__menu" role="listbox">
+    <button
+      class="search-select__option search-select__option--all"
+      type="button"
+      role="option"
+      [attr.aria-selected]="value == null"
+      (click)="clear()">
+      {{ allLabel }}
+    </button>
+
+    <button
+      *ngFor="let option of filteredOptions"
+      class="search-select__option"
+      type="button"
+      role="option"
+      [class.search-select__option--selected]="option.value === value"
+      [attr.aria-selected]="option.value === value"
+      (click)="select(option)">
+      {{ option.label }}
+    </button>
+
+    <div *ngIf="filteredOptions.length === 0" class="search-select__empty">
+      შედეგი ვერ მოიძებნა
+    </div>
+  </div>
+</div>

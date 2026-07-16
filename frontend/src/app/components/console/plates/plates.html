@@ -15,10 +15,22 @@
                 <div class="field-error-msg" *ngIf="errors['number']">{{errors['number']}}</div>
             </div>
             <div class="form-group compact-group">
-                <label>შემმოწმებლის ელფოსტა</label>
-                <input type="email" [(ngModel)]="plateForm.checkerGmail" placeholder="ელფოსტა"
-                    class="form-control" [class.field-error]="errors['checkerGmail']">
-                <div class="field-error-msg" *ngIf="errors['checkerGmail']">{{errors['checkerGmail']}}</div>
+                <label>პომპის ტიპი</label>
+                <input type="text" [(ngModel)]="plateForm.type" placeholder="პომპის ტიპი"
+                    class="form-control" [class.field-error]="errors['type']">
+                <div class="field-error-msg" *ngIf="errors['type']">{{errors['type']}}</div>
+            </div>
+            <div class="form-group compact-group checker-emails-group">
+                <label>შემმოწმებლების ელფოსტები</label>
+                <div class="checker-email-row"
+                    *ngFor="let email of plateForm.checkerEmails; let i = index; trackBy: trackCheckerEmail">
+                    <input type="email" [(ngModel)]="plateForm.checkerEmails[i]" placeholder="ელფოსტა"
+                        class="form-control" [class.field-error]="errors['checkerEmails']">
+                    <button type="button" class="icon-btn remove-email" title="ელფოსტის წაშლა"
+                        (click)="removeCheckerEmail(i)">×</button>
+                </div>
+                <button type="button" class="add-email-btn" (click)="addCheckerEmail()">+ ელფოსტის დამატება</button>
+                <div class="field-error-msg" *ngIf="errors['checkerEmails']">{{errors['checkerEmails']}}</div>
             </div>
             <div class="form-actions">
                 <button class="btn btn-primary" (click)="savePlate()" [disabled]="isLoading">
@@ -31,7 +43,7 @@
 
         <div class="list-toolbar">
             <input type="search" [ngModel]="plateSearch()" (ngModelChange)="plateSearch.set($event); filterPlates()"
-                placeholder="ძებნა ნომრით">
+                placeholder="ძებნა ნომრით ან ტიპით">
             <span class="pill">{{ filteredPlates().length }} ნომერი</span>
         </div>
 
@@ -39,7 +51,8 @@
             <div *ngFor="let p of filteredPlates()" class="item-row no-hover">
                 <div class="plate-info">
                     <span class="item-name">{{p.number}}</span>
-                    <span class="checker-gmail">{{p.checkerGmail || 'ელფოსტა არ არის მითითებული'}}</span>
+                    <span class="pump-type">ტიპი: {{p.type || 'არ არის მითითებული'}}</span>
+                    <span class="checker-gmail">{{p.checkerEmails.length ? p.checkerEmails.join(', ') : 'ელფოსტა არ არის მითითებული'}}</span>
                 </div>
                 <div class="item-actions">
                     <button class="icon-btn" title="შეცვლა" (click)="editPlate(p)">✎</button>

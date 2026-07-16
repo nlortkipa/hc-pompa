@@ -1,10 +1,10 @@
-import { Component, OnInit, signal, ChangeDetectorRef, effect } from '@angular/core';
+import { Component, OnInit, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { CompanyService } from '../../../services/company-service';
+import { CompanyExcelImportResult, CompanyService } from '../../../services/company-service';
 import { CompanyModel } from '../../../models/company-model';
 import { AddressModel } from '../../../models/address-model';
-import { finalize } from 'rxjs/operators';
+import { finalize, timeout } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 
 @Component({
@@ -22,6 +22,10 @@ export class Companies implements OnInit {
   filteredAddresses = signal<AddressModel[]>([]);
 
   isLoading = false;
+  isImporting = signal(false);
+  selectedExcelFile = signal<File | null>(null);
+  importResult = signal<CompanyExcelImportResult | null>(null);
+  importError = signal('');
   
   selectedCompanyId: number | null = null;
   companyForm = { id: 0, name: '' };
@@ -30,10 +34,7 @@ export class Companies implements OnInit {
   isEditingCompany = false;
   isEditingAddress = false;
 
-  constructor(
-    public companyService: CompanyService,
-    private cdr: ChangeDetectorRef
-  ) {
+  constructor(public companyService: CompanyService) {
     effect(() => {
         this.companies.set(this.companyService.companies());
         this.filterCompanies();
@@ -50,6 +51,39 @@ export class Companies implements OnInit {
 
   loadCompanies(): void {
     this.companyService.getCompanies();
+  }
+
+  onExcelSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.selectedExcelFile.set(input.files?.[0] ?? null);
+    this.importResult.set(null);
+    this.importError.set('');
+  }
+
+  importExcel(): void {
+    const file = this.selectedExcelFile();
+    if (!file || this.isImporting()) return;
+    if (!confirm('Excel ფაილი მთლიანად ჩაანაცვლებს კომპანიებისა და მისამართების მიმდინარე კატალოგს. გაგრძელება?')) return;
+
+    this.isImporting.set(true);
+    this.importResult.set(null);
+    this.importError.set('');
+
+    this.companyService.importExcel(file)
+      .pipe(
+        timeout(60_000),
+        finalize(() => this.isImporting.set(false))
+      )
+      .subscribe({
+        next: (result) => {
+          this.importResult.set(result);
+          this.companyService.getCompanies();
+          if (this.selectedCompanyId) {
+            this.companyService.getAddresses(this.selectedCompanyId);
+          }
+        },
+        error: () => this.importError.set('არასწორი ფორმატი')
+      });
   }
 
   filterCompanies(): void {

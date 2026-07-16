@@ -37,8 +37,10 @@ export class PumpOperationService {
       if (filter.fromDate) params = params.set('fromDate', filter.fromDate);
       if (filter.toDate) params = params.set('toDate', filter.toDate);
       if (filter.companyId != null) params = params.set('companyId', filter.companyId.toString());
+      if (filter.companyName) params = params.set('companyName', filter.companyName);
       if (filter.addressId != null) params = params.set('addressId', filter.addressId.toString());
       if (filter.operatorId != null) params = params.set('operatorId', filter.operatorId.toString());
+      if (filter.operatorName) params = params.set('operatorName', filter.operatorName);
       if (filter.plateNumber) params = params.set('plateNumber', filter.plateNumber);
     }
 

@@ -1,5 +1,15 @@
 <main class="review-shell">
   <section class="review-card">
+    <ng-container *ngIf="isInvalidReview; else reviewContent">
+      <div class="invalid-review">
+        <div class="error-code">404</div>
+        <h1>შემოწმების გვერდი ვერ მოიძებნა</h1>
+        <p>ბმული არასწორია ან ჩანაწერი აღარ არსებობს.</p>
+        <a class="back-link" routerLink="/login">მთავარ გვერდზე დაბრუნება</a>
+      </div>
+    </ng-container>
+
+    <ng-template #reviewContent>
     <div class="review-top">
       <div>
         <div class="kicker">შემოწმება</div>
@@ -12,6 +22,9 @@
 
     <div *ngIf="isLoading" class="notice">იტვირთება...</div>
     <div *ngIf="error" class="notice error">{{ error }}</div>
+    <button *ngIf="canRetry" class="btn btn-primary retry-button" type="button" (click)="loadReview()">
+      თავიდან ცდა
+    </button>
     <div *ngIf="message" class="notice success">{{ message }}</div>
 
     <ng-container *ngIf="operation() as op">
@@ -48,6 +61,14 @@
           <strong>{{ op.plateNumber }}</strong>
         </div>
         <div class="detail">
+          <span>პომპის ტიპი</span>
+          <strong>{{ op.pumpType || '—' }}</strong>
+        </div>
+        <div class="detail" *ngIf="op.pumpType === '<60მ'">
+          <span>მანძილი</span>
+          <strong>{{ op.distanceRange || '60მ-მდე' }}</strong>
+        </div>
+        <div class="detail">
           <span>ბეტონი</span>
           <strong>{{ op.concreteVolume }} მ³</strong>
         </div>
@@ -55,20 +76,8 @@
 
       <div class="ops-table">
         <div class="ops-row">
-          <span>პომპის გადადგმა</span>
-          <strong>{{ op.pumpRelocation }}</strong>
-        </div>
-        <div class="ops-row">
-          <span>სტაციონარის გადადგმა</span>
-          <strong>{{ op.stationaryRelocation }}</strong>
-        </div>
-        <div class="ops-row">
-          <span>ჰიდრავლიკის გადადგმა</span>
-          <strong>{{ op.hydraulicRelocation }}</strong>
-        </div>
-        <div class="ops-row">
-          <span>სტაციონარის გადაწყობა</span>
-          <strong>{{ op.stationaryReposition }}</strong>
+          <span>დამატებითი დგომა</span>
+          <strong>{{ op.additionalStanding }}</strong>
         </div>
         <div class="ops-row">
           <span>დაშლა / აწყობა</span>
@@ -76,7 +85,7 @@
         </div>
         <div class="ops-row">
           <span>მოცდენა</span>
-          <strong>{{ op.idleTime }} სთ</strong>
+          <strong>{{ op.isIdle ? 'კი' : 'არა' }}</strong>
         </div>
       </div>
 
@@ -92,9 +101,11 @@
       <ng-template #reviewedState>
         <div class="reviewed-state">
           <strong>ჩანაწერი {{ statusLabel(op.reviewStatus) }}.</strong>
+          <span *ngIf="op.reviewedByCheckerGmail">გადაწყვეტილება მიიღო: {{ op.reviewedByCheckerGmail }}</span>
           <span *ngIf="op.reviewedAt">შემოწმდა {{ op.reviewedAt | date:'dd.MM.yyyy HH:mm' }}</span>
         </div>
       </ng-template>
     </ng-container>
+    </ng-template>
   </section>
 </main>

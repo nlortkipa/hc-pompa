@@ -17,6 +17,8 @@ namespace Data.Configurations
                 .IsRequired();
             builder.Property(e => e.AddressId)
                 .IsRequired();
+            builder.HasIndex(e => new { e.CompanyId, e.AddressId })
+                .IsUnique();
 
             builder.HasOne(ca => ca.Company)
                 .WithMany(c => c.CompanyAddresses)
