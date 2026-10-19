@@ -108,6 +108,9 @@ namespace Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<bool>("IsStationary")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Number")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -126,54 +129,63 @@ namespace Data.Migrations
                         new
                         {
                             Id = 1,
+                            IsStationary = false,
                             Number = "II210NI",
                             Type = "52მ"
                         },
                         new
                         {
                             Id = 2,
+                            IsStationary = false,
                             Number = "PB107PB",
                             Type = "42მ"
                         },
                         new
                         {
                             Id = 3,
+                            IsStationary = false,
                             Number = "BB685FF",
                             Type = "42მ"
                         },
                         new
                         {
                             Id = 4,
+                            IsStationary = false,
                             Number = "VQ632QV",
                             Type = "42მ"
                         },
                         new
                         {
                             Id = 5,
+                            IsStationary = true,
                             Number = "CC178LC",
                             Type = "<60მ"
                         },
                         new
                         {
                             Id = 6,
+                            IsStationary = true,
                             Number = "WW832GW",
                             Type = "<60მ"
                         },
                         new
                         {
                             Id = 7,
+                            IsStationary = false,
                             Number = "OV247VO",
                             Type = "47მ"
                         },
                         new
                         {
                             Id = 8,
+                            IsStationary = false,
                             Number = "CG368CG",
                             Type = "48მ"
                         },
                         new
                         {
                             Id = 9,
+                            IsStationary = false,
                             Number = "ᲰᲘᲓ. ᲒᲐᲛᲐᲜᲐᲬᲘᲚᲔᲑᲔᲚᲘ",
                             Type = "18მ"
                         });
@@ -408,7 +420,7 @@ namespace Data.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2026, 6, 16, 16, 0, 0, 0, DateTimeKind.Local),
+                            CreatedAt = new DateTime(2026, 6, 16, 12, 0, 0, 0, DateTimeKind.Utc),
                             FirstName = "გაგა",
                             LastName = "ლორთქიფანიძე",
                             PersonalId = "11111111111",
@@ -419,7 +431,7 @@ namespace Data.Migrations
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2026, 6, 16, 16, 0, 0, 0, DateTimeKind.Local),
+                            CreatedAt = new DateTime(2026, 6, 16, 12, 0, 0, 0, DateTimeKind.Utc),
                             FirstName = "ჯემალ",
                             LastName = "გიორგობიანი",
                             PersonalId = "01001055244",
@@ -430,7 +442,7 @@ namespace Data.Migrations
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2026, 6, 16, 16, 0, 0, 0, DateTimeKind.Local),
+                            CreatedAt = new DateTime(2026, 6, 16, 12, 0, 0, 0, DateTimeKind.Utc),
                             FirstName = "გიორგი",
                             LastName = "გუჯეჯიანი",
                             PersonalId = "01005027479",
@@ -441,7 +453,7 @@ namespace Data.Migrations
                         new
                         {
                             Id = 4,
-                            CreatedAt = new DateTime(2026, 6, 16, 16, 0, 0, 0, DateTimeKind.Local),
+                            CreatedAt = new DateTime(2026, 6, 16, 12, 0, 0, 0, DateTimeKind.Utc),
                             FirstName = "დათო",
                             LastName = "ელგენდარაშვილი",
                             PersonalId = "01008045338",
@@ -452,7 +464,7 @@ namespace Data.Migrations
                         new
                         {
                             Id = 5,
-                            CreatedAt = new DateTime(2026, 6, 16, 16, 0, 0, 0, DateTimeKind.Local),
+                            CreatedAt = new DateTime(2026, 6, 16, 12, 0, 0, 0, DateTimeKind.Utc),
                             FirstName = "ზვიადი",
                             LastName = "ენუქიძე",
                             PersonalId = "38001031038",
@@ -463,7 +475,7 @@ namespace Data.Migrations
                         new
                         {
                             Id = 6,
-                            CreatedAt = new DateTime(2026, 6, 16, 16, 0, 0, 0, DateTimeKind.Local),
+                            CreatedAt = new DateTime(2026, 6, 16, 12, 0, 0, 0, DateTimeKind.Utc),
                             FirstName = "ლაშა",
                             LastName = "ენუქიძე",
                             PersonalId = "38001045932",
@@ -474,7 +486,7 @@ namespace Data.Migrations
                         new
                         {
                             Id = 7,
-                            CreatedAt = new DateTime(2026, 6, 16, 16, 0, 0, 0, DateTimeKind.Local),
+                            CreatedAt = new DateTime(2026, 6, 16, 12, 0, 0, 0, DateTimeKind.Utc),
                             FirstName = "მამუკა",
                             LastName = "კაპანაძე",
                             PersonalId = "5400104439",
@@ -485,7 +497,7 @@ namespace Data.Migrations
                         new
                         {
                             Id = 8,
-                            CreatedAt = new DateTime(2026, 6, 16, 16, 0, 0, 0, DateTimeKind.Local),
+                            CreatedAt = new DateTime(2026, 6, 16, 12, 0, 0, 0, DateTimeKind.Utc),
                             FirstName = "გელა",
                             LastName = "მერებაშვილი",
                             PersonalId = "24001038417",
@@ -496,7 +508,7 @@ namespace Data.Migrations
                         new
                         {
                             Id = 9,
-                            CreatedAt = new DateTime(2026, 6, 16, 16, 0, 0, 0, DateTimeKind.Local),
+                            CreatedAt = new DateTime(2026, 6, 16, 12, 0, 0, 0, DateTimeKind.Utc),
                             FirstName = "გიორგი",
                             LastName = "მილაძე",
                             PersonalId = "24001043433",
@@ -507,7 +519,7 @@ namespace Data.Migrations
                         new
                         {
                             Id = 10,
-                            CreatedAt = new DateTime(2026, 6, 16, 16, 0, 0, 0, DateTimeKind.Local),
+                            CreatedAt = new DateTime(2026, 6, 16, 12, 0, 0, 0, DateTimeKind.Utc),
                             FirstName = "მამუკა",
                             LastName = "სამხარაძე",
                             PersonalId = "38001011164",
@@ -518,7 +530,7 @@ namespace Data.Migrations
                         new
                         {
                             Id = 11,
-                            CreatedAt = new DateTime(2026, 6, 16, 16, 0, 0, 0, DateTimeKind.Local),
+                            CreatedAt = new DateTime(2026, 6, 16, 12, 0, 0, 0, DateTimeKind.Utc),
                             FirstName = "ნუგზარი",
                             LastName = "სამხარაძე",
                             PersonalId = "38001008077",
@@ -529,7 +541,7 @@ namespace Data.Migrations
                         new
                         {
                             Id = 12,
-                            CreatedAt = new DateTime(2026, 6, 16, 16, 0, 0, 0, DateTimeKind.Local),
+                            CreatedAt = new DateTime(2026, 6, 16, 12, 0, 0, 0, DateTimeKind.Utc),
                             FirstName = "ჯამბული",
                             LastName = "ფავლენიშვილი",
                             PersonalId = "18001063162",
@@ -540,7 +552,7 @@ namespace Data.Migrations
                         new
                         {
                             Id = 13,
-                            CreatedAt = new DateTime(2026, 6, 16, 16, 0, 0, 0, DateTimeKind.Local),
+                            CreatedAt = new DateTime(2026, 6, 16, 12, 0, 0, 0, DateTimeKind.Utc),
                             FirstName = "გიორგი",
                             LastName = "ფხაკაძე",
                             PersonalId = "62001036043",
@@ -551,7 +563,7 @@ namespace Data.Migrations
                         new
                         {
                             Id = 14,
-                            CreatedAt = new DateTime(2026, 6, 16, 16, 0, 0, 0, DateTimeKind.Local),
+                            CreatedAt = new DateTime(2026, 6, 16, 12, 0, 0, 0, DateTimeKind.Utc),
                             FirstName = "ედიშერ",
                             LastName = "ცხვიტაშვილი",
                             PersonalId = "38001035765",
@@ -562,7 +574,7 @@ namespace Data.Migrations
                         new
                         {
                             Id = 15,
-                            CreatedAt = new DateTime(2026, 6, 16, 16, 0, 0, 0, DateTimeKind.Local),
+                            CreatedAt = new DateTime(2026, 6, 16, 12, 0, 0, 0, DateTimeKind.Utc),
                             FirstName = "ლევანი",
                             LastName = "ცხვიტაშვილი",
                             PersonalId = "38001013339",
@@ -573,7 +585,7 @@ namespace Data.Migrations
                         new
                         {
                             Id = 16,
-                            CreatedAt = new DateTime(2026, 6, 16, 16, 0, 0, 0, DateTimeKind.Local),
+                            CreatedAt = new DateTime(2026, 6, 16, 12, 0, 0, 0, DateTimeKind.Utc),
                             FirstName = "დავითი",
                             LastName = "ხუხია",
                             PersonalId = "39001008605",
@@ -584,7 +596,7 @@ namespace Data.Migrations
                         new
                         {
                             Id = 17,
-                            CreatedAt = new DateTime(2026, 6, 16, 16, 0, 0, 0, DateTimeKind.Local),
+                            CreatedAt = new DateTime(2026, 6, 16, 12, 0, 0, 0, DateTimeKind.Utc),
                             FirstName = "ნოდარ",
                             LastName = "ჯიქური",
                             PersonalId = "24001046661",
@@ -595,7 +607,7 @@ namespace Data.Migrations
                         new
                         {
                             Id = 18,
-                            CreatedAt = new DateTime(2026, 6, 16, 16, 0, 0, 0, DateTimeKind.Local),
+                            CreatedAt = new DateTime(2026, 6, 16, 12, 0, 0, 0, DateTimeKind.Utc),
                             FirstName = "ასიფ",
                             LastName = "ვალიევი",
                             PersonalId = "12001008021",

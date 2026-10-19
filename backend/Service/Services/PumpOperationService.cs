@@ -20,9 +20,6 @@ namespace Service.Services
         private const string PendingStatus = "Pending";
         private const string AcceptedStatus = "Accepted";
         private const string RejectedStatus = "Rejected";
-        private const string UnderSixtyMeterPumpType = "<60მ";
-        private static readonly HashSet<string> AllowedDistanceRanges =
-            new(StringComparer.Ordinal) { "<100მ", "> 100მ" };
 
         public async Task<PumpOperationDto> CreateAsync(CreatePumpOperationDto dto, int operatorId)
         {
@@ -49,7 +46,17 @@ namespace Service.Services
             entity.OperatorId = operatorId;
             entity.PlateNumber = plate.Number;
             entity.PumpType = plate.Type;
-            entity.DistanceRange = NormalizeDistanceRange(dto.DistanceRange, plate.Type);
+            entity.DistanceRange = null;
+            if (dto.IsIdle)
+            {
+                entity.ConcreteVolume = 0;
+                entity.AdditionalStanding = 0;
+                entity.DismantleAssemble = 0;
+            }
+            else if (plate.IsStationary)
+            {
+                entity.AdditionalStanding = 0;
+            }
             entity.ReviewStatus = PendingStatus;
 
             await repository.AddAsync(entity);
@@ -62,7 +69,7 @@ namespace Service.Services
                     CheckerGmail = checkerEmail,
                     Token = Guid.NewGuid().ToString("N"),
                     Status = PendingStatus,
-                    CreatedAt = DateTime.Now
+                    CreatedAt = DateTime.UtcNow
                 });
             }
 
@@ -162,7 +169,7 @@ namespace Service.Services
                     request.PumpOperationId,
                     decision,
                     request.CheckerGmail,
-                    DateTime.Now);
+                    DateTime.UtcNow);
 
                 request = await reviewRequestRepository.GetByTokenAsync(token);
                 if (request == null) return null;
@@ -201,25 +208,5 @@ namespace Service.Services
             };
         }
 
-        private static string? NormalizeDistanceRange(string? distanceRange, string pumpType)
-        {
-            if (!string.Equals(pumpType, UnderSixtyMeterPumpType, StringComparison.Ordinal))
-            {
-                return null;
-            }
-
-            var normalized = distanceRange?.Trim();
-            if (string.IsNullOrEmpty(normalized))
-            {
-                return null;
-            }
-
-            if (!AllowedDistanceRanges.Contains(normalized))
-            {
-                throw new InvalidOperationException("Distance range must be '<100მ', '> 100მ', or empty");
-            }
-
-            return normalized;
-        }
     }
 }

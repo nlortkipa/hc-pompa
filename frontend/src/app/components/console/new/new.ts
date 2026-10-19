@@ -27,9 +27,13 @@ interface WizardState {
   companyId: number | null; addressId: number | null;
   pumpId: number | null;
   pumpPlate: string; pumpType: string;
-  distanceRange: '<100მ' | '> 100მ' | null;
   concreteVolume: number | null;
   additionalStanding: number; isIdle: boolean; dismantleAssemble: number;
+}
+
+interface WizardStep {
+  id: number;
+  label: string;
 }
 
 interface OpItem {
@@ -64,7 +68,16 @@ export class New implements OnInit {
   // platePermission removed
 
   /* ── WIZARD ── */
-  readonly STEPS = ['თარიღი', 'კომპანია', 'მისამართი', 'პომპა', 'ბეტონი', 'ოპერაციები', 'განხილვა'];
+  readonly ALL_STEPS: WizardStep[] = [
+    { id: 0, label: 'თარიღი' },
+    { id: 1, label: 'კომპანია' },
+    { id: 2, label: 'მისამართი' },
+    { id: 3, label: 'პომპა' },
+    { id: 4, label: 'მოცდენა' },
+    { id: 5, label: 'ბეტონი' },
+    { id: 6, label: 'ოპერაციები' },
+    { id: 7, label: 'განხილვა' },
+  ];
 
   companySearch = signal('');
   addressSearch = signal('');
@@ -91,7 +104,7 @@ export class New implements OnInit {
 
   readonly opItems: OpItem[] = [
     { key: 'additionalStanding', label: 'დამატებითი დგომა', unit: 'ცალი' },
-    { key: 'dismantleAssemble',  label: 'დაშლა/აწყობა',      unit: 'ცალი' },
+    { key: 'dismantleAssemble',  label: 'დაშლა და აწყობა',   unit: 'ცალი' },
   ];
 
   /* ── INLINE ERRORS ── */
@@ -131,7 +144,6 @@ export class New implements OnInit {
       companyId: null, addressId: null,
       pumpId: null,
       pumpPlate: '', pumpType: '',
-      distanceRange: null,
       concreteVolume: null,
       additionalStanding: 0, isIdle: false, dismantleAssemble: 0,
     };
@@ -155,11 +167,28 @@ export class New implements OnInit {
     }
   }
 
-  get stepRange(): number[] { return this.STEPS.map((_, i) => i); }
+  get steps(): WizardStep[] {
+    return this.wiz.isIdle
+      ? this.ALL_STEPS.filter(step => step.id !== 5 && step.id !== 6)
+      : this.ALL_STEPS;
+  }
 
-  stepStatus(i: number): 'done' | 'active' | '' {
-    if (i < this.wiz.step) return 'done';
-    if (i === this.wiz.step) return 'active';
+  get currentStepPosition(): number {
+    return this.steps.findIndex(step => step.id === this.wiz.step);
+  }
+
+  get currentStepLabel(): string {
+    return this.ALL_STEPS.find(step => step.id === this.wiz.step)?.label ?? '';
+  }
+
+  get isLastStep(): boolean {
+    return this.currentStepPosition === this.steps.length - 1;
+  }
+
+  stepStatus(stepId: number): 'done' | 'active' | '' {
+    const stepPosition = this.steps.findIndex(step => step.id === stepId);
+    if (stepPosition < this.currentStepPosition) return 'done';
+    if (stepId === this.wiz.step) return 'active';
     return '';
   }
 
@@ -210,17 +239,29 @@ export class New implements OnInit {
     const plate = this.plates().find(p => p.number === this.wiz.pumpPlate);
     this.wiz.pumpId = plate?.id ?? null;
     this.wiz.pumpType = plate?.type ?? '';
-    this.wiz.distanceRange = null;
+    if (plate?.isStationary) {
+      this.wiz.additionalStanding = 0;
+    }
     this.plateSearch.set('');
     this.clearError('pumpPlate');
   }
 
-  get showDistanceRangeOptions(): boolean {
-    return this.wiz.pumpType === '<60მ';
+  get selectedPlate(): Plate | undefined {
+    return this.plates().find(p => p.id === this.wiz.pumpId);
   }
 
-  toggleDistanceRange(value: '<100მ' | '> 100მ'): void {
-    this.wiz.distanceRange = this.wiz.distanceRange === value ? null : value;
+  get visibleOpItems(): OpItem[] {
+    return this.selectedPlate?.isStationary
+      ? this.opItems.filter(op => op.key === 'dismantleAssemble')
+      : this.opItems;
+  }
+
+  onIdleChange(): void {
+    if (!this.wiz.isIdle) return;
+
+    this.wiz.concreteVolume = null;
+    this.wiz.additionalStanding = 0;
+    this.wiz.dismantleAssemble = 0;
   }
 
   get filteredAddresses(): AddressModel[] { 
@@ -237,14 +278,11 @@ export class New implements OnInit {
   get reviewOps(): { label: string; val: number | string; unit: string }[] {
     const operations: { label: string; val: number | string; unit: string }[] = [];
 
-    if (this.wiz.additionalStanding > 0) {
+    if (!this.selectedPlate?.isStationary && this.wiz.additionalStanding > 0) {
       operations.push({ label: 'დამატებითი დგომა', val: this.wiz.additionalStanding, unit: 'ცალი' });
     }
-    if (this.wiz.isIdle) {
-      operations.push({ label: 'მოცდენა', val: 'კი', unit: '' });
-    }
     if (this.wiz.dismantleAssemble > 0) {
-      operations.push({ label: 'დაშლა/აწყობა', val: this.wiz.dismantleAssemble, unit: 'ცალი' });
+      operations.push({ label: 'დაშლა და აწყობა', val: this.wiz.dismantleAssemble, unit: 'ცალი' });
     }
 
     return operations;
@@ -297,7 +335,7 @@ export class New implements OnInit {
       this.errors['pumpPlate'] = 'პომპის ნომერი სავალდებულოა';
     }
 
-    if (s === 4) {
+    if (s === 5) {
       if (this.wiz.concreteVolume === null) {
         this.errors['concreteVolume'] = 'ბეტონის მოცულობა სავალდებულოა';
       }
@@ -311,11 +349,20 @@ export class New implements OnInit {
     if (this.isLoading) return;
     if (!this.validate()) return;
 
-    this.wiz.step++;
+    const nextStep = this.steps[this.currentStepPosition + 1];
+    if (nextStep) {
+      this.wiz.step = nextStep.id;
+    }
   }
 
 
-  wizBack(): void { this.errors = {}; this.wiz.step--; }
+  wizBack(): void {
+    this.errors = {};
+    const previousStep = this.steps[this.currentStepPosition - 1];
+    if (previousStep) {
+      this.wiz.step = previousStep.id;
+    }
+  }
 
   wizSubmit(): void {
     if (this.isLoading) return;
@@ -336,8 +383,7 @@ export class New implements OnInit {
       dismantleAssemble: this.wiz.dismantleAssemble,
       isIdle: this.wiz.isIdle,
       plateNumber: this.wiz.pumpPlate,
-      pumpType: this.wiz.pumpType,
-      distanceRange: this.wiz.distanceRange
+      pumpType: this.wiz.pumpType
     };
 
     this.pumpOperationService.create(model)

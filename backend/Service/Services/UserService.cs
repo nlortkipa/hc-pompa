@@ -62,7 +62,7 @@ namespace Service.Services
             }
 
             var user = mapper.Map<User>(dto);
-            user.CreatedAt = DateTime.Now;
+            user.CreatedAt = DateTime.UtcNow;
             user.Username = NormalizeUsername(dto.Username, dto.FirstName, dto.LastName);
             user.AvatarUrl = NormalizeAvatarUrl(dto.AvatarUrl);
             user.TokenVersion = 0;

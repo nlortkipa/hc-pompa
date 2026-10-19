@@ -19,7 +19,7 @@ export class Plates implements OnInit {
   plateSearch = signal('');
   
   isLoading = false;
-  plateForm = { id: 0, number: '', type: '', checkerEmails: [''] };
+  plateForm = { id: 0, number: '', type: '', isStationary: false, checkerEmails: [''] };
   isEditing = false;
   errors: Record<string, string> = {};
 
@@ -60,6 +60,7 @@ export class Plates implements OnInit {
       id: plate.id,
       number: plate.number,
       type: plate.type,
+      isStationary: plate.isStationary,
       checkerEmails: plate.checkerEmails.length ? [...plate.checkerEmails] : ['']
     };
     this.filterPlates();
@@ -67,7 +68,7 @@ export class Plates implements OnInit {
 
   cancelEdit(): void {
     this.isEditing = false;
-    this.plateForm = { id: 0, number: '', type: '', checkerEmails: [''] };
+    this.plateForm = { id: 0, number: '', type: '', isStationary: false, checkerEmails: [''] };
     this.errors = {};
   }
 
@@ -93,8 +94,8 @@ export class Plates implements OnInit {
     this.isLoading = true;
 
     const obs: Observable<any> = this.isEditing
-      ? this.plateService.updatePlate(this.plateForm.id, this.plateForm.number, this.plateForm.type, this.normalizedCheckerEmails())
-      : this.plateService.createPlate(this.plateForm.number, this.plateForm.type, this.normalizedCheckerEmails());
+      ? this.plateService.updatePlate(this.plateForm.id, this.plateForm.number, this.plateForm.type, this.plateForm.isStationary, this.normalizedCheckerEmails())
+      : this.plateService.createPlate(this.plateForm.number, this.plateForm.type, this.plateForm.isStationary, this.normalizedCheckerEmails());
 
     obs.pipe(finalize(() => (this.isLoading = false))).subscribe({
       next: () => {

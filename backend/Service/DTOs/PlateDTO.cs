@@ -11,6 +11,7 @@ namespace Service.DTOs
         public int Id { get; set; }
         public string Number { get; set; } = null!;
         public string Type { get; set; } = null!;
+        public bool IsStationary { get; set; }
         public List<string> CheckerEmails { get; set; } = new();
     }
 }

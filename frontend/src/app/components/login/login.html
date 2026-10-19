@@ -30,6 +30,20 @@
           <span *ngIf="isLoading()">იგზავნება...</span>
           <span class="button-icon" aria-hidden="true">→</span>
         </button>
+
+        <aside class="android-download" *ngIf="!isNativeApp" aria-labelledby="android-download-title">
+          <div class="android-download-icon" aria-hidden="true">
+            <span></span>
+          </div>
+          <div class="android-download-copy">
+            <p class="android-download-label">მობილური აპლიკაცია</p>
+            <h3 id="android-download-title">პომპა Android-ისთვის</h3>
+          </div>
+          <a class="android-download-action" href="/downloads/pompa-android.apk" download>
+            <span>ჩამოტვირთვა</span>
+            <span aria-hidden="true">↓</span>
+          </a>
+        </aside>
       </div>
     </div>
   </section>

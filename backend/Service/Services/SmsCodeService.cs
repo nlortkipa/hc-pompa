@@ -46,7 +46,7 @@ namespace Service.Services
             {
                 UserId = userId,
                 Code = code,
-                ExpiresAt = DateTime.UtcNow.AddMinutes(5)
+                ExpiresAt = DateTime.UtcNow.AddMinutes(10)
             };
 
             await _smsCodeRepository.AddAsync(smsCode);

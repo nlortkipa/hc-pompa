@@ -12,3 +12,6 @@ obj/
 *.dll
 *.exe
 *-runtime*.log
+.vercel
+.env*
+.deploy-check/

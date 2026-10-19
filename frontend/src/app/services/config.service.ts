@@ -16,6 +16,9 @@ export class ConfigService {
   }
 
   get backendUrl() {
-    return this.config?.BACKEND_URL || 'https://localhost:7067';
+    const configuredBackendUrl = this.config?.BACKEND_URL;
+    return typeof configuredBackendUrl === 'string'
+      ? configuredBackendUrl
+      : 'https://localhost:7067';
   }
 }

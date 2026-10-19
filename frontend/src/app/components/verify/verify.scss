@@ -97,22 +97,6 @@ h1 {
   border-color: var(--danger);
 }
 
-.timer {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  margin: 18px 0 24px;
-  color: var(--text-muted);
-  font-size: 14px;
-  font-weight: 800;
-}
-
-.timer span {
-  color: var(--primary-strong);
-  font-family: var(--mono);
-  font-weight: 900;
-}
-
 .auth-actions {
   display: grid;
   gap: 10px;
@@ -135,7 +119,7 @@ h1 {
 
 @media (max-width: 480px) {
   .auth-container {
-    align-items: start;
+    place-items: center;
     padding: 12px;
   }
 

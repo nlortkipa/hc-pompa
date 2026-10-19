@@ -14,20 +14,19 @@ RUN dotnet restore "API/API.csproj"
 COPY . .
 
 WORKDIR "/src/API"
-# Build in Debug mode for Development
-RUN dotnet build "API.csproj" -c Debug -o /app/build
+# Build the production artifact.
+RUN dotnet build "API.csproj" -c Release -o /app/build
 
 # Stage 2: Publish
 FROM build AS publish
-# Publish in Debug mode for Development
-RUN dotnet publish "API.csproj" -c Debug -o /app/publish /p:UseAppHost=false
+# Publish a portable production artifact.
+RUN dotnet publish "API.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 # Stage 3: Runtime
 FROM mcr.microsoft.com/dotnet/aspnet:10.0
 WORKDIR /app
-# Set environment to Development
-ENV ASPNETCORE_ENVIRONMENT=Development
+ENV ASPNETCORE_ENVIRONMENT=Production
+ENV ASPNETCORE_URLS=http://+:8080
 COPY --from=publish /app/publish .
-# Copy .env file if it exists in the build context
-COPY .env* .
+EXPOSE 8080
 ENTRYPOINT ["dotnet", "API.dll"]

@@ -1,7 +1,9 @@
-import { Component, ElementRef, OnDestroy, OnInit, QueryList, ViewChildren, signal } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, QueryList, ViewChildren, signal } from '@angular/core';
 import { RouterLink, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth-service';
+import { SmsAutofillService } from '../../services/sms-autofill.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   standalone: true,
@@ -10,17 +12,22 @@ import { AuthService } from '../../services/auth-service';
   templateUrl: './verify.html',
   styleUrl: './verify.scss',
 })
-export class Verify implements OnInit, OnDestroy {
+export class Verify implements OnInit, AfterViewInit, OnDestroy {
   @ViewChildren('otpInput')
   otpInputs!: QueryList<ElementRef<HTMLInputElement>>;
 
-  constructor(private router: Router, public authService: AuthService) { }
+  constructor(
+    private router: Router,
+    public authService: AuthService,
+    private smsAutofill: SmsAutofillService,
+  ) { }
 
-  timeLeft = signal('');
   error = signal('');
   showError = signal(false);
   isLoading = signal(false);
   private timerInterval?: ReturnType<typeof setInterval>;
+  private autofillSubscription?: Subscription;
+  private pendingAutofillCode?: string;
 
   ngOnInit() {
     const code = this.authService.smsCode();
@@ -37,18 +44,25 @@ export class Verify implements OnInit, OnDestroy {
       const secondsLeft = this.updateTimeLeft(code.expiresAt);
       if (secondsLeft <= 0) this.expireCode();
     }, 1000);
+
+    this.autofillSubscription = this.smsAutofill.code$.subscribe(code => {
+      if (code) this.fillOtp(code);
+    });
+  }
+
+  ngAfterViewInit() {
+    if (this.pendingAutofillCode) {
+      this.fillOtp(this.pendingAutofillCode);
+    }
   }
 
   ngOnDestroy() {
     clearInterval(this.timerInterval);
+    this.autofillSubscription?.unsubscribe();
   }
 
   private updateTimeLeft(expiresAt: Date): number {
-    const secondsLeft = Math.max(0, Math.floor((new Date(expiresAt).getTime() - Date.now()) / 1000));
-    const m = Math.floor(secondsLeft / 60).toString().padStart(2, '0');
-    const s = (secondsLeft % 60).toString().padStart(2, '0');
-    this.timeLeft.set(`${m}:${s}`);
-    return secondsLeft;
+    return Math.max(0, Math.floor((new Date(expiresAt).getTime() - Date.now()) / 1000));
   }
 
   private expireCode() {
@@ -85,7 +99,13 @@ export class Verify implements OnInit, OnDestroy {
 
   onOtpInput(event: Event, index: number) {
     const input = event.target as HTMLInputElement;
-    input.value = input.value.replace(/\D/g, '');
+    const digits = input.value.replace(/\D/g, '');
+    if (digits.length > 1) {
+      this.fillOtp(digits);
+      return;
+    }
+
+    input.value = digits;
     this.showError.set(false);
     if (input.value && index < this.otpInputs.length - 1) {
       this.otpInputs.get(index + 1)?.nativeElement.focus();
@@ -94,6 +114,12 @@ export class Verify implements OnInit, OnDestroy {
 
   onKeyDown(event: KeyboardEvent, index: number) {
     const input = event.target as HTMLInputElement;
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      if (!this.isLoading()) this.submit();
+      return;
+    }
+
     if (event.key === 'Backspace' && !input.value && index > 0) {
       this.otpInputs.get(index - 1)?.nativeElement.focus();
     }
@@ -106,11 +132,22 @@ export class Verify implements OnInit, OnDestroy {
       .replace(/\D/g, '')
       .slice(0, this.otpInputs.length);
     if (!pasted) return;
+    this.fillOtp(pasted);
+  }
+
+  private fillOtp(value: string) {
+    const code = value.replace(/\D/g, '').slice(0, 4);
+    if (!code || !this.otpInputs || this.otpInputs.length === 0) {
+      this.pendingAutofillCode = code;
+      return;
+    }
+
+    this.pendingAutofillCode = undefined;
     this.showError.set(false);
-    pasted.split('').forEach((char, i) => {
+    code.split('').forEach((char, i) => {
       const input = this.otpInputs.get(i)?.nativeElement;
       if (input) input.value = char;
     });
-    this.otpInputs.get(pasted.length - 1)?.nativeElement.focus();
+    this.otpInputs.get(Math.min(code.length, this.otpInputs.length) - 1)?.nativeElement.focus();
   }
 }

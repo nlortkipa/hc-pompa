@@ -7,19 +7,20 @@
             </div>
         </div>
         <div class="wizard-progress">
-            <div *ngFor="let i of stepRange" class="progress-step" [class.done]="stepStatus(i) === 'done'"
-                [class.active]="stepStatus(i) === 'active'">
+            <div *ngFor="let step of steps; let i = index" class="progress-step"
+                [class.done]="stepStatus(step.id) === 'done'"
+                [class.active]="stepStatus(step.id) === 'active'">
                 <div class="step-dot">
-                    <span *ngIf="stepStatus(i) !== 'done'">{{ i + 1 }}</span>
-                    <span *ngIf="stepStatus(i) === 'done'">✔</span>
+                    <span *ngIf="stepStatus(step.id) !== 'done'">{{ i + 1 }}</span>
+                    <span *ngIf="stepStatus(step.id) === 'done'">✔</span>
                 </div>
-                <div class="step-label">{{ STEPS[i] }}</div>
+                <div class="step-label">{{ step.label }}</div>
             </div>
         </div>
     </div>
 
     <div class="card wizard-card">
-        <div class="wizard-step-info">ეტაპი {{ wiz.step + 1 }} / {{ STEPS.length }} — {{ STEPS[wiz.step] }}</div>
+        <div class="wizard-step-info">ეტაპი {{ currentStepPosition + 1 }} / {{ steps.length }} — {{ currentStepLabel }}</div>
 
         <div class="wizard-content">
             <ng-container *ngIf="wiz.step === 0">
@@ -109,12 +110,22 @@
                     </div>
                     <span class="field-error-msg" *ngIf="errors['pumpPlate']">{{ errors['pumpPlate'] }}</span>
                 </div>
-                <div class="pump-info" *ngIf="wiz.pumpPlate">
-                    არჩეული ნომერი: <strong>{{ wiz.pumpPlate }}</strong>
-                </div>
             </ng-container>
 
             <ng-container *ngIf="wiz.step === 4">
+                <div class="idle-choice">
+                    <div>
+                        <div class="idle-choice-title">არის მოცდენა?</div>
+                        <p class="idle-choice-copy">მონიშნვის შემთხვევაში ბეტონისა და ოპერაციების ეტაპებს გამოტოვებთ.</p>
+                    </div>
+                    <label class="idle-toggle" [class.selected]="wiz.isIdle">
+                        <input type="checkbox" [(ngModel)]="wiz.isIdle" (ngModelChange)="onIdleChange()" />
+                        <span>{{ wiz.isIdle ? 'კი' : 'არა' }}</span>
+                    </label>
+                </div>
+            </ng-container>
+
+            <ng-container *ngIf="wiz.step === 5">
                 <div class="form-group">
                     <label>ბეტონის მოცულობა (მ³)</label>
                     <div class="volume-input-wrapper">
@@ -133,9 +144,9 @@
                 </div>
             </ng-container>
 
-            <ng-container *ngIf="wiz.step === 5">
+            <ng-container *ngIf="wiz.step === 6">
                 <div class="ops-list">
-                    <ng-container *ngFor="let op of opItems; let index = index">
+                    <ng-container *ngFor="let op of visibleOpItems">
                         <div class="op-item" [class.has-value]="wiz[op.key] > 0">
                             <div class="op-label">{{ op.label }}</div>
                             <div class="op-control">
@@ -144,35 +155,11 @@
                                 <span class="op-unit">{{ op.unit }}</span>
                             </div>
                         </div>
-                        <label *ngIf="index === 0" class="op-item op-checkbox-item" [class.has-value]="wiz.isIdle">
-                            <span class="op-label">მოცდენა</span>
-                            <input class="op-checkbox" type="checkbox" [(ngModel)]="wiz.isIdle" />
-                        </label>
                     </ng-container>
-                </div>
-
-                <div *ngIf="showDistanceRangeOptions" class="distance-range-section">
-                    <div class="review-title">მანძილი (არასავალდებულო)</div>
-                    <div class="distance-range-options">
-                        <label class="distance-range-option" [class.selected]="wiz.distanceRange === '<100მ'">
-                            <input
-                                type="checkbox"
-                                [checked]="wiz.distanceRange === '<100მ'"
-                                (change)="toggleDistanceRange('<100მ')" />
-                            <span>&lt;100მ</span>
-                        </label>
-                        <label class="distance-range-option" [class.selected]="wiz.distanceRange === '> 100მ'">
-                            <input
-                                type="checkbox"
-                                [checked]="wiz.distanceRange === '> 100მ'"
-                                (change)="toggleDistanceRange('> 100მ')" />
-                            <span>&gt; 100მ</span>
-                        </label>
-                    </div>
                 </div>
             </ng-container>
 
-            <ng-container *ngIf="wiz.step === 6">
+            <ng-container *ngIf="wiz.step === 7">
                 <div class="review-grid">
                     <div class="review-item">
                         <span class="review-label">თარიღი</span>
@@ -190,17 +177,17 @@
                         <span class="review-label">პომპა</span>
                         <span class="review-value">{{ wiz.pumpPlate }}</span>
                     </div>
-                    <div class="review-item" *ngIf="showDistanceRangeOptions">
-                        <span class="review-label">მანძილი</span>
-                        <span class="review-value">{{ wiz.distanceRange || '60მ-მდე' }}</span>
-                    </div>
-                    <div class="review-item highlight">
+                    <div class="review-item highlight" *ngIf="!wiz.isIdle">
                         <span class="review-label">ბეტონის მოცულობა</span>
                         <span class="review-value">{{ wiz.concreteVolume }} მ³</span>
                     </div>
+                    <div class="review-item highlight" *ngIf="wiz.isIdle">
+                        <span class="review-label">მოცდენა</span>
+                        <span class="review-value">კი</span>
+                    </div>
                 </div>
 
-                <div class="review-section">
+                <div class="review-section" *ngIf="!wiz.isIdle">
                     <div class="review-title">დამატებითი ოპერაციები</div>
                     <div class="review-ops">
                         <div *ngFor="let op of reviewOps" class="review-op">
@@ -221,7 +208,7 @@
             </button>
             <ng-template #spacer><div></div></ng-template>
 
-            <button *ngIf="wiz.step < STEPS.length - 1; else submitBtn" class="btn btn-primary" (click)="wizNext()"
+            <button *ngIf="!isLastStep; else submitBtn" class="btn btn-primary" (click)="wizNext()"
                 [disabled]="isLoading">
                 <span *ngIf="!isLoading">შემდეგი →</span>
                 <span *ngIf="isLoading">მოწმდება...</span>

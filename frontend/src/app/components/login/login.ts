@@ -6,6 +6,8 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth-service';
 import { finalize } from 'rxjs';
+import { Capacitor } from '@capacitor/core';
+import { SmsAutofillService } from '../../services/sms-autofill.service';
 
 @Component({
   standalone: true,
@@ -16,13 +18,18 @@ import { finalize } from 'rxjs';
 })
 export class Login {
   appName = APP_NAME;
+  readonly isNativeApp = Capacitor.isNativePlatform();
 
   number = signal('');
   error = signal('');
   showError = signal(false);
   isLoading = signal(false);
 
-  constructor(private router: Router, private authService: AuthService) { }
+  constructor(
+    private router: Router,
+    private authService: AuthService,
+    private smsAutofill: SmsAutofillService,
+  ) { }
 
   ngOnInit() {
     const token = localStorage.getItem('token')
@@ -30,7 +37,9 @@ export class Login {
       this.router.navigate(['/console'])
   }
 
-  submit() {
+  async submit() {
+    if (this.isLoading()) return;
+
     if (!this.number().trim()) {
       this.error.set('შეიყვანეთ ტელეფონის ნომერი');
       this.showError.set(true);
@@ -47,6 +56,9 @@ export class Login {
     this.isLoading.set(true);
     this.showError.set(false);
     this.error.set('');
+
+    // Android must begin listening before the backend sends the SMS.
+    await this.smsAutofill.startListening();
 
     this.authService.sendCode(cleanNumber)
       .pipe(finalize(() => this.isLoading.set(false)))
@@ -86,4 +98,5 @@ export class Login {
 
     return 'მოთხოვნის დამუშავება ვერ მოხერხდა. სცადეთ თავიდან';
   }
+
 }

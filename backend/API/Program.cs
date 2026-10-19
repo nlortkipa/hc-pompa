@@ -33,7 +33,19 @@ namespace API
 
             builder.Services.AddDbContext<ProjectContext>(options =>
             {
-                options.UseSqlServer(builder.Configuration.GetConnectionString("PompaDBConnection"));
+                var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+                if (!string.IsNullOrWhiteSpace(databaseUrl))
+                {
+                    options.UseNpgsql(
+                        Data.PostgresMigrations.PostgresConnectionString.Normalize(databaseUrl),
+                        npgsql => npgsql.MigrationsAssembly("Data.PostgresMigrations"));
+                }
+                else
+                {
+                    options.UseSqlServer(
+                        builder.Configuration.GetConnectionString("PompaDBConnection")
+                        ?? throw new InvalidOperationException("PompaDBConnection must be configured."));
+                }
             });
             builder.Services.AddScoped<DbContext, ProjectContext>();
 
@@ -132,22 +144,26 @@ namespace API
 
             var app = builder.Build();
 
-            if (builder.Configuration.GetValue<bool>("RecreateDatabaseOnStartup"))
+            // Apply pending migrations at startup. RecreateDatabaseOnStartup remains available
+            // for disposable local databases, but production never deletes existing data.
+            using (var scope = app.Services.CreateScope())
             {
-                using (var scope = app.Services.CreateScope())
+                var services = scope.ServiceProvider;
+                try
                 {
-                    var services = scope.ServiceProvider;
-                    try
+                    var context = services.GetRequiredService<ProjectContext>();
+                    if (builder.Configuration.GetValue<bool>("RecreateDatabaseOnStartup"))
                     {
-                        var context = services.GetRequiredService<ProjectContext>();
                         await context.Database.EnsureDeletedAsync();
-                        await context.Database.MigrateAsync();
                     }
-                    catch (Exception ex)
-                    {
-                        var logger = services.GetRequiredService<ILogger<Program>>();
-                        logger.LogError(ex, "An error occurred while recreating and seeding the database.");
-                    }
+
+                    await context.Database.MigrateAsync();
+                }
+                catch (Exception ex)
+                {
+                    var logger = services.GetRequiredService<ILogger<Program>>();
+                    logger.LogError(ex, "An error occurred while applying database migrations.");
+                    throw;
                 }
             }
 
@@ -182,6 +198,15 @@ namespace API
 
             app.UseAuthentication();
             app.UseAuthorization();
+            app.MapGet("/api/health", async (ProjectContext db) =>
+            {
+                var databaseAvailable = await db.Database.CanConnectAsync();
+                return Results.Ok(new
+                {
+                    status = databaseAvailable ? "ok" : "degraded",
+                    database = databaseAvailable ? "connected" : "unavailable"
+                });
+            });
             app.MapControllers();
 
             await app.RunAsync();

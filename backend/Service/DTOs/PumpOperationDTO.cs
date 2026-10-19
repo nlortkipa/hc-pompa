@@ -37,6 +37,5 @@ namespace Service.DTOs
         public bool IsIdle { get; set; }
         public int DismantleAssemble { get; set; }
         public string PlateNumber { get; set; } = null!;
-        public string? DistanceRange { get; set; }
     }
 }

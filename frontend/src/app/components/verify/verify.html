@@ -8,11 +8,12 @@
       <p class="auth-kicker">სმს დადასტურება</p>
       <h1>შეიყვანეთ 4-ნიშნა კოდი</h1>
       <p class="auth-info">კოდი გაიგზავნა ნომერზე <strong>{{authService.smsCode()?.userNumber}}</strong></p>
+      <p class="auth-info">კოდი მოქმედებს 10 წუთის განმავლობაში.</p>
     </div>
 
     <div class="auth-body">
       <div class="otp-container" [class.otp-error]="showError()">
-        <input type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="1" class="otp-input" #otpInput
+        <input type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="4" class="otp-input" #otpInput
           (input)="onOtpInput($event, 0)" (keydown)="onKeyDown($event, 0)" (paste)="onPaste($event)">
         <input type="text" inputmode="numeric" maxlength="1" class="otp-input" #otpInput
           (input)="onOtpInput($event, 1)" (keydown)="onKeyDown($event, 1)">
@@ -24,10 +25,6 @@
 
       <div class="field-error-msg text-center" *ngIf="showError()">
         {{ error() }}
-      </div>
-
-      <div class="timer">
-        კოდი იწურება <span>{{ timeLeft() }}</span>
       </div>
 
       <div class="auth-actions">

@@ -1,0 +1,7 @@
+.env
+.env.*
+!API/.env.example
+.vs
+**/bin
+**/obj
+*.log

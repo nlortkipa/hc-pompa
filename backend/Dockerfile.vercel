@@ -1,0 +1,21 @@
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+
+COPY ["API/API.csproj", "API/"]
+COPY ["Dal/Dal.csproj", "Dal/"]
+COPY ["Data/Data.csproj", "Data/"]
+COPY ["Data.PostgresMigrations/Data.PostgresMigrations.csproj", "Data.PostgresMigrations/"]
+COPY ["Service/Service.csproj", "Service/"]
+
+RUN dotnet restore "API/API.csproj"
+
+COPY . .
+WORKDIR /src/API
+RUN dotnet publish "API.csproj" -c Release -o /app/publish /p:UseAppHost=false
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0
+WORKDIR /app
+ENV ASPNETCORE_ENVIRONMENT=Production
+COPY --from=build /app/publish .
+EXPOSE 80
+CMD ["sh", "-c", "dotnet API.dll --urls http://0.0.0.0:${PORT:-80}"]

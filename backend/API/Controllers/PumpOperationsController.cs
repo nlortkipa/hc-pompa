@@ -80,13 +80,26 @@ namespace API.Controllers
             {
                 hasCheckerRequest = true;
                 var reviewUrl = $"{reviewBaseUrl}/{reviewRequest.Token}";
-                await emailService.SendPumpOperationReviewRequestAsync(result, reviewRequest.CheckerGmail, reviewUrl);
+                try
+                {
+                    await emailService.SendPumpOperationReviewRequestAsync(result, reviewRequest.CheckerGmail, reviewUrl);
 
-                logger.LogInformation(
-                    "Pump operation {PumpOperationId} review email processed for checker {CheckerGmail}: {ReviewUrl}",
-                    result.Id,
-                    reviewRequest.CheckerGmail,
-                    reviewUrl);
+                    logger.LogInformation(
+                        "Pump operation {PumpOperationId} review email processed for checker {CheckerGmail}: {ReviewUrl}",
+                        result.Id,
+                        reviewRequest.CheckerGmail,
+                        reviewUrl);
+                }
+                catch (Exception ex)
+                {
+                    // The operation and review request are already persisted. An email-provider
+                    // outage must not report the successful save as a failed operation.
+                    logger.LogError(
+                        ex,
+                        "Pump operation {PumpOperationId} was saved, but the review email failed for checker {CheckerGmail}.",
+                        result.Id,
+                        reviewRequest.CheckerGmail);
+                }
             }
 
             if (!hasCheckerRequest)
@@ -186,6 +199,12 @@ namespace API.Controllers
             if (!string.IsNullOrWhiteSpace(configuredUrl))
             {
                 return configuredUrl.TrimEnd('/');
+            }
+
+            var productionHost = Environment.GetEnvironmentVariable("VERCEL_PROJECT_PRODUCTION_URL");
+            if (!string.IsNullOrWhiteSpace(productionHost))
+            {
+                return $"https://{productionHost.TrimEnd('/')}/review";
             }
 
             var origin = Request.Headers.Origin.ToString();

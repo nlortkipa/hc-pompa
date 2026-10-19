@@ -682,7 +682,7 @@ tbody tr:hover td {
 
 .wizard-progress {
   display: grid;
-  grid-template-columns: repeat(7, minmax(56px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
   gap: 8px;
 }
 
@@ -859,20 +859,6 @@ tbody tr:hover td {
   font-size: 13px;
   font-weight: 800;
   text-align: center;
-}
-
-.pump-info {
-  display: inline-flex;
-  align-items: center;
-  min-height: 32px;
-  margin-top: 4px;
-  padding: 6px 10px;
-  background: var(--primary-soft);
-  border: 1px solid rgb(18 114 79 / 0.24);
-  border-radius: var(--radius-full);
-  color: var(--primary-strong);
-  font-size: 13px;
-  font-weight: 900;
 }
 
 .volume-input-wrapper {
@@ -1129,7 +1115,7 @@ tbody tr:hover td {
 
 @media (max-width: 700px) {
   .wizard-progress {
-    grid-template-columns: repeat(7, minmax(36px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(36px, 1fr));
     gap: 4px;
   }
 
