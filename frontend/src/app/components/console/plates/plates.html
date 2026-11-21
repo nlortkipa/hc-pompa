@@ -22,9 +22,8 @@
             </div>
             <div class="form-group compact-group stationary-group">
                 <label>სტაციონარი</label>
-                <label class="stationary-control">
-                    <input type="checkbox" [(ngModel)]="plateForm.isStationary">
-                    <span>{{ plateForm.isStationary ? 'კი' : 'არა' }}</span>
+                <label class="stationary-control" title="სტაციონარი">
+                    <input type="checkbox" [(ngModel)]="plateForm.isStationary" aria-label="სტაციონარი">
                 </label>
             </div>
             <div class="form-group compact-group checker-emails-group">
@@ -36,7 +35,9 @@
                     <button type="button" class="icon-btn remove-email" title="ელფოსტის წაშლა"
                         (click)="removeCheckerEmail(i)">×</button>
                 </div>
-                <button type="button" class="add-email-btn" (click)="addCheckerEmail()">+ ელფოსტის დამატება</button>
+                <button type="button" class="add-email-btn" [disabled]="!canAddCheckerEmail"
+                    [attr.title]="canAddCheckerEmail ? null : 'ჯერ შეავსეთ სწორი ელფოსტა'"
+                    (click)="addCheckerEmail()">+ ელფოსტის დამატება</button>
                 <div class="field-error-msg" *ngIf="errors['checkerEmails']">{{errors['checkerEmails']}}</div>
             </div>
             <div class="form-group compact-group action-group">
@@ -53,7 +54,7 @@
 
         <div class="list-toolbar">
             <input type="search" [ngModel]="plateSearch()" (ngModelChange)="plateSearch.set($event); filterPlates()"
-                placeholder="ძებნა ნომრით ან ტიპით">
+                placeholder="ძებნა ნომრით, ტიპით ან ელფოსტით">
             <span class="pill">{{ filteredPlates().length }} ნომერი</span>
         </div>
 

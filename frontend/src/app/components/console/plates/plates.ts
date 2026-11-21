@@ -44,7 +44,7 @@ export class Plates implements OnInit {
   }
 
   filterPlates(): void {
-    const term = this.plateSearch().toLowerCase();
+    const term = this.plateSearch().trim().toLowerCase();
     this.filteredPlates.set(
       this.plates().filter((p) =>
         p.number.toLowerCase().includes(term) ||
@@ -72,7 +72,13 @@ export class Plates implements OnInit {
     this.errors = {};
   }
 
+  get canAddCheckerEmail(): boolean {
+    const emails = this.plateForm.checkerEmails.map(email => email.trim().toLowerCase());
+    return emails.every(email => this.isValidEmail(email)) && new Set(emails).size === emails.length;
+  }
+
   addCheckerEmail(): void {
+    if (!this.canAddCheckerEmail) return;
     this.plateForm.checkerEmails.push('');
   }
 
