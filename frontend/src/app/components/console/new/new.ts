@@ -219,6 +219,25 @@ export class New implements OnInit {
       note: record.note ?? '',
     };
     this.companyService.getAddresses(record.companyId);
+
+    if (!plate) {
+      // The plate was renamed or deleted since the report was made; the server would
+      // reject the old number, so make the user pick a current one.
+      this.wiz.step = 3;
+      this.wiz.pumpPlate = '';
+      this.wiz.pumpId = null;
+      this.wiz.pumpType = '';
+      this.errors['pumpPlate'] = `პომპა ${record.plateNumber} აღარ არსებობს. აირჩიეთ პომპა.`;
+    }
+  }
+
+  /** Georgian text for the reasons the API rejects a create/edit with 400. */
+  private badRequestMessage(err: any): string | null {
+    const raw = typeof err?.error === 'string' ? err.error : '';
+    if (raw.includes('Plate was not found')) return 'არჩეული პომპა აღარ არსებობს. აირჩიეთ პომპა.';
+    if (raw.includes('checker')) return 'ამ პომპას შემმოწმებელი არ ჰყავს. დაამატეთ შემმოწმებელი პომპების გვერდზე.';
+    if (raw.includes('Note cannot be longer')) return `შენიშვნა არ უნდა აღემატებოდეს ${this.NOTE_MAX_LENGTH} სიმბოლოს.`;
+    return null;
   }
 
   cancelEdit(): void {
@@ -592,6 +611,16 @@ export class New implements OnInit {
         error: (err: any) => {
           this.zone.run(() => {
             console.error('ოპერაციის შენახვა ვერ მოხერხდა:', err);
+            const reason = err?.status === 400 ? this.badRequestMessage(err) : null;
+            if (reason) {
+              if (reason.includes('პომპა')) {
+                this.wiz.step = 3;
+                this.errors = { pumpPlate: reason };
+                this.focusStep();
+              }
+              this.ui.toast(reason, 'error', 5000);
+              return;
+            }
             if (editId !== null && (err?.status === 409 || err?.status === 404)) {
               this.ui.toast('ჩანაწერი უკვე შემოწმებულია ან წაშლილია', 'error');
               this.router.navigate(['/console/history']);
