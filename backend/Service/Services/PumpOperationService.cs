@@ -20,6 +20,7 @@ namespace Service.Services
         private const string PendingStatus = "Pending";
         private const string AcceptedStatus = "Accepted";
         private const string RejectedStatus = "Rejected";
+        private const int MaxNoteLength = 500;
 
         public async Task<PumpOperationDto> CreateAsync(CreatePumpOperationDto dto, int operatorId)
         {
@@ -47,6 +48,7 @@ namespace Service.Services
             entity.PlateNumber = plate.Number;
             entity.PumpType = plate.Type;
             entity.DistanceRange = null;
+            entity.Note = NormalizeNote(dto.Note);
             if (dto.IsIdle)
             {
                 entity.ConcreteVolume = 0;
@@ -204,8 +206,25 @@ namespace Service.Services
                 DismantleAssemble = operation.DismantleAssemble,
                 PlateNumber = operation.PlateNumber,
                 PumpType = operation.PumpType,
-                DistanceRange = operation.DistanceRange
+                DistanceRange = operation.DistanceRange,
+                Note = operation.Note
             };
+        }
+
+        private static string? NormalizeNote(string? note)
+        {
+            if (string.IsNullOrWhiteSpace(note))
+            {
+                return null;
+            }
+
+            var trimmed = note.Trim();
+            if (trimmed.Length > MaxNoteLength)
+            {
+                throw new InvalidOperationException($"Note cannot be longer than {MaxNoteLength} characters");
+            }
+
+            return trimmed;
         }
 
     }

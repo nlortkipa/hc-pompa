@@ -248,6 +248,10 @@ namespace Data.PostgresMigrations.Migrations
                     b.Property<bool>("IsIdle")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("Note")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
                     b.Property<int>("OperatorId")
                         .HasColumnType("integer");
 

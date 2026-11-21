@@ -89,6 +89,11 @@
         </div>
       </div>
 
+      <div class="review-note" *ngIf="op.note">
+        <span>შენიშვნა</span>
+        <p>{{ op.note }}</p>
+      </div>
+
       <div *ngIf="op.reviewStatus === 'Pending'; else reviewedState" class="review-actions">
         <button class="btn btn-secondary" type="button" (click)="reject()" [disabled]="isSubmitting">
           უარყოფა

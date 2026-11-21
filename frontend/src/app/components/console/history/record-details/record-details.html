@@ -1,0 +1,102 @@
+<div class="backdrop" (click)="close()">
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="record-details-title"
+        (click)="$event.stopPropagation()">
+        @let r = record();
+
+        <header class="sheet-header">
+            <div class="heading">
+                <span class="kicker">ჩანაწერი #{{ r.id }}</span>
+                <h2 id="record-details-title">{{ r.date | date:'dd.MM.yyyy' }}</h2>
+                <span class="sub">{{ r.plateNumber }}@if (r.pumpType) { · {{ r.pumpType }} }</span>
+            </div>
+            <div class="header-side">
+                <span class="badge" [ngClass]="status().cls">{{ status().label }}</span>
+                <button #closeButton type="button" class="icon-btn" (click)="close()" aria-label="დახურვა">
+                    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/></svg>
+                </button>
+            </div>
+        </header>
+
+        <div class="sheet-body">
+            <section class="stats">
+                <div class="stat primary">
+                    <span>ბეტონი</span>
+                    <strong>{{ r.concreteVolume | number:'1.0-2' }} <small>მ³</small></strong>
+                </div>
+                <div class="stat">
+                    <span>დამატებითი დგომა</span>
+                    <strong>{{ r.additionalStanding }}</strong>
+                </div>
+                <div class="stat">
+                    <span>დაშლა/აწყობა</span>
+                    <strong>{{ r.dismantleAssemble }}</strong>
+                </div>
+                <div class="stat" [class.warn]="r.isIdle">
+                    <span>მოცდენა</span>
+                    <strong>{{ r.isIdle ? 'კი' : 'არა' }}</strong>
+                </div>
+            </section>
+
+            <section class="block">
+                <h3>დეტალები</h3>
+                <dl class="fields">
+                    @if (showOperatorDetails()) {
+                        <div class="field">
+                            <dt>ოპერატორი</dt>
+                            <dd>{{ r.operatorFirstName }} {{ r.operatorLastName }}</dd>
+                        </div>
+                        <div class="field">
+                            <dt>კომპანია</dt>
+                            <dd>{{ r.companyName }}</dd>
+                        </div>
+                        <div class="field wide">
+                            <dt>მისამართი</dt>
+                            <dd>{{ r.addressName }}</dd>
+                        </div>
+                    }
+                    <div class="field">
+                        <dt>სახ. ნომერი</dt>
+                        <dd>{{ r.plateNumber }}</dd>
+                    </div>
+                    <div class="field">
+                        <dt>მანძილი</dt>
+                        <dd>{{ distanceRange() }}</dd>
+                    </div>
+                </dl>
+            </section>
+
+            @if (r.reviewedAt || (showOperatorDetails() && r.reviewedByCheckerGmail)) {
+                <section class="block">
+                    <h3>შემოწმება</h3>
+                    <dl class="fields">
+                        @if (showOperatorDetails() && r.reviewedByCheckerGmail) {
+                            <div class="field">
+                                <dt>შემმოწმებელი</dt>
+                                <dd>{{ r.reviewedByCheckerGmail }}</dd>
+                            </div>
+                        }
+                        @if (r.reviewedAt) {
+                            <div class="field">
+                                <dt>შემოწმდა</dt>
+                                <dd>{{ r.reviewedAt | date:'dd.MM.yyyy HH:mm' }}</dd>
+                            </div>
+                        }
+                    </dl>
+                </section>
+            }
+
+            <section class="block">
+                <h3>შენიშვნა</h3>
+                @if (note()) {
+                    <p class="note">{{ note() }}</p>
+                } @else {
+                    <p class="note empty">შენიშვნა არ არის დამატებული</p>
+                }
+            </section>
+        </div>
+
+        <footer class="sheet-footer">
+            <button type="button" class="btn btn-secondary" (click)="close()">დახურვა</button>
+        </footer>
+    </div>
+</div>

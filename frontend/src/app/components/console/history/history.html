@@ -114,10 +114,12 @@
                     <th>დამატებითი დგომა</th>
                     <th>დაშლა/აწყობა</th>
                     <th>მოცდენა</th>
+                    <th class="note-indicator-cell">შენიშვნა</th>
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let r of records()">
+                <tr *ngFor="let r of records()" class="record-row" tabindex="0" (click)="openRecord(r)"
+                    (keydown.enter)="openRecord(r)">
                     <td>
                         <strong>{{r.date | date:'dd.MM.yyyy'}}</strong>
                     </td>
@@ -144,9 +146,16 @@
                             {{r.isIdle ? 'კი' : 'არა'}}
                         </span>
                     </td>
+                    <td class="note-indicator-cell">
+                        <span class="note-flag" [class.has-note]="hasNote(r)"
+                            [attr.title]="hasNote(r) ? 'აქვს შენიშვნა' : 'შენიშვნა არ არის'"
+                            [attr.aria-label]="hasNote(r) ? 'აქვს შენიშვნა' : 'შენიშვნა არ არის'">
+                            <ng-container *ngIf="hasNote(r); else crossIcon"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="M5 12.5l4.5 4.5L19 7.5"/></svg></ng-container>
+                        </span>
+                    </td>
                 </tr>
                 <tr *ngIf="records().length === 0 && !isLoading">
-                    <td [attr.colspan]="canViewDetails() ? 12 : 9" class="empty">
+                    <td [attr.colspan]="canViewDetails() ? 13 : 10" class="empty">
                         <div class="empty-state">
                             <span class="empty-icon">∅</span>
                             <p>ჩანაწერები არ მოიძებნა</p>
@@ -160,9 +169,14 @@
 
 <!-- მობილური ხედი -->
 <div class="mobile-records">
-    <div *ngFor="let r of records()" class="card record-card">
+    <div *ngFor="let r of records()" class="card record-card" tabindex="0" (click)="openRecord(r)"
+        (keydown.enter)="openRecord(r)">
         <div class="record-header">
             <span class="record-date">{{r.date | date:'dd.MM.yyyy'}}</span>
+            <span class="note-flag labeled" [class.has-note]="hasNote(r)">
+                <ng-container *ngIf="hasNote(r); else crossIcon"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="M5 12.5l4.5 4.5L19 7.5"/></svg></ng-container>
+                შენიშვნა
+            </span>
             <span class="badge" [ngClass]="reviewStatusClass(r)">{{reviewStatusLabel(r)}}</span>
             <span class="badge badge-blue">{{r.concreteVolume}} მ³</span>
         </div>
@@ -200,3 +214,9 @@
         </div>
     </div>
 </div>
+
+<ng-template #crossIcon><svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/></svg></ng-template>
+
+<app-record-details *ngIf="selectedRecord() as r" [record]="r" [showOperatorDetails]="canViewDetails()"
+    (closed)="closeRecord()">
+</app-record-details>

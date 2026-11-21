@@ -39,6 +39,8 @@ namespace Data.Configurations
                 .HasMaxLength(20);
             builder.Property(p => p.DistanceRange)
                 .HasMaxLength(10);
+            builder.Property(p => p.Note)
+                .HasMaxLength(500);
             builder.Property(p => p.ReviewStatus)
                 .IsRequired()
                 .HasMaxLength(20);

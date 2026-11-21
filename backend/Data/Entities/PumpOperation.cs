@@ -32,6 +32,7 @@ namespace Data.Entities
         [Required]
         public string PumpType { get; set; } = string.Empty;
         public string? DistanceRange { get; set; }
+        public string? Note { get; set; }
         [Required]
         public string ReviewStatus { get; set; } = "Pending";
         public DateTime? ReviewedAt { get; set; }

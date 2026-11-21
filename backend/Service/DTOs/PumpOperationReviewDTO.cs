@@ -36,5 +36,6 @@ namespace Service.DTOs
         public string PlateNumber { get; set; } = null!;
         public string PumpType { get; set; } = null!;
         public string? DistanceRange { get; set; }
+        public string? Note { get; set; }
     }
 }

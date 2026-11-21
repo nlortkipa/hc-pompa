@@ -22,6 +22,7 @@ namespace Service.DTOs
         public string PlateNumber { get; set; } = null!;
         public string PumpType { get; set; } = null!;
         public string? DistanceRange { get; set; }
+        public string? Note { get; set; }
         public string ReviewStatus { get; set; } = null!;
         public DateTime? ReviewedAt { get; set; }
         public string? ReviewedByCheckerGmail { get; set; }
@@ -37,5 +38,6 @@ namespace Service.DTOs
         public bool IsIdle { get; set; }
         public int DismantleAssemble { get; set; }
         public string PlateNumber { get; set; } = null!;
+        public string? Note { get; set; }
     }
 }

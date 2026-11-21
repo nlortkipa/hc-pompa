@@ -15,6 +15,7 @@ export interface PumpOperationModel {
     plateNumber: string
     pumpType: string
     distanceRange?: '<100მ' | '> 100მ' | null
+    note?: string | null
     reviewStatus?: 'Pending' | 'Accepted' | 'Rejected' | string
     reviewedAt?: Date | null
     reviewedByCheckerGmail?: string | null
@@ -53,4 +54,5 @@ export interface PumpOperationReviewModel {
     plateNumber: string
     pumpType: string
     distanceRange?: '<100მ' | '> 100მ' | null
+    note?: string | null
 }

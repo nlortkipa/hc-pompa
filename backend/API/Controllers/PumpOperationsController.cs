@@ -47,7 +47,8 @@ namespace API.Controllers
             "ბეტონი",
             "დამატებითი დგომა",
             "დაშლა/აწყობა",
-            "მოცდენა"
+            "მოცდენა",
+            "შენიშვნა"
         ];
 
         private readonly record struct ExcelCell(object? Value, uint StyleIndex);
@@ -506,7 +507,8 @@ namespace API.Controllers
                     Cell(operation.ConcreteVolume, DecimalStyle),
                     Cell(operation.AdditionalStanding, IntegerStyle),
                     Cell(operation.DismantleAssemble, IntegerStyle),
-                    Cell(operation.IsIdle ? "კი" : "არა", TextStyle)
+                    Cell(operation.IsIdle ? "კი" : "არა", TextStyle),
+                    Cell(operation.Note ?? "", TextStyle)
                 }, 24));
             }
 
@@ -525,7 +527,8 @@ namespace API.Controllers
                     Cell(0, DecimalStyle),
                     Cell(0, IntegerStyle),
                     Cell(0, IntegerStyle),
-                    Cell("არა", TextStyle)
+                    Cell("არა", TextStyle),
+                    Cell("", TextStyle)
                 }, 24));
             }
 
@@ -542,17 +545,18 @@ namespace API.Controllers
                 Cell(totalConcrete, TotalDecimalStyle),
                 Cell(totalAdditionalStanding, TotalIntegerStyle),
                 Cell(totalDismantleAssemble, TotalIntegerStyle),
-                Cell(totalIdleCount, TotalIntegerStyle)
+                Cell(totalIdleCount, TotalIntegerStyle),
+                Cell("", TotalTextStyle)
             }, 26));
 
             return new XDocument(
                 new XDeclaration("1.0", "UTF-8", "yes"),
                 new XElement(ns + "worksheet",
-                    new XElement(ns + "dimension", new XAttribute("ref", $"A1:L{GetExportEndRow(operations)}")),
+                    new XElement(ns + "dimension", new XAttribute("ref", $"A1:M{GetExportEndRow(operations)}")),
                     CreateSheetViews(ns),
                     CreateColumns(ns),
                     new XElement(ns + "sheetData", rows),
-                    new XElement(ns + "autoFilter", new XAttribute("ref", $"A1:L{GetDataEndRow(operations)}")),
+                    new XElement(ns + "autoFilter", new XAttribute("ref", $"A1:M{GetDataEndRow(operations)}")),
                     new XElement(ns + "pageMargins",
                         new XAttribute("left", "0.7"),
                         new XAttribute("right", "0.7"),
@@ -590,7 +594,7 @@ namespace API.Controllers
 
         private static XElement CreateColumns(XNamespace ns)
         {
-            var widths = new[] { 6, 13, 15, 24, 26, 30, 16, 22, 14, 20, 18, 14 };
+            var widths = new[] { 6, 13, 15, 24, 26, 30, 16, 22, 14, 20, 18, 14, 40 };
 
             return new XElement(ns + "cols",
                 widths.Select((width, index) =>

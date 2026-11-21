@@ -29,6 +29,7 @@ interface WizardState {
   pumpPlate: string; pumpType: string;
   concreteVolume: number | null;
   additionalStanding: number | null; isIdle: boolean; dismantleAssemble: number | null;
+  note: string;
 }
 
 interface WizardStep {
@@ -101,6 +102,7 @@ export class New implements OnInit {
 
   wiz: WizardState = this.defaultWiz();
   isLoading = false;
+  readonly NOTE_MAX_LENGTH = 500;
 
   readonly opItems: OpItem[] = [
     { key: 'additionalStanding', label: 'დამატებითი დგომა', unit: 'ცალი' },
@@ -146,6 +148,7 @@ export class New implements OnInit {
       pumpPlate: '', pumpType: '',
       concreteVolume: null,
       additionalStanding: null, isIdle: false, dismantleAssemble: null,
+      note: '',
     };
   }
 
@@ -389,7 +392,8 @@ export class New implements OnInit {
       dismantleAssemble: this.wiz.dismantleAssemble ?? 0,
       isIdle: this.wiz.isIdle,
       plateNumber: this.wiz.pumpPlate,
-      pumpType: this.wiz.pumpType
+      pumpType: this.wiz.pumpType,
+      note: this.wiz.note.trim() || null
     };
 
     this.pumpOperationService.create(model)

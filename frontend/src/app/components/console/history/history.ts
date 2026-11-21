@@ -11,16 +11,18 @@ import { Plate } from '../../../models/plate-model';
 import { UserModel } from '../../../models/user-model';
 import { finalize } from 'rxjs';
 import { SearchableSelect, SearchableSelectOption } from '../../searchable-select/searchable-select';
+import { RecordDetails } from './record-details/record-details';
 
 @Component({
   selector: 'app-history',
   standalone: true,
-  imports: [CommonModule, FormsModule, SearchableSelect],
+  imports: [CommonModule, FormsModule, SearchableSelect, RecordDetails],
   templateUrl: './history.html',
   styleUrls: ['./history.scss'],
 })
 export class History implements OnInit {
   records = signal<PumpOperationModel[]>([]);
+  selectedRecord = signal<PumpOperationModel | null>(null);
   isLoading = false;
   isExporting = false;
   
@@ -175,6 +177,18 @@ export class History implements OnInit {
     if (record.reviewStatus === 'Accepted') return 'badge-green';
     if (record.reviewStatus === 'Rejected') return 'badge-red';
     return 'badge-yellow';
+  }
+
+  hasNote(record: PumpOperationModel): boolean {
+    return !!record.note?.trim();
+  }
+
+  openRecord(record: PumpOperationModel): void {
+    this.selectedRecord.set(record);
+  }
+
+  closeRecord(): void {
+    this.selectedRecord.set(null);
   }
 
   distanceRangeLabel(record: PumpOperationModel): string {
