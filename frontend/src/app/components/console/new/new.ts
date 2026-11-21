@@ -292,6 +292,12 @@ export class New implements OnInit {
     if (val < 0) this.wiz[key] = 0;
   }
 
+  stripLeadingZeros(event: Event): void {
+    const el = event.target as HTMLInputElement;
+    const cleaned = el.value.replace(/^0+(?=\d)/, '');
+    if (cleaned !== el.value) el.value = cleaned;
+  }
+
   onConcreteVolumeChange(): void {
     this.clearError('concreteVolume');
     if (this.wiz.concreteVolume !== null && this.wiz.concreteVolume < 0) {

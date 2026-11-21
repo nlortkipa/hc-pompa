@@ -120,7 +120,6 @@
                     </div>
                     <label class="idle-toggle" [class.selected]="wiz.isIdle">
                         <input type="checkbox" [(ngModel)]="wiz.isIdle" (ngModelChange)="onIdleChange()" />
-                        <span>{{ wiz.isIdle ? 'კი' : 'არა' }}</span>
                     </label>
                 </div>
             </ng-container>
@@ -131,7 +130,7 @@
                     <div class="volume-input-wrapper">
                         <input type="number" [(ngModel)]="wiz.concreteVolume" name="concrete" min="0" step="0.5"
                             placeholder="0.0" [class.field-error]="errors['concreteVolume']"
-                            (ngModelChange)="onConcreteVolumeChange()" />
+                            (ngModelChange)="onConcreteVolumeChange()" (input)="stripLeadingZeros($event)" />
                         <span class="unit-tag">მ³</span>
                     </div>
                     <span class="field-error-msg" *ngIf="errors['concreteVolume']">{{ errors['concreteVolume'] }}</span>
@@ -151,7 +150,7 @@
                             <div class="op-label">{{ op.label }}</div>
                             <div class="op-control">
                                 <input type="number" min="0" step="1" [(ngModel)]="wiz[op.key]"
-                                    (ngModelChange)="onOpQtyChange(op.key, $event)" />
+                                    (ngModelChange)="onOpQtyChange(op.key, $event)" (input)="stripLeadingZeros($event)" />
                                 <span class="op-unit">{{ op.unit }}</span>
                             </div>
                         </div>
