@@ -2,7 +2,7 @@
 # Starts PostgreSQL + the .NET API. Run the Angular frontend separately with `npm start`.
 services:
   db:
-    image: postgres:17
+    image: postgres:18
     environment:
       POSTGRES_DB: pompa
       POSTGRES_USER: pompa
@@ -10,7 +10,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - pompa-db:/var/lib/postgresql/data
+      - pompa-db:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U pompa -d pompa"]
       interval: 3s

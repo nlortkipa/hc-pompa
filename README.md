@@ -72,6 +72,21 @@ Use the seeded admin number `577574401`. Locally no SMS is sent. The code appear
 
 **Stop:** `docker compose down` (add `-v` to also delete the database).
 
+### Copy the production database locally
+
+Copy `DATABASE_URL_UNPOOLED` from Vercel → Settings → Environment Variables, then:
+
+```bash
+export PROD_URL='postgresql://...'   # the unpooled URL
+docker compose up -d db
+mkdir -p .local-db
+docker compose exec -T db pg_dump "$PROD_URL" -Fc --no-owner --no-acl > .local-db/prod.dump
+docker compose exec -T db pg_restore -U pompa -d pompa --clean --if-exists --no-owner --no-acl < .local-db/prod.dump
+unset PROD_URL
+```
+
+Production is only read; the app keeps using the local database. Keep `RecreateDatabaseOnStartup=false` so the copy isn't wiped on startup. The local Postgres version must match production's (currently 18). The dump contains real user data, and `.local-db/` is git-ignored.
+
 ## Environment variables
 
 The backend reads its settings from environment variables. Where they come from depends on how you run it:

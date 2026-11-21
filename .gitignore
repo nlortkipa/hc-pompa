@@ -16,3 +16,4 @@ obj/
 .env*
 .deploy-check/
 !.env.example
+.local-db/
