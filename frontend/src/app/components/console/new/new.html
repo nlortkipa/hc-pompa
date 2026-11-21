@@ -146,10 +146,10 @@
             <ng-container *ngIf="wiz.step === 6">
                 <div class="ops-list">
                     <ng-container *ngFor="let op of visibleOpItems">
-                        <div class="op-item" [class.has-value]="wiz[op.key] > 0">
+                        <div class="op-item" [class.has-value]="(wiz[op.key] ?? 0) > 0">
                             <div class="op-label">{{ op.label }}</div>
                             <div class="op-control">
-                                <input type="number" min="0" step="1" [(ngModel)]="wiz[op.key]"
+                                <input type="number" min="0" step="1" placeholder="0" [(ngModel)]="wiz[op.key]"
                                     (ngModelChange)="onOpQtyChange(op.key, $event)" (input)="stripLeadingZeros($event)" />
                                 <span class="op-unit">{{ op.unit }}</span>
                             </div>

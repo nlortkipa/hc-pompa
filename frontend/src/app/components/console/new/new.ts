@@ -28,7 +28,7 @@ interface WizardState {
   pumpId: number | null;
   pumpPlate: string; pumpType: string;
   concreteVolume: number | null;
-  additionalStanding: number; isIdle: boolean; dismantleAssemble: number;
+  additionalStanding: number | null; isIdle: boolean; dismantleAssemble: number | null;
 }
 
 interface WizardStep {
@@ -145,7 +145,7 @@ export class New implements OnInit {
       pumpId: null,
       pumpPlate: '', pumpType: '',
       concreteVolume: null,
-      additionalStanding: 0, isIdle: false, dismantleAssemble: 0,
+      additionalStanding: null, isIdle: false, dismantleAssemble: null,
     };
   }
 
@@ -240,7 +240,7 @@ export class New implements OnInit {
     this.wiz.pumpId = plate?.id ?? null;
     this.wiz.pumpType = plate?.type ?? '';
     if (plate?.isStationary) {
-      this.wiz.additionalStanding = 0;
+      this.wiz.additionalStanding = null;
     }
     this.plateSearch.set('');
     this.clearError('pumpPlate');
@@ -260,8 +260,8 @@ export class New implements OnInit {
     if (!this.wiz.isIdle) return;
 
     this.wiz.concreteVolume = null;
-    this.wiz.additionalStanding = 0;
-    this.wiz.dismantleAssemble = 0;
+    this.wiz.additionalStanding = null;
+    this.wiz.dismantleAssemble = null;
   }
 
   get filteredAddresses(): AddressModel[] { 
@@ -278,11 +278,11 @@ export class New implements OnInit {
   get reviewOps(): { label: string; val: number | string; unit: string }[] {
     const operations: { label: string; val: number | string; unit: string }[] = [];
 
-    if (!this.selectedPlate?.isStationary && this.wiz.additionalStanding > 0) {
-      operations.push({ label: 'დამატებითი დგომა', val: this.wiz.additionalStanding, unit: 'ცალი' });
+    if (!this.selectedPlate?.isStationary && (this.wiz.additionalStanding ?? 0) > 0) {
+      operations.push({ label: 'დამატებითი დგომა', val: this.wiz.additionalStanding!, unit: 'ცალი' });
     }
-    if (this.wiz.dismantleAssemble > 0) {
-      operations.push({ label: 'დაშლა და აწყობა', val: this.wiz.dismantleAssemble, unit: 'ცალი' });
+    if ((this.wiz.dismantleAssemble ?? 0) > 0) {
+      operations.push({ label: 'დაშლა და აწყობა', val: this.wiz.dismantleAssemble!, unit: 'ცალი' });
     }
 
     return operations;
@@ -385,8 +385,8 @@ export class New implements OnInit {
       companyId: this.wiz.companyId || 0,
       addressId: this.wiz.addressId || 0,
       concreteVolume: this.wiz.concreteVolume || 0,
-      additionalStanding: this.wiz.additionalStanding,
-      dismantleAssemble: this.wiz.dismantleAssemble,
+      additionalStanding: this.wiz.additionalStanding ?? 0,
+      dismantleAssemble: this.wiz.dismantleAssemble ?? 0,
       isIdle: this.wiz.isIdle,
       plateNumber: this.wiz.pumpPlate,
       pumpType: this.wiz.pumpType
