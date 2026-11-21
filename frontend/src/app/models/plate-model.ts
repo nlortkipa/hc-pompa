@@ -1,7 +1,15 @@
+export interface PlateChecker {
+    userId: number;
+    firstName: string;
+    lastName: string;
+    email?: string | null;
+}
+
 export interface Plate {
     id: number;
     number: string;
     type: string;
     isStationary: boolean;
-    checkerEmails: string[];
+    checkerUserIds: number[];
+    checkers: PlateChecker[];
 }

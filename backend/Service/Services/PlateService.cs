@@ -6,7 +6,6 @@ using Service.Exceptions;
 using Service.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,11 +15,13 @@ namespace Service.Services
     public class PlateService : IPlateService
     {
         private readonly IPlateRepository _plateRepository;
+        private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
 
-        public PlateService(IPlateRepository plateRepository, IMapper mapper)
+        public PlateService(IPlateRepository plateRepository, IUserRepository userRepository, IMapper mapper)
         {
             _plateRepository = plateRepository;
+            _userRepository = userRepository;
             _mapper = mapper;
         }
 
@@ -40,6 +41,7 @@ namespace Service.Services
         {
             Normalize(dto);
             Validate(dto);
+            await EnsureCheckersExistAsync(dto.CheckerUserIds);
 
             var allPlates = await _plateRepository.GetAllAsync();
             if (allPlates.Any(p => p.Number.Equals(dto.Number, StringComparison.OrdinalIgnoreCase)))
@@ -48,17 +50,18 @@ namespace Service.Services
             }
 
             var entity = _mapper.Map<Plate>(dto);
-            entity.CheckerEmails = dto.CheckerEmails
-                .Select(email => new PlateCheckerEmail { Email = email })
+            entity.Checkers = dto.CheckerUserIds
+                .Select(userId => new PlateChecker { UserId = userId })
                 .ToList();
             await _plateRepository.AddAsync(entity);
-            return _mapper.Map<PlateDTO>(entity);
+            return _mapper.Map<PlateDTO>(await _plateRepository.GetByIdAsync(entity.Id) ?? entity);
         }
 
         public async Task UpdateAsync(int id, PlateDTO dto)
         {
             Normalize(dto);
             Validate(dto);
+            await EnsureCheckersExistAsync(dto.CheckerUserIds);
 
             var entity = await _plateRepository.GetByIdAsync(id);
             if (entity == null) throw new Exception("Plate not found");
@@ -70,26 +73,26 @@ namespace Service.Services
             }
 
             _mapper.Map(dto, entity);
-            var requestedEmails = dto.CheckerEmails.ToHashSet(StringComparer.OrdinalIgnoreCase);
-            var removedEmails = entity.CheckerEmails
-                .Where(x => !requestedEmails.Contains(x.Email))
+            var requestedUserIds = dto.CheckerUserIds.ToHashSet();
+            var removedCheckers = entity.Checkers
+                .Where(x => !requestedUserIds.Contains(x.UserId))
                 .ToList();
 
-            foreach (var removedEmail in removedEmails)
+            foreach (var removedChecker in removedCheckers)
             {
-                entity.CheckerEmails.Remove(removedEmail);
+                entity.Checkers.Remove(removedChecker);
             }
 
-            var existingEmails = entity.CheckerEmails
-                .Select(x => x.Email)
-                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var existingUserIds = entity.Checkers
+                .Select(x => x.UserId)
+                .ToHashSet();
 
-            foreach (var email in dto.CheckerEmails.Where(email => !existingEmails.Contains(email)))
+            foreach (var userId in dto.CheckerUserIds.Where(userId => !existingUserIds.Contains(userId)))
             {
-                entity.CheckerEmails.Add(new PlateCheckerEmail
+                entity.Checkers.Add(new PlateChecker
                 {
                     PlateId = entity.Id,
-                    Email = email
+                    UserId = userId
                 });
             }
             await _plateRepository.UpdateAsync(entity);
@@ -104,10 +107,9 @@ namespace Service.Services
         {
             dto.Number = dto.Number?.Trim().ToUpperInvariant() ?? string.Empty;
             dto.Type = dto.Type?.Trim() ?? string.Empty;
-            dto.CheckerEmails = (dto.CheckerEmails ?? new List<string>())
-                .Select(email => email?.Trim().ToLowerInvariant() ?? string.Empty)
-                .Where(email => !string.IsNullOrWhiteSpace(email))
-                .Distinct(StringComparer.OrdinalIgnoreCase)
+            dto.CheckerUserIds = (dto.CheckerUserIds ?? new List<int>())
+                .Where(userId => userId > 0)
+                .Distinct()
                 .ToList();
         }
 
@@ -123,14 +125,21 @@ namespace Service.Services
                 throw new Exception("Pump type is required");
             }
 
-            if (dto.CheckerEmails.Count == 0)
+            if (dto.CheckerUserIds.Count == 0)
             {
-                throw new Exception("At least one checker email is required");
+                throw new Exception("At least one checker is required");
             }
+        }
 
-            if (dto.CheckerEmails.Any(email => !new EmailAddressAttribute().IsValid(email)))
+        private async Task EnsureCheckersExistAsync(List<int> userIds)
+        {
+            var existingIds = (await _userRepository.GetAllAsync())
+                .Select(u => u.Id)
+                .ToHashSet();
+
+            if (userIds.Any(id => !existingIds.Contains(id)))
             {
-                throw new Exception("One or more checker emails are not valid");
+                throw new Exception("One or more checkers were not found");
             }
         }
     }

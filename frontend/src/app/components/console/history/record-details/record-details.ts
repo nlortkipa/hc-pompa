@@ -1,18 +1,24 @@
 import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, computed, input, output, viewChild } from '@angular/core';
 import { DatePipe, DecimalPipe, NgClass } from '@angular/common';
 import { PumpOperationModel } from '../../../../models/pump-operation';
+import { Icon } from '../../../icon/icon';
 
 @Component({
   selector: 'app-record-details',
   standalone: true,
-  imports: [DatePipe, DecimalPipe, NgClass],
+  imports: [DatePipe, DecimalPipe, NgClass, Icon],
   templateUrl: './record-details.html',
   styleUrls: ['./record-details.scss'],
 })
 export class RecordDetails implements AfterViewInit, OnDestroy {
   record = input.required<PumpOperationModel>();
   showOperatorDetails = input(false);
+  /** Creator viewing their own pending record: show edit/delete. */
+  canModify = input(false);
+  busy = input(false);
   closed = output<void>();
+  edit = output<void>();
+  remove = output<void>();
 
   private closeButton = viewChild<ElementRef<HTMLButtonElement>>('closeButton');
   private previousBodyOverflow = '';

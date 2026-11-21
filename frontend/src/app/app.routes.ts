@@ -8,6 +8,7 @@ import { History } from './components/console/history/history';
 import { Users } from './components/console/users/users';
 import { Companies } from './components/console/companies/companies';
 import { Plates } from './components/console/plates/plates';
+import { Reviews } from './components/console/reviews/reviews';
 import { Review } from './components/review/review';
 import { NotFound } from './components/not-found/not-found';
 
@@ -49,6 +50,10 @@ export const routes: Routes = [
             {
                 path: 'history',
                 component: History
+            },
+            {
+                path: 'reviews',
+                component: Reviews
             },
             {
                 path: 'users',

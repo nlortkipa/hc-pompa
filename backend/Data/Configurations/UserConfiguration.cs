@@ -41,6 +41,8 @@ namespace Data.Configurations
                 .HasMaxLength(75)
                 .IsUnicode(true);
             builder.Property(u => u.AvatarUrl);
+            builder.Property(u => u.Email)
+                .HasMaxLength(120);
             builder.Property(u => u.TokenVersion)
                 .IsRequired()
                 .HasDefaultValue(0);

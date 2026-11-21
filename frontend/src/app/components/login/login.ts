@@ -8,11 +8,12 @@ import { AuthService } from '../../services/auth-service';
 import { finalize } from 'rxjs';
 import { Capacitor } from '@capacitor/core';
 import { SmsAutofillService } from '../../services/sms-autofill.service';
+import { Icon } from '../icon/icon';
 
 @Component({
   standalone: true,
   selector: 'app-login',
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, Icon],
   templateUrl: './login.html',
   styleUrl: './login.scss',
 })

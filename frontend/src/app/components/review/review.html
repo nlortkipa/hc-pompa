@@ -1,116 +1,119 @@
-<main class="review-shell">
-  <section class="review-card">
-    <ng-container *ngIf="isInvalidReview; else reviewContent">
+<main class="standalone-shell">
+  <section class="auth-card review-card">
+    @if (isInvalidReview) {
       <div class="invalid-review">
-        <div class="error-code">404</div>
-        <h1>შემოწმების გვერდი ვერ მოიძებნა</h1>
+        <div class="empty-icon"><app-icon name="x-circle" [size]="24" /></div>
+        <h1>შემოწმების ბმული არ მუშაობს</h1>
         <p>ბმული არასწორია ან ჩანაწერი აღარ არსებობს.</p>
-        <a class="back-link" routerLink="/login">მთავარ გვერდზე დაბრუნება</a>
+        <a class="btn btn-primary btn-lg" routerLink="/login">მთავარ გვერდზე</a>
       </div>
-    </ng-container>
+    } @else {
+      <header class="review-top">
+        <span class="app-mark" aria-hidden="true"><app-icon name="pump" [size]="26" [stroke]="2" /></span>
+        <div class="review-heading">
+          <span class="kicker">შემოწმება@if (operation(); as op) { · #{{ op.pumpOperationId }} }</span>
+          <h1>ჩანაწერის დადასტურება</h1>
+        </div>
+        @if (operation(); as op) {
+          <span class="badge badge-dot" [ngClass]="statusClass(op.reviewStatus)">{{ statusLabel(op.reviewStatus) }}</span>
+        }
+      </header>
 
-    <ng-template #reviewContent>
-    <div class="review-top">
-      <div>
-        <div class="kicker">შემოწმება</div>
-        <h1>ჩანაწერის დადასტურება</h1>
-      </div>
-      <span *ngIf="operation()" class="badge" [ngClass]="statusClass(operation()?.reviewStatus)">
-        {{ statusLabel(operation()?.reviewStatus) }}
-      </span>
-    </div>
+      @if (isLoading) {
+        <div class="loading-row"><span class="spinner"></span> იტვირთება...</div>
+      }
 
-    <div *ngIf="isLoading" class="notice">იტვირთება...</div>
-    <div *ngIf="error" class="notice error">{{ error }}</div>
-    <button *ngIf="canRetry" class="btn btn-primary retry-button" type="button" (click)="loadReview()">
-      თავიდან ცდა
-    </button>
-    <div *ngIf="message" class="notice success">{{ message }}</div>
+      @if (error) {
+        <div class="notice notice-error">
+          <app-icon name="alert" />
+          <span>{{ error }}</span>
+          @if (canRetry) {
+            <button class="btn btn-sm btn-secondary" type="button" (click)="loadReview()">თავიდან ცდა</button>
+          }
+        </div>
+      }
 
-    <ng-container *ngIf="operation() as op">
-      <div class="meta-strip">
-        <div>
-          <span>შემმოწმებლის ელფოსტა</span>
-          <strong>{{ op.checkerGmail }}</strong>
+      @if (edited() && operation()?.reviewStatus === 'Pending') {
+        <div class="notice notice-info" role="status">
+          <app-icon name="pencil" />
+          <span>ოპერატორმა ჩანაწერი შეცვალა. ქვემოთ ნაჩვენებია განახლებული მონაცემები.</span>
         </div>
-        <div>
-          <span>ჩანაწერი</span>
-          <strong>#{{ op.pumpOperationId }}</strong>
-        </div>
-      </div>
+      }
 
-      <div class="details-grid">
-        <div class="detail">
-          <span>თარიღი</span>
-          <strong>{{ op.date | date:'dd.MM.yyyy' }}</strong>
-        </div>
-        <div class="detail">
-          <span>ოპერატორი</span>
-          <strong>{{ op.operatorFirstName }} {{ op.operatorLastName }}</strong>
-        </div>
-        <div class="detail wide">
-          <span>კომპანია</span>
-          <strong>{{ op.companyName }}</strong>
-        </div>
-        <div class="detail wide">
-          <span>მისამართი</span>
-          <strong>{{ op.addressName }}</strong>
-        </div>
-        <div class="detail">
-          <span>სანომრე ნიშანი</span>
-          <strong>{{ op.plateNumber }}</strong>
-        </div>
-        <div class="detail">
-          <span>პომპის ტიპი</span>
-          <strong>{{ op.pumpType || '—' }}</strong>
-        </div>
-        <div class="detail" *ngIf="op.pumpType === '<60მ'">
-          <span>მანძილი</span>
-          <strong>{{ op.distanceRange || '60მ-მდე' }}</strong>
-        </div>
-        <div class="detail">
-          <span>ბეტონი</span>
-          <strong>{{ op.concreteVolume }} მ³</strong>
-        </div>
-      </div>
+      @if (message) {
+        <div class="notice notice-success"><app-icon name="check-circle" /> <span>{{ message }}</span></div>
+      }
 
-      <div class="ops-table">
-        <div class="ops-row">
-          <span>დამატებითი დგომა</span>
-          <strong>{{ op.additionalStanding }}</strong>
+      @if (operation(); as op) {
+        <div class="hero">
+          <div class="hero-main">
+            <span>ბეტონი</span>
+            <strong>{{ op.concreteVolume }}<small> მ³</small></strong>
+          </div>
+          <div class="hero-meta">
+            <span><app-icon name="calendar" [size]="14" /> {{ op.date | date:'dd.MM.yyyy' }}</span>
+            <span><app-icon name="truck" [size]="14" /> <b class="mono">{{ op.plateNumber }}</b></span>
+          </div>
         </div>
-        <div class="ops-row">
-          <span>დაშლა / აწყობა</span>
-          <strong>{{ op.dismantleAssemble }}</strong>
-        </div>
-        <div class="ops-row">
-          <span>მოცდენა</span>
-          <strong>{{ op.isIdle ? 'კი' : 'არა' }}</strong>
-        </div>
-      </div>
 
-      <div class="review-note" *ngIf="op.note">
-        <span>შენიშვნა</span>
-        <p>{{ op.note }}</p>
-      </div>
-
-      <div *ngIf="op.reviewStatus === 'Pending'; else reviewedState" class="review-actions">
-        <button class="btn btn-secondary" type="button" (click)="reject()" [disabled]="isSubmitting">
-          უარყოფა
-        </button>
-        <button class="btn btn-primary" type="button" (click)="accept()" [disabled]="isSubmitting">
-          დადასტურება
-        </button>
-      </div>
-
-      <ng-template #reviewedState>
-        <div class="reviewed-state">
-          <strong>ჩანაწერი {{ statusLabel(op.reviewStatus) }}.</strong>
-          <span *ngIf="op.reviewedByCheckerGmail">გადაწყვეტილება მიიღო: {{ op.reviewedByCheckerGmail }}</span>
-          <span *ngIf="op.reviewedAt">შემოწმდა {{ op.reviewedAt | date:'dd.MM.yyyy HH:mm' }}</span>
+        <h2 class="group-title">დეტალები</h2>
+        <div class="inset-list">
+          <div class="inset-row"><span>კომპანია</span><strong>{{ op.companyName }}</strong></div>
+          <div class="inset-row"><span>მისამართი</span><strong>{{ op.addressName }}</strong></div>
+          <div class="inset-row"><span>ოპერატორი</span><strong>{{ op.operatorFirstName }} {{ op.operatorLastName }}</strong></div>
+          <div class="inset-row"><span>პომპის ტიპი</span><strong>{{ op.pumpType || '—' }}</strong></div>
+          @if (op.pumpType === '<60მ') {
+            <div class="inset-row"><span>მანძილი</span><strong>{{ op.distanceRange || '60მ-მდე' }}</strong></div>
+          }
         </div>
-      </ng-template>
-    </ng-container>
-    </ng-template>
+
+        <h2 class="group-title">ოპერაციები</h2>
+        <div class="inset-list">
+          <div class="inset-row"><span>დამატებითი დგომა</span><strong>{{ op.additionalStanding }}</strong></div>
+          <div class="inset-row"><span>დაშლა / აწყობა</span><strong>{{ op.dismantleAssemble }}</strong></div>
+          <div class="inset-row">
+            <span>მოცდენა</span>
+            <strong><span class="badge" [ngClass]="op.isIdle ? 'badge-yellow' : 'badge-gray'">{{ op.isIdle ? 'კი' : 'არა' }}</span></strong>
+          </div>
+          <div class="inset-row">
+            <span>დღიური</span>
+            <strong><span class="badge" [ngClass]="op.isDaily ? 'badge-blue' : 'badge-gray'">{{ op.isDaily ? 'კი' : 'არა' }}</span></strong>
+          </div>
+        </div>
+
+        @if (op.note) {
+          <h2 class="group-title">შენიშვნა</h2>
+          <p class="review-note">{{ op.note }}</p>
+        }
+
+        @if (op.checkerGmail) {
+          <p class="checker">
+            <app-icon name="mail" [size]="13" /> შემმოწმებელი: <b>{{ op.checkerGmail }}</b>
+          </p>
+        }
+
+        @if (op.reviewStatus === 'Pending') {
+          <div class="review-actions">
+            <button class="btn btn-secondary btn-lg reject" type="button" (click)="reject()" [disabled]="isSubmitting">
+              @if (pendingDecision === 'reject') { <span class="spinner"></span> } @else { <app-icon name="xmark" /> }
+              უარყოფა
+            </button>
+            <button class="btn btn-primary btn-lg" type="button" (click)="accept()" [disabled]="isSubmitting">
+              @if (pendingDecision === 'accept') { <span class="spinner"></span> } @else { <app-icon name="check" /> }
+              დადასტურება
+            </button>
+          </div>
+        } @else {
+          <div class="reviewed-state" [class.rejected]="op.reviewStatus === 'Rejected'">
+            <app-icon [name]="op.reviewStatus === 'Rejected' ? 'x-circle' : 'check-circle'" [size]="22" />
+            <div>
+              <strong>ჩანაწერი {{ statusLabel(op.reviewStatus) }}</strong>
+              @if (op.reviewedByCheckerGmail) { <span>{{ op.reviewedByCheckerGmail }}</span> }
+              @if (op.reviewedAt) { <span>{{ op.reviewedAt | date:'dd.MM.yyyy HH:mm' }}</span> }
+            </div>
+          </div>
+        }
+      }
+    }
   </section>
 </main>

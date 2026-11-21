@@ -17,6 +17,7 @@ namespace Service.DTOs
         public string Role { get; set; } = null!;
         public string? Username { get; set; }
         public string? AvatarUrl { get; set; }
+        public string? Email { get; set; }
         [JsonIgnore]
         public int TokenVersion { get; set; }
     }
@@ -31,6 +32,7 @@ namespace Service.DTOs
         public string Role { get; set; } = "User";
         public string? Username { get; set; }
         public string? AvatarUrl { get; set; }
+        public string? Email { get; set; }
     }
 
     public class UpdateUserDTO
@@ -40,6 +42,7 @@ namespace Service.DTOs
         public string PersonalId { get; set; } = null!;
         public string PhoneNumber { get; set; } = null!;
         public string Role { get; set; } = null!;
+        public string? Email { get; set; }
     }
 
     public class UpdateProfileDTO

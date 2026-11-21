@@ -35,10 +35,14 @@ namespace Data.Entities
         [Unicode(true)]
         public string? Username { get; set; }
         public string? AvatarUrl { get; set; }
+        [MaxLength(120)]
+        public string? Email { get; set; }
         [Required]
         public int TokenVersion { get; set; }
 
         public ICollection<SmsCode> SmsCodes { get; set; } = new List<SmsCode>();
         public ICollection<PumpOperation> PumpOperations { get; set; } = new List<PumpOperation>();
+        public ICollection<PlateChecker> CheckedPlates { get; set; } = new List<PlateChecker>();
+        public ICollection<PumpOperationReviewRequest> ReviewRequests { get; set; } = new List<PumpOperationReviewRequest>();
     }
 }

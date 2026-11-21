@@ -26,6 +26,8 @@ namespace Data.Entities
         [Required]
         public bool IsIdle { get; set; }
         [Required]
+        public bool IsDaily { get; set; }
+        [Required]
         public int DismantleAssemble { get; set; }
         [Required]
         public string PlateNumber { get; set; } = null!;

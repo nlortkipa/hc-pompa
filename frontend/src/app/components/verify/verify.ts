@@ -4,11 +4,12 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth-service';
 import { SmsAutofillService } from '../../services/sms-autofill.service';
 import { Subscription } from 'rxjs';
+import { Icon } from '../icon/icon';
 
 @Component({
   standalone: true,
   selector: 'app-verify',
-  imports: [RouterLink, CommonModule],
+  imports: [RouterLink, CommonModule, Icon],
   templateUrl: './verify.html',
   styleUrl: './verify.scss',
 })
@@ -25,6 +26,7 @@ export class Verify implements OnInit, AfterViewInit, OnDestroy {
   error = signal('');
   showError = signal(false);
   isLoading = signal(false);
+  secondsLeft = signal(0);
   private timerInterval?: ReturnType<typeof setInterval>;
   private autofillSubscription?: Subscription;
   private pendingAutofillCode?: string;
@@ -53,6 +55,8 @@ export class Verify implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit() {
     if (this.pendingAutofillCode) {
       this.fillOtp(this.pendingAutofillCode);
+    } else {
+      this.otpInputs.first?.nativeElement.focus();
     }
   }
 
@@ -62,7 +66,19 @@ export class Verify implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private updateTimeLeft(expiresAt: Date): number {
-    return Math.max(0, Math.floor((new Date(expiresAt).getTime() - Date.now()) / 1000));
+    const seconds = Math.max(0, Math.floor((new Date(expiresAt).getTime() - Date.now()) / 1000));
+    this.secondsLeft.set(seconds);
+    return seconds;
+  }
+
+  get timeLeftLabel(): string {
+    const s = this.secondsLeft();
+    return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+  }
+
+  private submitIfComplete() {
+    const complete = this.otpInputs?.length > 0 && this.otpInputs.toArray().every(i => i.nativeElement.value);
+    if (complete && !this.isLoading()) this.submit();
   }
 
   private expireCode() {
@@ -90,7 +106,11 @@ export class Verify implements OnInit, AfterViewInit, OnDestroy {
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.error.set('კოდის დადასტურება ვერ მოხერხდა.');
+        this.error.set(err?.status === 0 || err?.status >= 500
+          ? 'კოდის დადასტურება ვერ მოხერხდა. სცადეთ თავიდან.'
+          : 'კოდი არასწორია. სცადეთ თავიდან.');
+        this.otpInputs.forEach(i => (i.nativeElement.value = ''));
+        this.otpInputs.first?.nativeElement.focus();
         localStorage.removeItem('token')
         this.showError.set(true);
       }
@@ -109,6 +129,8 @@ export class Verify implements OnInit, AfterViewInit, OnDestroy {
     this.showError.set(false);
     if (input.value && index < this.otpInputs.length - 1) {
       this.otpInputs.get(index + 1)?.nativeElement.focus();
+    } else if (input.value) {
+      this.submitIfComplete();
     }
   }
 
@@ -149,5 +171,6 @@ export class Verify implements OnInit, AfterViewInit, OnDestroy {
       if (input) input.value = char;
     });
     this.otpInputs.get(Math.min(code.length, this.otpInputs.length) - 1)?.nativeElement.focus();
+    this.submitIfComplete();
   }
 }

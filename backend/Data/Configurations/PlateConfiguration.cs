@@ -15,7 +15,7 @@ namespace Data.Configurations
             builder.Property(x => x.Number).IsRequired().HasMaxLength(20);
             builder.Property(x => x.Type).IsRequired().HasMaxLength(20);
 
-            builder.HasMany(x => x.CheckerEmails)
+            builder.HasMany(x => x.Checkers)
                 .WithOne(x => x.Plate)
                 .HasForeignKey(x => x.PlateId)
                 .OnDelete(DeleteBehavior.Cascade);

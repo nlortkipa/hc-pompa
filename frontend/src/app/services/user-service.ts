@@ -28,6 +28,10 @@ export class UserService {
     return this.http.put<UserModel>(`${this.configService.backendUrl}/api/users/${id}`, user);
   }
 
+  sendLink(id: number): Observable<void> {
+    return this.http.post<void>(`${this.configService.backendUrl}/api/users/${id}/send-link`, {});
+  }
+
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.configService.backendUrl}/api/users/${id}`);
   }

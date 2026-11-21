@@ -27,6 +27,8 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
+      # Only needed if Sms:SendSms is enabled; local dev logs codes instead.
+      SMS_KEY: ${SMS_KEY:-}
       DATABASE_URL: Host=db;Port=5432;Database=pompa;Username=pompa;Password=pompa
       JWT_KEY: ${JWT_KEY:-local-dev-jwt-key-change-me-0123456789abcdef}
       # Keep data between restarts (Development defaults to wiping the DB on startup).

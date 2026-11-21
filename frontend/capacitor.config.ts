@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'პომპა',
   webDir: 'dist/frontend/browser',
   server: {
-    url: 'https://frontend-lortkipas-projects.vercel.app',
+    url: 'https://frontend-three-theta-3t6i7lsyzw.vercel.app',
     cleartext: false,
     androidScheme: 'https',
   },

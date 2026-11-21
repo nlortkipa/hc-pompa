@@ -1,6 +1,6 @@
 <div class="search-select" [class.search-select--open]="isOpen">
   <div class="search-select__control">
-    <span class="search-select__icon" aria-hidden="true">⌕</span>
+    <app-icon name="search" [size]="14" class="search-select__icon" />
     <input
       type="search"
       autocomplete="off"
@@ -11,51 +11,45 @@
       [value]="query"
       (input)="onInput($event)"
       (focus)="open()"
+      (keydown)="onKeydown($event)"
       (keydown.escape)="closeOnEscape()">
 
-    <button
-      *ngIf="query; else toggleButton"
-      class="search-select__action"
-      type="button"
-      aria-label="გასუფთავება"
-      (click)="clear($event)">×</button>
-
-    <ng-template #toggleButton>
-      <button
-        class="search-select__action"
-        type="button"
-        aria-label="ჩამონათვალის გახსნა"
-        (click)="toggle($event)">
-        <svg viewBox="0 0 20 20" aria-hidden="true">
-          <path d="M5 7.5 10 12.5 15 7.5"></path>
-        </svg>
+    @if (query) {
+      <button class="search-select__action search-select__action--clear" type="button" aria-label="გასუფთავება"
+        (click)="clear($event)">
+        <app-icon name="xmark" [size]="10" [stroke]="2.6" />
       </button>
-    </ng-template>
+    } @else {
+      <button class="search-select__action" type="button" aria-label="ჩამონათვალის გახსნა" (click)="toggle($event)">
+        <app-icon name="chevron-down" [size]="14" />
+      </button>
+    }
   </div>
 
-  <div *ngIf="isOpen" class="search-select__menu" role="listbox">
-    <button
-      class="search-select__option search-select__option--all"
-      type="button"
-      role="option"
-      [attr.aria-selected]="value == null"
-      (click)="clear()">
-      {{ allLabel }}
-    </button>
+  @if (isOpen) {
+    <div class="search-select__menu" role="listbox" [ngStyle]="floating ? menuStyle : null">
+      @if (showAll) {
+        <button class="search-select__option search-select__option--all" type="button" role="option"
+          [class.search-select__option--active]="activeIndex === -1" [attr.aria-selected]="value == null"
+          (mouseenter)="activeIndex = -1" (click)="clear()">
+          <span>{{ allLabel }}</span>
+          @if (value == null) { <app-icon name="check" [size]="14" /> }
+        </button>
+      }
 
-    <button
-      *ngFor="let option of filteredOptions"
-      class="search-select__option"
-      type="button"
-      role="option"
-      [class.search-select__option--selected]="option.value === value"
-      [attr.aria-selected]="option.value === value"
-      (click)="select(option)">
-      {{ option.label }}
-    </button>
+      @for (option of filteredOptions; track option.value; let i = $index) {
+        <button class="search-select__option" type="button" role="option"
+          [class.search-select__option--active]="activeIndex === i"
+          [class.search-select__option--selected]="option.value === value"
+          [attr.aria-selected]="option.value === value" (mouseenter)="activeIndex = i" (click)="select(option)">
+          <span>{{ option.label }}</span>
+          @if (option.value === value) { <app-icon name="check" [size]="14" /> }
+        </button>
+      }
 
-    <div *ngIf="filteredOptions.length === 0" class="search-select__empty">
-      შედეგი ვერ მოიძებნა
+      @if (filteredOptions.length === 0) {
+        <div class="search-select__empty">შედეგი ვერ მოიძებნა</div>
+      }
     </div>
-  </div>
+  }
 </div>

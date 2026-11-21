@@ -1,15 +1,18 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { PumpOperationReviewModel } from '../../models/pump-operation';
 import { PumpOperationService } from '../../services/pump-operation-service';
+import { UiService } from '../../services/ui.service';
+import { Icon } from '../icon/icon';
+import { livePoll } from '../../services/live-poll';
 
 @Component({
   selector: 'app-review',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, Icon],
   templateUrl: './review.html',
   styleUrls: ['./review.scss'],
 })
@@ -17,15 +20,21 @@ export class Review implements OnInit {
   operation = signal<PumpOperationReviewModel | null>(null);
   isLoading = true;
   isSubmitting = false;
+  pendingDecision: 'accept' | 'reject' | null = null;
   isInvalidReview = false;
   canRetry = false;
   error = '';
   message = '';
+  /** The operator edited the record while this page was open. */
+  edited = signal(false);
   private token = '';
+  private isRefreshing = false;
+  private destroyRef = inject(DestroyRef);
 
   constructor(
     private route: ActivatedRoute,
-    private pumpOperationService: PumpOperationService
+    private pumpOperationService: PumpOperationService,
+    private ui: UiService
   ) {}
 
   ngOnInit(): void {
@@ -37,6 +46,44 @@ export class Review implements OnInit {
     }
 
     this.loadReview();
+    livePoll(this.destroyRef, () => this.refreshLive());
+  }
+
+  /** Silent background refresh: picks up edits/deletion by the operator or another checker's decision. */
+  private refreshLive(): void {
+    const current = this.operation();
+    if (!current || current.reviewStatus !== 'Pending' || this.isSubmitting || this.isRefreshing) return;
+
+    this.isRefreshing = true;
+    this.pumpOperationService.getReview(this.token)
+      .pipe(finalize(() => this.isRefreshing = false))
+      .subscribe({
+        next: (data) => this.applyLiveUpdate(data),
+        error: (error: HttpErrorResponse) => {
+          if (error.status === 404) {
+            this.isInvalidReview = true;
+            this.operation.set(null);
+            this.ui.toast('ოპერატორმა ჩანაწერი წაშალა', 'info');
+          }
+          // Other errors: keep showing what we have and try again on the next tick.
+        }
+      });
+  }
+
+  private applyLiveUpdate(data: PumpOperationReviewModel): void {
+    const previous = this.operation();
+    // Ignore a response that raced with a decision made on this page.
+    if (this.isSubmitting || !previous || previous.reviewStatus !== 'Pending') return;
+
+    this.operation.set(data);
+    if (data.reviewStatus === 'Pending' && data.version !== previous.version) {
+      this.markEdited();
+    }
+  }
+
+  private markEdited(): void {
+    this.edited.set(true);
+    this.ui.toast('ოპერატორმა ჩანაწერი შეცვალა', 'info', 4000);
   }
 
   loadReview(): void {
@@ -66,8 +113,14 @@ export class Review implements OnInit {
     this.submitDecision('accept');
   }
 
-  reject(): void {
-    this.submitDecision('reject');
+  async reject(): Promise<void> {
+    const ok = await this.ui.confirm({
+      title: 'უარვყოთ ჩანაწერი?',
+      message: 'გადაწყვეტილების შეცვლა შემდეგ ვეღარ მოხერხდება.',
+      confirmLabel: 'უარყოფა',
+      destructive: true,
+    });
+    if (ok) this.submitDecision('reject');
   }
 
   statusClass(status?: string): string {
@@ -86,22 +139,33 @@ export class Review implements OnInit {
     if (this.isSubmitting || this.operation()?.reviewStatus !== 'Pending') return;
 
     this.isSubmitting = true;
+    this.pendingDecision = decision;
     this.message = '';
     this.error = '';
 
+    const version = this.operation()?.version;
     const request = decision === 'accept'
-      ? this.pumpOperationService.acceptReview(this.token)
-      : this.pumpOperationService.rejectReview(this.token);
+      ? this.pumpOperationService.acceptReview(this.token, version)
+      : this.pumpOperationService.rejectReview(this.token, version);
 
-    request.pipe(finalize(() => this.isSubmitting = false))
+    request.pipe(finalize(() => { this.isSubmitting = false; this.pendingDecision = null; }))
       .subscribe({
         next: (data) => {
           this.operation.set(data);
+          this.edited.set(false);
           this.message = decision === 'accept'
             ? 'ჩანაწერი დადასტურდა.'
             : 'ჩანაწერი უარყოფილია.';
         },
         error: (error: HttpErrorResponse) => {
+          if (error.status === 409 && error.error?.token) {
+            // Edited after we loaded it: show the new data and let the checker decide again.
+            this.operation.set(error.error as PumpOperationReviewModel);
+            this.edited.set(true);
+            this.ui.toast('ჩანაწერი შეიცვალა. გადახედეთ და გადაწყვიტეთ ხელახლა.', 'error', 5000);
+            return;
+          }
+
           if (error.status === 400 || error.status === 404) {
             this.isInvalidReview = true;
             this.operation.set(null);

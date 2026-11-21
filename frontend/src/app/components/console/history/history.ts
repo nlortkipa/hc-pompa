@@ -12,11 +12,14 @@ import { UserModel } from '../../../models/user-model';
 import { finalize } from 'rxjs';
 import { SearchableSelect, SearchableSelectOption } from '../../searchable-select/searchable-select';
 import { RecordDetails } from './record-details/record-details';
+import { Icon } from '../../icon/icon';
+import { UiService } from '../../../services/ui.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-history',
   standalone: true,
-  imports: [CommonModule, FormsModule, SearchableSelect, RecordDetails],
+  imports: [CommonModule, FormsModule, SearchableSelect, RecordDetails, Icon],
   templateUrl: './history.html',
   styleUrls: ['./history.scss'],
 })
@@ -25,6 +28,10 @@ export class History implements OnInit {
   selectedRecord = signal<PumpOperationModel | null>(null);
   isLoading = false;
   isExporting = false;
+  isDeleting = signal(false);
+  hasLoaded = false;
+  filtersOpen = false;
+  datePreset: 'today' | 'month' | 'prev' | 'all' | 'custom' = 'today';
   
   canViewDetails = computed(() => {
     const profile = this.profileService.profile();
@@ -80,8 +87,8 @@ export class History implements OnInit {
   );
 
   filter = {
-    fromDate: this.getCurrentMonthStart(),
-    toDate: '',
+    fromDate: this.getToday(),
+    toDate: this.getToday(),
     companyId: null as number | null,
     companyName: '',
     operatorId: null as number | null,
@@ -95,16 +102,18 @@ export class History implements OnInit {
     private userService: UserService,
     private plateService: PlateService,
     private profileService: ProfileService,
+    private ui: UiService,
+    private router: Router,
     private cdr: ChangeDetectorRef
   ) {
     effect(() => {
       if (this.canViewDetails()) {
         this.userService.getAll().subscribe(data => this.users.set(data));
-        this.plateService.getPlates().subscribe({
-          next: data => this.plates.set(data),
-          error: () => this.plates.set([])
-        });
       }
+    });
+    this.plateService.getPlates().subscribe({
+      next: data => this.plates.set(data),
+      error: () => this.plates.set([])
     });
   }
 
@@ -119,19 +128,54 @@ export class History implements OnInit {
     this.pumpOperationService.getAll(f)
       .pipe(finalize(() => {
         this.isLoading = false;
+        this.hasLoaded = true;
         this.cdr.detectChanges();
       }))
       .subscribe({
         next: (data) => this.records.set(data),
-        error: (err) => console.error('ჩანაწერების ჩატვირთვა ვერ მოხერხდა:', err)
+        error: (err) => {
+          console.error('ჩანაწერების ჩატვირთვა ვერ მოხერხდა:', err);
+          this.ui.toast('ჩანაწერების ჩატვირთვა ვერ მოხერხდა', 'error');
+        }
       });
   }
 
+  applyDatePreset(preset: 'today' | 'month' | 'prev' | 'all'): void {
+    this.datePreset = preset;
+    const now = new Date();
+    if (preset === 'today') {
+      this.filter.fromDate = this.getToday();
+      this.filter.toDate = this.getToday();
+    } else if (preset === 'month') {
+      this.filter.fromDate = this.getCurrentMonthStart();
+      this.filter.toDate = '';
+    } else if (preset === 'prev') {
+      const start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      const end = new Date(now.getFullYear(), now.getMonth(), 0);
+      this.filter.fromDate = this.toIsoDate(start);
+      this.filter.toDate = this.toIsoDate(end);
+    } else {
+      this.filter.fromDate = '';
+      this.filter.toDate = '';
+    }
+    this.loadRecords();
+  }
+
+  onDateEdited(): void {
+    this.datePreset = 'custom';
+  }
+
+  get activeFilterCount(): number {
+    const f = this.filter;
+    return [f.companyId ?? f.companyName, f.operatorId ?? f.operatorName, f.plateNumber].filter(v => v !== null && v !== '').length;
+  }
+
   clearFilters(): void {
+    this.datePreset = 'today';
     this.selectedPlateId = null;
     this.filter = {
-      fromDate: this.getCurrentMonthStart(),
-      toDate: '',
+      fromDate: this.getToday(),
+      toDate: this.getToday(),
       companyId: null,
       companyName: '',
       operatorId: null,
@@ -157,8 +201,14 @@ export class History implements OnInit {
         this.cdr.detectChanges();
       }))
       .subscribe({
-        next: (blob) => this.saveExcelFile(blob),
-        error: (err) => console.error('ჩანაწერების ექსპორტი ვერ მოხერხდა:', err)
+        next: (blob) => {
+          this.saveExcelFile(blob);
+          this.ui.toast('Excel ფაილი ჩამოიტვირთა');
+        },
+        error: (err) => {
+          console.error('ჩანაწერების ექსპორტი ვერ მოხერხდა:', err);
+          this.ui.toast('ექსპორტი ვერ მოხერხდა', 'error');
+        }
       });
   }
 
@@ -191,6 +241,55 @@ export class History implements OnInit {
     this.selectedRecord.set(null);
   }
 
+  /** Mirrors the backend rule: only the creator, only while pending. */
+  canModify(record: PumpOperationModel): boolean {
+    const profile = this.profileService.profile();
+    return !!profile
+      && profile.role !== 'Accountant'
+      && record.operatorId === profile.id
+      && this.reviewStatusValue(record) === 'Pending';
+  }
+
+  editRecord(record: PumpOperationModel): void {
+    this.router.navigate(['/console/new'], { queryParams: { edit: record.id } });
+  }
+
+  async deleteRecord(record: PumpOperationModel): Promise<void> {
+    if (this.isDeleting()) return;
+
+    const ok = await this.ui.confirm({
+      title: 'ჩანაწერის წაშლა',
+      message: 'ჩანაწერი წაიშლება და შემმოწმებლები ვეღარ ნახავენ. გსურთ გაგრძელება?',
+      confirmLabel: 'წაშლა',
+      destructive: true,
+    });
+    if (!ok) return;
+
+    this.isDeleting.set(true);
+    this.pumpOperationService.delete(record.id)
+      .pipe(finalize(() => {
+        this.isDeleting.set(false);
+        this.cdr.detectChanges();
+      }))
+      .subscribe({
+        next: () => {
+          this.records.update(list => list.filter(r => r.id !== record.id));
+          this.closeRecord();
+          this.ui.toast('ჩანაწერი წაიშალა');
+        },
+        error: (err) => {
+          console.error('ჩანაწერის წაშლა ვერ მოხერხდა:', err);
+          if (err?.status === 409) {
+            this.ui.toast('ჩანაწერი უკვე შემოწმებულია და ვეღარ წაიშლება', 'error');
+            this.closeRecord();
+            this.loadRecords();
+          } else {
+            this.ui.toast('წაშლა ვერ მოხერხდა', 'error');
+          }
+        }
+      });
+  }
+
   distanceRangeLabel(record: PumpOperationModel): string {
     if (record.pumpType !== '<60მ') return '—';
     return record.distanceRange || '60მ-მდე';
@@ -209,10 +308,18 @@ export class History implements OnInit {
     return f;
   }
 
+  private getToday(): string {
+    return this.toIsoDate(new Date());
+  }
+
   private getCurrentMonthStart(): string {
     const now = new Date();
     const month = String(now.getMonth() + 1).padStart(2, '0');
     return `${now.getFullYear()}-${month}-01`;
+  }
+
+  private toIsoDate(d: Date): string {
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   }
 
   private toNumber(value: number | null | undefined): number {

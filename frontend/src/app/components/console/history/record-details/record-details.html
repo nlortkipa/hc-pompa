@@ -1,28 +1,32 @@
 <div class="backdrop" (click)="close()">
-    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="record-details-title"
+    <aside class="panel" role="dialog" aria-modal="true" aria-labelledby="record-details-title"
         (click)="$event.stopPropagation()">
         @let r = record();
 
-        <header class="sheet-header">
+        <span class="grabber" aria-hidden="true"></span>
+
+        <header class="panel-header">
             <div class="heading">
                 <span class="kicker">ჩანაწერი #{{ r.id }}</span>
                 <h2 id="record-details-title">{{ r.date | date:'dd.MM.yyyy' }}</h2>
-                <span class="sub">{{ r.plateNumber }}@if (r.pumpType) { · {{ r.pumpType }} }</span>
             </div>
-            <div class="header-side">
-                <span class="badge" [ngClass]="status().cls">{{ status().label }}</span>
-                <button #closeButton type="button" class="icon-btn" (click)="close()" aria-label="დახურვა">
-                    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/></svg>
-                </button>
-            </div>
+            <button #closeButton type="button" class="icon-btn close" (click)="close()" aria-label="დახურვა" title="დახურვა (Esc)">
+                <app-icon name="xmark" [size]="15" [stroke]="2.2" />
+            </button>
         </header>
 
-        <div class="sheet-body">
+        <div class="panel-body">
+            <div class="status-row">
+                <span class="badge badge-dot" [ngClass]="status().cls">{{ status().label }}</span>
+                <span class="plate"><app-icon name="truck" [size]="14" /> <b class="mono">{{ r.plateNumber }}</b>@if (r.pumpType) { · {{ r.pumpType }} }</span>
+            </div>
+
+            <section class="hero">
+                <span>ბეტონი</span>
+                <strong>{{ r.concreteVolume | number:'1.0-2' }}<small> მ³</small></strong>
+            </section>
+
             <section class="stats">
-                <div class="stat primary">
-                    <span>ბეტონი</span>
-                    <strong>{{ r.concreteVolume | number:'1.0-2' }} <small>მ³</small></strong>
-                </div>
                 <div class="stat">
                     <span>დამატებითი დგომა</span>
                     <strong>{{ r.additionalStanding }}</strong>
@@ -39,49 +43,29 @@
 
             <section class="block">
                 <h3>დეტალები</h3>
-                <dl class="fields">
+                <div class="inset-list">
                     @if (showOperatorDetails()) {
-                        <div class="field">
-                            <dt>ოპერატორი</dt>
-                            <dd>{{ r.operatorFirstName }} {{ r.operatorLastName }}</dd>
-                        </div>
-                        <div class="field">
-                            <dt>კომპანია</dt>
-                            <dd>{{ r.companyName }}</dd>
-                        </div>
-                        <div class="field wide">
-                            <dt>მისამართი</dt>
-                            <dd>{{ r.addressName }}</dd>
-                        </div>
+                        <div class="inset-row"><span>ოპერატორი</span><strong>{{ r.operatorFirstName }} {{ r.operatorLastName }}</strong></div>
+                        <div class="inset-row"><span>კომპანია</span><strong>{{ r.companyName }}</strong></div>
+                        <div class="inset-row"><span>მისამართი</span><strong>{{ r.addressName }}</strong></div>
                     }
-                    <div class="field">
-                        <dt>სახ. ნომერი</dt>
-                        <dd>{{ r.plateNumber }}</dd>
-                    </div>
-                    <div class="field">
-                        <dt>მანძილი</dt>
-                        <dd>{{ distanceRange() }}</dd>
-                    </div>
-                </dl>
+                    <div class="inset-row"><span>სახ. ნომერი</span><strong class="mono">{{ r.plateNumber }}</strong></div>
+                    <div class="inset-row"><span>მანძილი</span><strong>{{ distanceRange() }}</strong></div>
+                    <div class="inset-row"><span>დღიური</span><strong>{{ r.isDaily ? 'კი' : 'არა' }}</strong></div>
+                </div>
             </section>
 
             @if (r.reviewedAt || (showOperatorDetails() && r.reviewedByCheckerGmail)) {
                 <section class="block">
                     <h3>შემოწმება</h3>
-                    <dl class="fields">
+                    <div class="inset-list">
                         @if (showOperatorDetails() && r.reviewedByCheckerGmail) {
-                            <div class="field">
-                                <dt>შემმოწმებელი</dt>
-                                <dd>{{ r.reviewedByCheckerGmail }}</dd>
-                            </div>
+                            <div class="inset-row"><span>შემმოწმებელი</span><strong>{{ r.reviewedByCheckerGmail }}</strong></div>
                         }
                         @if (r.reviewedAt) {
-                            <div class="field">
-                                <dt>შემოწმდა</dt>
-                                <dd>{{ r.reviewedAt | date:'dd.MM.yyyy HH:mm' }}</dd>
-                            </div>
+                            <div class="inset-row"><span>შემოწმდა</span><strong>{{ r.reviewedAt | date:'dd.MM.yyyy HH:mm' }}</strong></div>
                         }
-                    </dl>
+                    </div>
                 </section>
             }
 
@@ -95,8 +79,15 @@
             </section>
         </div>
 
-        <footer class="sheet-footer">
-            <button type="button" class="btn btn-secondary" (click)="close()">დახურვა</button>
-        </footer>
-    </div>
+        @if (canModify()) {
+            <footer class="panel-footer">
+                <button type="button" class="btn btn-secondary" (click)="remove.emit()" [disabled]="busy()">
+                    @if (busy()) { <span class="spinner"></span> } @else { <app-icon name="trash" /> } წაშლა
+                </button>
+                <button type="button" class="btn btn-primary" (click)="edit.emit()" [disabled]="busy()">
+                    <app-icon name="pencil" /> რედაქტირება
+                </button>
+            </footer>
+        }
+    </aside>
 </div>

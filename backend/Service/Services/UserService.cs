@@ -5,6 +5,7 @@ using Service.DTOs;
 using Service.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using System.Linq;
 
@@ -15,6 +16,7 @@ namespace Service.Services
         private const string AdminRole = "Admin";
         private const int MaxUsernameLength = 75;
         private const int MaxAvatarUrlLength = 2_100_000;
+        private const int MaxEmailLength = 120;
 
         public async Task<UserDTO?> GetByIdAsync(int id)
         {
@@ -62,6 +64,7 @@ namespace Service.Services
             }
 
             var user = mapper.Map<User>(dto);
+            user.Email = NormalizeEmail(dto.Email);
             user.CreatedAt = DateTime.UtcNow;
             user.Username = NormalizeUsername(dto.Username, dto.FirstName, dto.LastName);
             user.AvatarUrl = NormalizeAvatarUrl(dto.AvatarUrl);
@@ -100,6 +103,7 @@ namespace Service.Services
             }
 
             mapper.Map(dto, user);
+            user.Email = NormalizeEmail(dto.Email);
             await userRepository.UpdateAsync(user);
             
             return mapper.Map<UserDTO>(user);
@@ -162,6 +166,22 @@ namespace Service.Services
             if (value.Length > MaxUsernameLength)
             {
                 throw new Exception($"Username must be {MaxUsernameLength} characters or fewer");
+            }
+
+            return value;
+        }
+
+        private static string? NormalizeEmail(string? email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                return null;
+            }
+
+            var value = email.Trim().ToLowerInvariant();
+            if (value.Length > MaxEmailLength || !new EmailAddressAttribute().IsValid(value))
+            {
+                throw new Exception("Email is not valid");
             }
 
             return value;

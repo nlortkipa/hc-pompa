@@ -1,122 +1,141 @@
 <div class="section-header">
     <div>
-        <div class="section-title">მომხმარებლების მართვა</div>
-        <p class="section-subtitle">შექმენით ოპერატორები, ბუღალტრები და ადმინისტრატორები.</p>
+        <h1 class="section-title">მომხმარებლები</h1>
+        <p class="section-subtitle">ოპერატორები, ბუღალტრები და ადმინისტრატორები.</p>
     </div>
-</div>
-
-<div class="card form-card">
-    <div class="card-title">{{ isEditing ? 'მომხმარებლის რედაქტირება' : 'ახალი მომხმარებლის დამატება' }}</div>
-    
-    <div class="user-form-grid">
-        <div class="form-group">
-            <label>სახელი</label>
-            <input type="text" [(ngModel)]="userForm.firstName" [class.field-error]="errors['firstName']" placeholder="მაგ: გიორგი">
-            <div class="field-error-msg" *ngIf="errors['firstName']">{{errors['firstName']}}</div>
-        </div>
-        <div class="form-group">
-            <label>გვარი</label>
-            <input type="text" [(ngModel)]="userForm.lastName" [class.field-error]="errors['lastName']" placeholder="მაგ: ბერიძე">
-            <div class="field-error-msg" *ngIf="errors['lastName']">{{errors['lastName']}}</div>
-        </div>
-        <div class="form-group">
-            <label>პირადი ნომერი</label>
-            <input type="text" [(ngModel)]="userForm.personalId" [class.field-error]="errors['personalId']" placeholder="11 ნიშნა კოდი">
-            <div class="field-error-msg" *ngIf="errors['personalId']">{{errors['personalId']}}</div>
-        </div>
-        <div class="form-group">
-            <label>ტელეფონი</label>
-            <input type="text" [(ngModel)]="userForm.phoneNumber" [class.field-error]="errors['phoneNumber']" placeholder="599 123 456">
-            <div class="field-error-msg" *ngIf="errors['phoneNumber']">{{errors['phoneNumber']}}</div>
-        </div>
-        <div class="form-group">
-            <label>როლი</label>
-            <select [(ngModel)]="userForm.role" [disabled]="isEditingOwnLastAdmin()">
-                <option value="User">ოპერატორი</option>
-                <option value="Accountant">ბუღალტერი</option>
-                <option value="Admin">ადმინისტრატორი</option>
-            </select>
-        </div>
-    </div>
-
-    <div class="form-actions">
-        <button class="btn btn-primary" (click)="saveUser()" [disabled]="isLoading">
-            <span *ngIf="!isLoading">{{ isEditing ? 'განახლება' : 'დამატება' }}</span>
-            <span *ngIf="isLoading">მუშავდება...</span>
+    <div class="section-actions">
+        <button class="btn btn-primary" (click)="openCreate()">
+            <app-icon name="plus" /> ახალი მომხმარებელი
         </button>
-        <button *ngIf="isEditing" class="btn btn-secondary" (click)="cancelEdit()">გაუქმება</button>
     </div>
 </div>
 
-<div class="card table-card">
-    <div class="table-scroll">
-        <table>
-            <thead>
-                <tr>
-                    <th>მომხმარებელი</th>
-                    <th>პირადი ნომერი</th>
-                    <th>ტელეფონი</th>
-                    <th>როლი</th>
-                    <th class="text-right">მოქმედება</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let u of users()">
-                    <td>
-                        <div class="user-cell">
-                            <div class="avatar-small">{{u.firstName.charAt(0)}}{{u.lastName.charAt(0)}}</div>
-                            <strong>{{u.firstName}} {{u.lastName}}</strong>
-                        </div>
-                    </td>
-                    <td><span class="mono">{{u.personalId}}</span></td>
-                    <td>{{u.phoneNumber}}</td>
-                    <td>
-                        <span class="badge" [ngClass]="{
-                            'badge-red': u.role === 'Admin',
-                            'badge-blue': u.role === 'User',
-                            'badge-yellow': u.role === 'Accountant'
-                        }">{{ roleLabel(u.role) }}</span>
-                    </td>
-                    <td>
-                        <div class="actions-cell">
-                            <button class="btn btn-secondary btn-sm" (click)="editUser(u)">
-                                <span aria-hidden="true">✎</span> შეცვლა
-                            </button>
-                            <button class="btn btn-secondary btn-sm text-danger" (click)="deleteUser(u)">
-                                <span aria-hidden="true">×</span> წაშლა
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+<section class="card list-card">
+    <div class="list-toolbar">
+        <label class="search-field">
+            <app-icon name="search" [size]="14" />
+            <input type="search" placeholder="სახელი, ტელეფონი, ელფოსტა ან პირადი ნომერი" [ngModel]="search()"
+                (ngModelChange)="search.set($event)" aria-label="ძებნა">
+        </label>
+        <div class="segmented role-filter" role="group" aria-label="როლი">
+            <button type="button" [class.active]="roleFilter() === 'all'" (click)="roleFilter.set('all')">ყველა <span>{{ users().length }}</span></button>
+            <button type="button" [class.active]="roleFilter() === 'User'" (click)="roleFilter.set('User')">ოპერატორი <span>{{ countFor('User') }}</span></button>
+            <button type="button" [class.active]="roleFilter() === 'Accountant'" (click)="roleFilter.set('Accountant')">ბუღალტერი <span>{{ countFor('Accountant') }}</span></button>
+            <button type="button" [class.active]="roleFilter() === 'Admin'" (click)="roleFilter.set('Admin')">ადმინი <span>{{ countFor('Admin') }}</span></button>
+        </div>
     </div>
-</div>
 
-<div class="mobile-users">
-    <div *ngFor="let u of users()" class="card user-mobile-card">
-        <div class="user-mobile-header">
-            <div class="user-cell">
-                <div class="avatar-small">{{u.firstName.charAt(0)}}{{u.lastName.charAt(0)}}</div>
-                <strong>{{u.firstName}} {{u.lastName}}</strong>
+    <div class="users-head" aria-hidden="true">
+        <span>მომხმარებელი</span>
+        <span>პირადი ნომერი</span>
+        <span>ტელეფონი</span>
+        <span>როლი</span>
+        <span></span>
+    </div>
+
+    @for (u of filteredUsers(); track u.id) {
+        <div class="list-row user-row">
+            <div class="user-main">
+                <span class="initials">{{ initials(u) }}</span>
+                <div class="row-main">
+                    <strong>{{ u.firstName }} {{ u.lastName }}</strong>
+                    @if (u.email) { <small class="user-email" [title]="u.email">{{ u.email }}</small> }
+                    <small class="mobile-only">{{ u.phoneNumber }}<span class="xs-only"> · {{ roleLabel(u.role) }}</span></small>
+                </div>
             </div>
-            <span class="badge" [ngClass]="{
-                'badge-red': u.role === 'Admin',
-                'badge-blue': u.role === 'User',
-                'badge-yellow': u.role === 'Accountant'
-            }">{{ roleLabel(u.role) }}</span>
+            <span class="mono cell muted">{{ u.personalId }}</span>
+            <span class="cell tabular">{{ u.phoneNumber }}</span>
+            <span class="cell-role"><span class="badge" [ngClass]="roleClass(u.role)">{{ roleLabel(u.role) }}</span></span>
+            <div class="row-actions">
+                <button class="icon-btn" (click)="sendLink(u)" [disabled]="sendingLinkId === u.id" title="ბმულის გაგზავნა SMS-ით" aria-label="ბმულის გაგზავნა SMS-ით">
+                    @if (sendingLinkId === u.id) { <span class="spinner"></span> } @else { <app-icon name="send" [size]="15" /> }
+                </button>
+                <button class="icon-btn" (click)="editUser(u)" title="რედაქტირება" aria-label="რედაქტირება">
+                    <app-icon name="pencil" [size]="15" />
+                </button>
+                <button class="icon-btn danger" (click)="deleteUser(u)" title="წაშლა" aria-label="წაშლა">
+                    <app-icon name="trash" [size]="15" />
+                </button>
+            </div>
         </div>
-        <div class="user-mobile-body">
-            <div class="info-row"><span>პირადი #:</span> <span class="mono">{{u.personalId}}</span></div>
-            <div class="info-row"><span>ტელეფონი:</span> {{u.phoneNumber}}</div>
-        </div>
-        <div class="user-mobile-actions">
-            <button class="btn btn-secondary btn-sm" (click)="editUser(u)">
-                <span aria-hidden="true">✎</span> შეცვლა
-            </button>
-            <button class="btn btn-secondary btn-sm text-danger" (click)="deleteUser(u)">
-                <span aria-hidden="true">×</span> წაშლა
-            </button>
-        </div>
+    } @empty {
+        @if (isLoading && !hasLoaded) {
+            <div class="loading-row"><span class="spinner"></span> იტვირთება...</div>
+        } @else {
+            <div class="empty-state">
+                <span class="empty-icon"><app-icon name="people" [size]="24" /></span>
+                <strong>{{ users().length ? 'შედეგი ვერ მოიძებნა' : 'მომხმარებლები ჯერ არ არის' }}</strong>
+                @if (!users().length) {
+                    <button class="btn btn-primary btn-sm" (click)="openCreate()"><app-icon name="plus" [size]="14" /> დამატება</button>
+                }
+            </div>
+        }
+    }
+</section>
+
+@if (showForm) {
+    <div class="sheet-backdrop" (click)="cancelEdit()">
+        <form class="sheet" role="dialog" aria-modal="true" aria-labelledby="user-sheet-title"
+            (click)="$event.stopPropagation()" (ngSubmit)="saveUser()" novalidate>
+            <header class="sheet-header">
+                <h2 id="user-sheet-title">{{ isEditing ? 'მომხმარებლის რედაქტირება' : 'ახალი მომხმარებელი' }}</h2>
+                <button type="button" class="icon-btn" (click)="cancelEdit()" aria-label="დახურვა">
+                    <app-icon name="xmark" [size]="15" [stroke]="2.2" />
+                </button>
+            </header>
+
+            <div class="sheet-body form-grid">
+                <div class="form-group">
+                    <label for="u-first">სახელი</label>
+                    <input id="u-first" name="firstName" type="text" [(ngModel)]="userForm.firstName"
+                        [class.field-error]="errors['firstName']" placeholder="გიორგი" autocomplete="off" autofocus>
+                    @if (errors['firstName']) { <div class="field-error-msg">{{ errors['firstName'] }}</div> }
+                </div>
+                <div class="form-group">
+                    <label for="u-last">გვარი</label>
+                    <input id="u-last" name="lastName" type="text" [(ngModel)]="userForm.lastName"
+                        [class.field-error]="errors['lastName']" placeholder="ბერიძე" autocomplete="off">
+                    @if (errors['lastName']) { <div class="field-error-msg">{{ errors['lastName'] }}</div> }
+                </div>
+                <div class="form-group">
+                    <label for="u-pid">პირადი ნომერი</label>
+                    <input id="u-pid" name="personalId" type="text" inputmode="numeric" maxlength="11" class="mono"
+                        [(ngModel)]="userForm.personalId" [class.field-error]="errors['personalId']" placeholder="11 ციფრი">
+                    @if (errors['personalId']) { <div class="field-error-msg">{{ errors['personalId'] }}</div> }
+                </div>
+                <div class="form-group">
+                    <label for="u-phone">ტელეფონი</label>
+                    <input id="u-phone" name="phoneNumber" type="tel" inputmode="tel" [(ngModel)]="userForm.phoneNumber"
+                        [class.field-error]="errors['phoneNumber']" placeholder="599 123 456">
+                    @if (errors['phoneNumber']) { <div class="field-error-msg">{{ errors['phoneNumber'] }}</div> }
+                </div>
+                <div class="form-group span-2">
+                    <label for="u-email">ელფოსტა <span class="optional">(არასავალდებულო)</span></label>
+                    <input id="u-email" name="email" type="email" inputmode="email" [(ngModel)]="userForm.email"
+                        [class.field-error]="errors['email']" placeholder="name@example.com" autocomplete="off">
+                    @if (errors['email']) { <div class="field-error-msg">{{ errors['email'] }}</div> }
+                    <p class="hint">თუ მომხმარებელი პომპის შემმოწმებელია, რეპორტის ბმული ამ მისამართზეც გაიგზავნება.</p>
+                </div>
+                <div class="form-group span-2">
+                    <label>როლი</label>
+                    <div class="segmented role-picker" [class.disabled]="isEditingOwnLastAdmin()">
+                        <button type="button" [class.active]="userForm.role === 'User'" [disabled]="isEditingOwnLastAdmin()" (click)="userForm.role = 'User'">ოპერატორი</button>
+                        <button type="button" [class.active]="userForm.role === 'Accountant'" [disabled]="isEditingOwnLastAdmin()" (click)="userForm.role = 'Accountant'">ბუღალტერი</button>
+                        <button type="button" [class.active]="userForm.role === 'Admin'" [disabled]="isEditingOwnLastAdmin()" (click)="userForm.role = 'Admin'">ადმინისტრატორი</button>
+                    </div>
+                    @if (isEditingOwnLastAdmin()) {
+                        <p class="hint">ერთადერთი ადმინისტრატორი ხართ, ამიტომ როლს ვერ შეცვლით.</p>
+                    }
+                </div>
+            </div>
+
+            <footer class="sheet-footer">
+                <button type="button" class="btn btn-secondary" (click)="cancelEdit()">გაუქმება</button>
+                <button type="submit" class="btn btn-primary" [disabled]="isSaving">
+                    @if (isSaving) { <span class="spinner"></span> }
+                    {{ isEditing ? 'შენახვა' : 'დამატება' }}
+                </button>
+            </footer>
+        </form>
     </div>
-</div>
+}

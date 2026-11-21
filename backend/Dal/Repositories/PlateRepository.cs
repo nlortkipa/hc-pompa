@@ -22,14 +22,16 @@ namespace Dal.Repositories
         public override async Task<IEnumerable<Plate>> GetAllAsync()
         {
             return await _context.Plates
-                .Include(x => x.CheckerEmails)
+                .Include(x => x.Checkers)
+                    .ThenInclude(c => c.User)
                 .ToListAsync();
         }
 
         public override async Task<Plate?> GetByIdAsync(int id)
         {
             return await _context.Plates
-                .Include(x => x.CheckerEmails)
+                .Include(x => x.Checkers)
+                    .ThenInclude(c => c.User)
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
     }

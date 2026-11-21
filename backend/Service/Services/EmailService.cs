@@ -96,6 +96,7 @@ namespace Service.Services
                 $"Pump type: {operation.PumpType}",
                 $"Distance range: {GetDistanceRangeLabel(operation)}",
                 $"Concrete volume: {operation.ConcreteVolume}",
+                $"Daily: {(operation.IsDaily ? "Yes" : "No")}",
                 $"Note: {(string.IsNullOrWhiteSpace(operation.Note) ? "—" : operation.Note)}",
                 "",
                 $"Review link: {reviewUrl}"

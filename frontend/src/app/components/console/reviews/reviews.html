@@ -1,0 +1,67 @@
+<div class="section-header">
+    <div>
+        <h1 class="section-title">შემოწმება</h1>
+        <p class="section-subtitle">რეპორტები, რომლებიც თქვენ უნდა დაადასტუროთ ან უარყოთ.</p>
+    </div>
+    <div class="section-actions">
+        <button class="btn btn-secondary" (click)="load()" [disabled]="isLoading">
+            @if (isLoading) { <span class="spinner"></span> } @else { <app-icon name="refresh" /> }
+            განახლება
+        </button>
+    </div>
+</div>
+
+<section class="card list-card reviews-card">
+    <div class="list-toolbar">
+        <div class="segmented" role="group" aria-label="ფილტრი">
+            <button type="button" [class.active]="filter() === 'pending'" (click)="filter.set('pending')">მოლოდინში <span>{{ pendingCount() }}</span></button>
+            <button type="button" [class.active]="filter() === 'all'" (click)="filter.set('all')">ყველა <span>{{ reviews().length }}</span></button>
+        </div>
+    </div>
+
+    @for (r of visibleReviews(); track r.token) {
+        <div class="list-row review-row">
+            <a class="review-link" [routerLink]="['/review', r.token]" title="დეტალების ნახვა">
+                <div class="review-line">
+                    <strong class="date">{{ r.date | date:'dd.MM.yyyy' }}</strong>
+                    <span class="mono plate">{{ r.plateNumber }}</span>
+                    <span class="badge badge-dot" [ngClass]="statusClass(r.reviewStatus)">{{ statusLabel(r.reviewStatus) }}</span>
+                    @if (isEdited(r)) { <span class="badge badge-blue" title="ოპერატორმა ჩანაწერი შეცვალა"><app-icon name="pencil" [size]="11" /> შეცვლილია</span> }
+                    @if (r.note) { <span class="note-flag" title="აქვს შენიშვნა"><app-icon name="note" [size]="12" /></span> }
+                </div>
+                <small class="review-meta">
+                    {{ r.companyName }} · {{ r.addressName }} · {{ r.operatorFirstName }} {{ r.operatorLastName }}
+                </small>
+                <small class="review-figures">
+                    <b>{{ r.concreteVolume }}</b> მ³
+                    @if (r.additionalStanding) { · დამ. დგომა {{ r.additionalStanding }} }
+                    @if (r.dismantleAssemble) { · დაშლა/აწყ. {{ r.dismantleAssemble }} }
+                    @if (r.isIdle) { · მოცდენა }
+                    @if (r.isDaily) { · დღიური }
+                </small>
+            </a>
+            @if (r.reviewStatus === 'Pending') {
+                <div class="row-actions review-actions">
+                    <button class="btn btn-secondary btn-sm reject" type="button" (click)="reject(r)" [disabled]="submittingToken !== null">
+                        <app-icon name="xmark" [size]="13" /> უარყოფა
+                    </button>
+                    <button class="btn btn-primary btn-sm" type="button" (click)="accept(r)" [disabled]="submittingToken !== null">
+                        @if (submittingToken === r.token) { <span class="spinner"></span> } @else { <app-icon name="check" [size]="13" /> }
+                        დადასტურება
+                    </button>
+                </div>
+            } @else if (r.reviewedAt) {
+                <small class="reviewed-at">{{ r.reviewedAt | date:'dd.MM.yyyy HH:mm' }}</small>
+            }
+        </div>
+    } @empty {
+        @if (isLoading && !loaded()) {
+            <div class="loading-row"><span class="spinner"></span> იტვირთება...</div>
+        } @else {
+            <div class="empty-state">
+                <span class="empty-icon"><app-icon name="check-circle" [size]="24" /></span>
+                <strong>{{ filter() === 'pending' ? 'შესამოწმებელი რეპორტი არ არის' : 'რეპორტები ჯერ არ არის' }}</strong>
+            </div>
+        }
+    }
+</section>

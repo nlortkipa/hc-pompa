@@ -31,10 +31,17 @@ namespace Service.Mapping
 
             // Plate
             CreateMap<Plate, PlateDTO>()
-                .ForMember(dest => dest.CheckerEmails, opt => opt.MapFrom(src => src.CheckerEmails.Select(x => x.Email)));
+                .ForMember(dest => dest.CheckerUserIds, opt => opt.MapFrom(src => src.Checkers.Select(x => x.UserId)))
+                .ForMember(dest => dest.Checkers, opt => opt.MapFrom(src => src.Checkers.Select(x => new PlateCheckerDTO
+                {
+                    UserId = x.UserId,
+                    FirstName = x.User != null ? x.User.FirstName : string.Empty,
+                    LastName = x.User != null ? x.User.LastName : string.Empty,
+                    Email = x.User != null ? x.User.Email : null
+                })));
             CreateMap<PlateDTO, Plate>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
-                .ForMember(dest => dest.CheckerEmails, opt => opt.Ignore());
+                .ForMember(dest => dest.Checkers, opt => opt.Ignore());
 
             // PumpOperation
             CreateMap<PumpOperation, PumpOperationDto>()

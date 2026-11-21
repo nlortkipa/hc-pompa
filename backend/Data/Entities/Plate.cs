@@ -10,6 +10,6 @@ namespace Data.Entities
         public string Number { get; set; } = null!;
         public string Type { get; set; } = string.Empty;
         public bool IsStationary { get; set; }
-        public ICollection<PlateCheckerEmail> CheckerEmails { get; set; } = new List<PlateCheckerEmail>();
+        public ICollection<PlateChecker> Checkers { get; set; } = new List<PlateChecker>();
     }
 }

@@ -2,10 +2,13 @@ using AutoMapper;
 using Dal.Interfaces;
 using Data.Entities;
 using Service.DTOs;
+using Service.Exceptions;
 using Service.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -21,30 +24,102 @@ namespace Service.Services
         private const string AcceptedStatus = "Accepted";
         private const string RejectedStatus = "Rejected";
         private const int MaxNoteLength = 500;
+        private const string NotPendingMessage = "Only pending operations can be changed";
 
         public async Task<PumpOperationDto> CreateAsync(CreatePumpOperationDto dto, int operatorId)
         {
+            var (plate, checkers) = await ResolvePlateAndCheckersAsync(dto.PlateNumber);
+
+            var entity = mapper.Map<PumpOperation>(dto);
+            entity.OperatorId = operatorId;
+            ApplyPlateRules(entity, dto, plate);
+            entity.ReviewStatus = PendingStatus;
+
+            await repository.AddAsync(entity);
+
+            foreach (var request in BuildReviewRequests(checkers))
+            {
+                request.PumpOperationId = entity.Id;
+                await reviewRequestRepository.AddAsync(request);
+            }
+
+            var createdEntity = await repository.GetByIdAsync(entity.Id) ?? entity;
+            return mapper.Map<PumpOperationDto>(createdEntity);
+        }
+
+        public async Task<PumpOperationUpdateResult?> UpdateAsync(int id, CreatePumpOperationDto dto, int operatorId)
+        {
+            var existing = await repository.GetByIdAsync(id);
+            if (existing == null || existing.OperatorId != operatorId) return null;
+            EnsurePending(existing);
+
+            var (plate, checkers) = await ResolvePlateAndCheckersAsync(dto.PlateNumber);
+
+            var values = mapper.Map<PumpOperation>(dto);
+            ApplyPlateRules(values, dto, plate);
+
+            var updated = await repository.TryUpdatePendingAsync(id, operatorId, values, BuildReviewRequests(checkers));
+            if (updated == null)
+            {
+                // A checker decided between our read and the update.
+                throw new ConflictException(NotPendingMessage);
+            }
+
+            return new PumpOperationUpdateResult
+            {
+                Operation = mapper.Map<PumpOperationDto>(updated.Value.Operation),
+                AddedReviewRequests = updated.Value.AddedRequests.Select(MapLinkDto).ToList()
+            };
+        }
+
+        public async Task<bool> DeleteAsync(int id, int operatorId)
+        {
+            var existing = await repository.GetByIdAsync(id);
+            if (existing == null || existing.OperatorId != operatorId) return false;
+            EnsurePending(existing);
+
+            if (!await repository.TryDeletePendingAsync(id, operatorId))
+            {
+                throw new ConflictException(NotPendingMessage);
+            }
+
+            return true;
+        }
+
+        private static void EnsurePending(PumpOperation operation)
+        {
+            if (operation.ReviewStatus != PendingStatus)
+            {
+                throw new ConflictException(NotPendingMessage);
+            }
+        }
+
+        private async Task<(Plate Plate, List<User> Checkers)> ResolvePlateAndCheckersAsync(string plateNumber)
+        {
             var plate = (await plateRepository.GetAllAsync())
-                .FirstOrDefault(p => p.Number.Equals(dto.PlateNumber, StringComparison.OrdinalIgnoreCase));
+                .FirstOrDefault(p => p.Number.Equals(plateNumber, StringComparison.OrdinalIgnoreCase));
 
             if (plate == null)
             {
                 throw new InvalidOperationException("Plate was not found");
             }
 
-            var checkerEmails = plate.CheckerEmails
-                .Select(checker => checker.Email)
-                .Where(email => !string.IsNullOrWhiteSpace(email))
-                .Distinct(StringComparer.OrdinalIgnoreCase)
+            var checkers = plate.Checkers
+                .Where(checker => checker.User != null)
+                .GroupBy(checker => checker.UserId)
+                .Select(group => group.First().User)
                 .ToList();
 
-            if (checkerEmails.Count == 0)
+            if (checkers.Count == 0)
             {
-                throw new InvalidOperationException("At least one checker email is required for this plate");
+                throw new InvalidOperationException("At least one checker is required for this plate");
             }
 
-            var entity = mapper.Map<PumpOperation>(dto);
-            entity.OperatorId = operatorId;
+            return (plate, checkers);
+        }
+
+        private static void ApplyPlateRules(PumpOperation entity, CreatePumpOperationDto dto, Plate plate)
+        {
             entity.PlateNumber = plate.Number;
             entity.PumpType = plate.Type;
             entity.DistanceRange = null;
@@ -55,28 +130,23 @@ namespace Service.Services
                 entity.AdditionalStanding = 0;
                 entity.DismantleAssemble = 0;
             }
-            else if (plate.IsStationary)
+            else if (!plate.IsStationary)
             {
-                entity.AdditionalStanding = 0;
+                entity.DismantleAssemble = 0;
             }
-            entity.ReviewStatus = PendingStatus;
+        }
 
-            await repository.AddAsync(entity);
-
-            foreach (var checkerEmail in checkerEmails)
+        private static List<PumpOperationReviewRequest> BuildReviewRequests(IEnumerable<User> checkers)
+        {
+            return checkers.Select(checker => new PumpOperationReviewRequest
             {
-                await reviewRequestRepository.AddAsync(new PumpOperationReviewRequest
-                {
-                    PumpOperationId = entity.Id,
-                    CheckerGmail = checkerEmail,
-                    Token = Guid.NewGuid().ToString("N"),
-                    Status = PendingStatus,
-                    CreatedAt = DateTime.UtcNow
-                });
-            }
-
-            var createdEntity = await repository.GetByIdAsync(entity.Id) ?? entity;
-            return mapper.Map<PumpOperationDto>(createdEntity);
+                CheckerUserId = checker.Id,
+                // Snapshot of the address the link is mailed to; null when the user has no email.
+                CheckerGmail = string.IsNullOrWhiteSpace(checker.Email) ? null : checker.Email,
+                Token = Guid.NewGuid().ToString("N"),
+                Status = PendingStatus,
+                CreatedAt = DateTime.UtcNow
+            }).ToList();
         }
 
         public async Task<IEnumerable<PumpOperationDto>> GetAllAsync(int userId, string role, PumpOperationFilterDto? filter = null)
@@ -87,7 +157,8 @@ namespace Service.Services
             {
                 entities = entities.Where(x => x.OperatorId == userId);
             }
-            else if (filter != null)
+
+            if (filter != null)
             {
                 if (filter.FromDate.HasValue)
                     entities = entities.Where(x => x.Date.Date >= filter.FromDate.Value.Date);
@@ -137,16 +208,19 @@ namespace Service.Services
         {
             var requests = await reviewRequestRepository.GetByPumpOperationIdAsync(pumpOperationId);
 
-            return requests.Select(r => new PumpOperationReviewRequestLinkDto
-            {
-                Id = r.Id,
-                PumpOperationId = r.PumpOperationId,
-                Token = r.Token,
-                Status = r.Status,
-                CheckerGmail = r.CheckerGmail,
-                CreatedAt = r.CreatedAt,
-                ReviewedAt = r.ReviewedAt
-            });
+            return requests.Select(MapLinkDto);
+        }
+
+        public async Task<IEnumerable<PumpOperationReviewDto>> GetReviewsForCheckerAsync(int checkerUserId)
+        {
+            var requests = await reviewRequestRepository.GetByCheckerUserIdAsync(checkerUserId);
+
+            return requests
+                .OrderByDescending(r => r.PumpOperation.ReviewStatus == PendingStatus)
+                .ThenByDescending(r => r.PumpOperation.Date)
+                .ThenByDescending(r => r.PumpOperationId)
+                .Select(MapReviewDto)
+                .ToList();
         }
 
         public async Task<PumpOperationReviewDto?> GetReviewByTokenAsync(string token)
@@ -155,7 +229,7 @@ namespace Service.Services
             return request == null ? null : MapReviewDto(request);
         }
 
-        public async Task<PumpOperationReviewDto?> SubmitReviewDecisionAsync(string token, string decision)
+        public async Task<PumpOperationReviewDto?> SubmitReviewDecisionAsync(string token, string decision, string? expectedVersion = null)
         {
             if (decision != AcceptedStatus && decision != RejectedStatus)
             {
@@ -167,18 +241,66 @@ namespace Service.Services
 
             if (request.PumpOperation.ReviewStatus == PendingStatus)
             {
-                await reviewRequestRepository.TrySetFirstDecisionAsync(
+                var checkVersion = !string.IsNullOrEmpty(expectedVersion);
+                if (checkVersion && ComputeVersion(request.PumpOperation) != expectedVersion)
+                {
+                    throw new ReviewOutdatedException(MapReviewDto(request));
+                }
+
+                var decided = await reviewRequestRepository.TrySetFirstDecisionAsync(
                     request.PumpOperationId,
+                    token,
                     decision,
-                    request.CheckerGmail,
-                    DateTime.UtcNow);
+                    GetReviewerLabel(request),
+                    DateTime.UtcNow,
+                    // Guards the gap between the version check above and the update.
+                    checkVersion ? request.PumpOperation : null);
 
                 request = await reviewRequestRepository.GetByTokenAsync(token);
                 if (request == null) return null;
+
+                if (!decided && checkVersion && request.PumpOperation.ReviewStatus == PendingStatus)
+                {
+                    // Still pending, so the guard failed because the operator edited it just now.
+                    throw new ReviewOutdatedException(MapReviewDto(request));
+                }
             }
 
             return MapReviewDto(request);
         }
+
+        /// <summary>Short hash of the editable fields, used to detect edits between load and decision.</summary>
+        private static string ComputeVersion(PumpOperation operation)
+        {
+            var parts = string.Join("|",
+                operation.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                operation.CompanyId,
+                operation.AddressId,
+                operation.ConcreteVolume.ToString("0.############", CultureInfo.InvariantCulture),
+                operation.AdditionalStanding,
+                operation.IsIdle,
+                operation.IsDaily,
+                operation.DismantleAssemble,
+                operation.PlateNumber,
+                operation.PumpType,
+                operation.DistanceRange ?? "",
+                operation.Note ?? "");
+
+            var hash = SHA256.HashData(Encoding.UTF8.GetBytes(parts));
+            return Convert.ToHexString(hash, 0, 8).ToLowerInvariant();
+        }
+
+        private static PumpOperationReviewRequestLinkDto MapLinkDto(PumpOperationReviewRequest r) => new()
+        {
+            Id = r.Id,
+            PumpOperationId = r.PumpOperationId,
+            Token = r.Token,
+            Status = r.Status,
+            CheckerUserId = r.CheckerUserId,
+            CheckerGmail = r.CheckerGmail,
+            CreatedAt = r.CreatedAt,
+            ReviewedAt = r.ReviewedAt
+        };
 
         private static PumpOperationReviewDto MapReviewDto(PumpOperationReviewRequest request)
         {
@@ -187,6 +309,7 @@ namespace Service.Services
             return new PumpOperationReviewDto
             {
                 Token = request.Token,
+                Version = ComputeVersion(operation),
                 ReviewStatus = operation.ReviewStatus,
                 ReviewedAt = operation.ReviewedAt,
                 ReviewedByCheckerGmail = operation.ReviewedByCheckerGmail,
@@ -203,12 +326,33 @@ namespace Service.Services
                 ConcreteVolume = operation.ConcreteVolume,
                 AdditionalStanding = operation.AdditionalStanding,
                 IsIdle = operation.IsIdle,
+                IsDaily = operation.IsDaily,
                 DismantleAssemble = operation.DismantleAssemble,
                 PlateNumber = operation.PlateNumber,
                 PumpType = operation.PumpType,
                 DistanceRange = operation.DistanceRange,
                 Note = operation.Note
             };
+        }
+
+        private static string GetReviewerLabel(PumpOperationReviewRequest request)
+        {
+            if (!string.IsNullOrWhiteSpace(request.CheckerUser?.Email))
+            {
+                return request.CheckerUser.Email;
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.CheckerGmail))
+            {
+                return request.CheckerGmail;
+            }
+
+            if (request.CheckerUser != null)
+            {
+                return $"{request.CheckerUser.FirstName} {request.CheckerUser.LastName}".Trim();
+            }
+
+            return "—";
         }
 
         private static string? NormalizeNote(string? note)

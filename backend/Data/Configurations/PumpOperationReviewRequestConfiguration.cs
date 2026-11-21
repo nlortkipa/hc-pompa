@@ -20,7 +20,6 @@ namespace Data.Configurations
                 .HasMaxLength(20);
 
             builder.Property(r => r.CheckerGmail)
-                .IsRequired()
                 .HasMaxLength(120);
 
             builder.Property(r => r.CreatedAt)
@@ -33,6 +32,11 @@ namespace Data.Configurations
                 .WithMany(p => p.ReviewRequests)
                 .HasForeignKey(r => r.PumpOperationId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasOne(r => r.CheckerUser)
+                .WithMany(u => u.ReviewRequests)
+                .HasForeignKey(r => r.CheckerUserId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }

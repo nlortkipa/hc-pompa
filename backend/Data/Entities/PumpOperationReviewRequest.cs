@@ -11,8 +11,8 @@ namespace Data.Entities
         public int Id { get; set; }
         [Required]
         public int PumpOperationId { get; set; }
-        [Required]
-        public string CheckerGmail { get; set; } = null!;
+        public int? CheckerUserId { get; set; }
+        public string? CheckerGmail { get; set; }
         [Required]
         public string Token { get; set; } = null!;
         [Required]
@@ -22,5 +22,6 @@ namespace Data.Entities
         public DateTime? ReviewedAt { get; set; }
 
         public PumpOperation PumpOperation { get; set; } = null!;
+        public User? CheckerUser { get; set; }
     }
 }

@@ -1,222 +1,232 @@
 <div class="section-header">
     <div>
-        <div class="section-title">ჩანაწერების ისტორია</div>
-        <p class="section-subtitle">გადახედეთ ოპერაციებს, სტატუსებს და მოცულობებს.</p>
+        <h1 class="section-title">რეპორტები</h1>
+        <p class="section-subtitle">ოპერაციების ისტორია, სტატუსები და მოცულობები.</p>
     </div>
     <div class="section-actions">
-        <button class="btn btn-secondary btn-sm" *ngIf="canViewDetails()" (click)="exportExcel()" [disabled]="isExporting || records().length === 0">
-            <span *ngIf="!isExporting">ექსპორტი</span>
-            <span *ngIf="isExporting">ექსპორტირდება...</span>
+        <button class="btn btn-secondary" (click)="loadRecords()" [disabled]="isLoading" title="განახლება">
+            <app-icon name="refresh" [class.spinning]="isLoading" /> განახლება
         </button>
-        <button class="btn btn-secondary btn-sm" (click)="loadRecords()">
-            <span class="icon" aria-hidden="true">↻</span> განახლება
-        </button>
+        @if (canViewDetails()) {
+            <button class="btn btn-primary" (click)="exportExcel()" [disabled]="isExporting || records().length === 0">
+                @if (isExporting) { <span class="spinner"></span> } @else { <app-icon name="download" /> }
+                Excel
+            </button>
+        }
     </div>
 </div>
 
-<div class="summary-grid">
-    <div class="summary-item">
-        <span>ჩანაწერები</span>
+<section class="stats" aria-label="შეჯამება">
+    <div class="stat stat--hero">
+        <span class="stat-label"><app-icon name="cube" [size]="13" /> ბეტონი</span>
+        <strong>{{ totals().concreteVolume | number:'1.0-2' }}<small> მ³</small></strong>
+    </div>
+    <div class="stat">
+        <span class="stat-label">ჩანაწერები</span>
         <strong>{{ records().length }}</strong>
     </div>
-    <div class="summary-item">
-        <span>ბეტონი</span>
-        <strong>{{ totals().concreteVolume | number:'1.0-2' }} მ³</strong>
-    </div>
-    <div class="summary-item">
-        <span>დამატებითი დგომა</span>
+    <div class="stat">
+        <span class="stat-label">დამ. დგომა</span>
         <strong>{{ totals().additionalStanding | number:'1.0-0' }}</strong>
     </div>
-    <div class="summary-item">
-        <span>დაშლა/აწყობა</span>
+    <div class="stat">
+        <span class="stat-label">დაშლა/აწყობა</span>
         <strong>{{ totals().dismantleAssemble | number:'1.0-0' }}</strong>
     </div>
-    <div class="summary-item">
-        <span>მოცდენა</span>
+    <div class="stat">
+        <span class="stat-label">მოცდენა</span>
         <strong>{{ totals().idleCount }}</strong>
     </div>
-    <div class="summary-item">
-        <span>მოლოდინში</span>
+    <div class="stat">
+        <span class="stat-label"><i class="dot dot--amber"></i> მოლოდინში</span>
         <strong>{{ pendingCount() }}</strong>
     </div>
-    <div class="summary-item">
-        <span>დადასტურებული</span>
+    <div class="stat">
+        <span class="stat-label"><i class="dot dot--green"></i> დადასტურებული</span>
         <strong>{{ acceptedCount() }}</strong>
     </div>
-</div>
+</section>
 
-<div class="card filter-card" *ngIf="canViewDetails()">
-    <div class="card-title">ფილტრები</div>
+<section class="card filter-card" [class.open]="filtersOpen">
+    <div class="filter-head">
+        <div class="segmented" role="group" aria-label="პერიოდი">
+            <button type="button" [class.active]="datePreset === 'today'" (click)="applyDatePreset('today')">დღეს</button>
+            <button type="button" [class.active]="datePreset === 'month'" (click)="applyDatePreset('month')">ეს თვე</button>
+            <button type="button" [class.active]="datePreset === 'prev'" (click)="applyDatePreset('prev')">წინა თვე</button>
+            <button type="button" [class.active]="datePreset === 'all'" (click)="applyDatePreset('all')">ყველა</button>
+        </div>
+        @if (activeFilterCount > 0) {
+            <span class="pill"><app-icon name="filter" [size]="11" /> {{ activeFilterCount }} ფილტრი</span>
+        }
+        <button type="button" class="btn btn-secondary btn-sm filter-toggle" (click)="filtersOpen = !filtersOpen"
+            [attr.aria-expanded]="filtersOpen">
+            <app-icon name="filter" [size]="13" /> ფილტრები
+            <app-icon name="chevron-down" [size]="13" class="chev-toggle" />
+        </button>
+    </div>
+
     <div class="filter-grid">
         <div class="form-group">
             <label>თარიღიდან</label>
-            <input type="date" [(ngModel)]="filter.fromDate">
+            <input type="date" [(ngModel)]="filter.fromDate" (ngModelChange)="onDateEdited()">
         </div>
         <div class="form-group">
             <label>თარიღამდე</label>
-            <input type="date" [(ngModel)]="filter.toDate">
+            <input type="date" [(ngModel)]="filter.toDate" (ngModelChange)="onDateEdited()">
         </div>
         <div class="form-group">
             <label>კომპანია</label>
-            <app-searchable-select
-                [(value)]="filter.companyId"
-                [(query)]="filter.companyName"
-                [options]="companyOptions()"
-                placeholder="მოძებნეთ კომპანია"
-                allLabel="ყველა კომპანია">
+            <app-searchable-select [(value)]="filter.companyId" [(query)]="filter.companyName"
+                [options]="companyOptions()" placeholder="ყველა კომპანია" allLabel="ყველა კომპანია">
             </app-searchable-select>
         </div>
-        <div class="form-group">
-            <label>ოპერატორი</label>
-            <app-searchable-select
-                [(value)]="filter.operatorId"
-                [(query)]="filter.operatorName"
-                [options]="operatorOptions()"
-                placeholder="მოძებნეთ ოპერატორი"
-                allLabel="ყველა ოპერატორი">
-            </app-searchable-select>
-        </div>
+        @if (canViewDetails()) {
+            <div class="form-group">
+                <label>ოპერატორი</label>
+                <app-searchable-select [(value)]="filter.operatorId" [(query)]="filter.operatorName"
+                    [options]="operatorOptions()" placeholder="ყველა ოპერატორი" allLabel="ყველა ოპერატორი">
+                </app-searchable-select>
+            </div>
+        }
         <div class="form-group">
             <label>პომპის ნომერი</label>
-            <app-searchable-select
-                [value]="selectedPlateId"
-                (valueChange)="selectPlate($event)"
-                [(query)]="filter.plateNumber"
-                [options]="plateOptions()"
-                placeholder="მოძებნეთ პომპის ნომერი"
+            <app-searchable-select [value]="selectedPlateId" (valueChange)="selectPlate($event)"
+                [(query)]="filter.plateNumber" [options]="plateOptions()" placeholder="ყველა პომპა"
                 allLabel="ყველა პომპა">
             </app-searchable-select>
         </div>
     </div>
-    <div class="filter-footer">
-        <button class="btn btn-primary" (click)="loadRecords()" [disabled]="isLoading">
-            <span *ngIf="!isLoading">გაფილტვრა</span>
-            <span *ngIf="isLoading">იტვირთება...</span>
-        </button>
-        <button class="btn btn-secondary" (click)="clearFilters()">გასუფთავება</button>
-    </div>
-</div>
 
-<div class="card table-card">
+    <div class="filter-footer">
+        <button class="btn btn-plain" (click)="clearFilters()">გასუფთავება</button>
+        <button class="btn btn-primary" (click)="loadRecords()" [disabled]="isLoading">
+            <app-icon name="search" /> ძებნა
+        </button>
+    </div>
+</section>
+
+
+<section class="card table-card">
     <div class="table-scroll">
         <table>
             <thead>
                 <tr>
                     <th>თარიღი</th>
                     <th>სტატუსი</th>
-                    <th *ngIf="canViewDetails()">ოპერატორი</th>
-                    <th *ngIf="canViewDetails()">კომპანია</th>
-                    <th *ngIf="canViewDetails()">მისამართი</th>
+                    @if (canViewDetails()) {
+                        <th>ოპერატორი</th>
+                        <th>კომპანია</th>
+                        <th>მისამართი</th>
+                    }
                     <th>სახ. ნომერი</th>
-                    <th>პომპის ტიპი</th>
+                    <th>ტიპი</th>
                     <th>მანძილი</th>
-                    <th>ბეტონი</th>
-                    <th>დამატებითი დგომა</th>
-                    <th>დაშლა/აწყობა</th>
+                    <th class="num">ბეტონი</th>
+                    <th class="num">დამ. დგომა</th>
+                    <th class="num">დაშლა/აწყ.</th>
                     <th>მოცდენა</th>
-                    <th class="note-indicator-cell">შენიშვნა</th>
+                    <th>დღიური</th>
+                    <th class="note-indicator-cell" title="შენიშვნა"><app-icon name="note" [size]="14" /></th>
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let r of records()" class="record-row" tabindex="0" (click)="openRecord(r)"
-                    (keydown.enter)="openRecord(r)">
-                    <td>
-                        <strong>{{r.date | date:'dd.MM.yyyy'}}</strong>
-                    </td>
-                    <td>
-                        <span class="badge" [ngClass]="reviewStatusClass(r)">{{reviewStatusLabel(r)}}</span>
-                    </td>
-                    <td *ngIf="canViewDetails()">
-                        <div class="user-info">
-                            {{r.operatorFirstName}} {{r.operatorLastName}}
-                        </div>
-                    </td>
-                    <td *ngIf="canViewDetails()">{{r.companyName}}</td>
-                    <td *ngIf="canViewDetails()">{{r.addressName}}</td>
-                    <td>{{r.plateNumber}}</td>
-                    <td>{{r.pumpType || '—'}}</td>
-                    <td>{{distanceRangeLabel(r)}}</td>
-                    <td>
-                        <span class="badge badge-blue">{{r.concreteVolume}} მ³</span>
-                    </td>
-                    <td>{{r.additionalStanding}}</td>
-                    <td>{{r.dismantleAssemble}}</td>
-                    <td>
-                        <span class="badge" [class.badge-green]="r.isIdle" [class.badge-red]="!r.isIdle">
-                            {{r.isIdle ? 'კი' : 'არა'}}
-                        </span>
-                    </td>
-                    <td class="note-indicator-cell">
-                        <span class="note-flag" [class.has-note]="hasNote(r)"
-                            [attr.title]="hasNote(r) ? 'აქვს შენიშვნა' : 'შენიშვნა არ არის'"
-                            [attr.aria-label]="hasNote(r) ? 'აქვს შენიშვნა' : 'შენიშვნა არ არის'">
-                            <ng-container *ngIf="hasNote(r); else crossIcon"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="M5 12.5l4.5 4.5L19 7.5"/></svg></ng-container>
-                        </span>
-                    </td>
-                </tr>
-                <tr *ngIf="records().length === 0 && !isLoading">
-                    <td [attr.colspan]="canViewDetails() ? 13 : 10" class="empty">
-                        <div class="empty-state">
-                            <span class="empty-icon">∅</span>
-                            <p>ჩანაწერები არ მოიძებნა</p>
-                        </div>
-                    </td>
-                </tr>
+                @for (r of records(); track r.id) {
+                    <tr class="record-row" tabindex="0" (click)="openRecord(r)" (keydown.enter)="openRecord(r)">
+                        <td><strong class="date">{{ r.date | date:'dd.MM.yyyy' }}</strong></td>
+                        <td><span class="badge badge-dot" [ngClass]="reviewStatusClass(r)">{{ reviewStatusLabel(r) }}</span></td>
+                        @if (canViewDetails()) {
+                            <td class="truncate">{{ r.operatorFirstName }} {{ r.operatorLastName }}</td>
+                            <td class="truncate" [title]="r.companyName">{{ r.companyName }}</td>
+                            <td class="truncate muted" [title]="r.addressName">{{ r.addressName }}</td>
+                        }
+                        <td><span class="mono">{{ r.plateNumber }}</span></td>
+                        <td class="muted">{{ r.pumpType || '—' }}</td>
+                        <td class="muted">{{ distanceRangeLabel(r) }}</td>
+                        <td class="num"><strong>{{ r.concreteVolume }}</strong> <span class="muted">მ³</span></td>
+                        <td class="num">{{ r.additionalStanding }}</td>
+                        <td class="num">{{ r.dismantleAssemble }}</td>
+                        <td>
+                            @if (r.isIdle) { <span class="badge badge-yellow">კი</span> } @else { <span class="muted">არა</span> }
+                        </td>
+                        <td>
+                            @if (r.isDaily) { <span class="badge badge-blue">კი</span> } @else { <span class="muted">არა</span> }
+                        </td>
+                        <td class="note-indicator-cell">
+                            @if (hasNote(r)) {
+                                <span class="note-flag" title="აქვს შენიშვნა" aria-label="აქვს შენიშვნა"><app-icon name="note" [size]="13" /></span>
+                            }
+                        </td>
+                    </tr>
+                }
+
+                @if (isLoading && records().length === 0) {
+                    @for (row of [1, 2, 3, 4, 5]; track row) {
+                        <tr class="skeleton-row">
+                            <td [attr.colspan]="canViewDetails() ? 14 : 11"><span class="skeleton"></span></td>
+                        </tr>
+                    }
+                }
+
+                @if (records().length === 0 && !isLoading && hasLoaded) {
+                    <tr>
+                        <td [attr.colspan]="canViewDetails() ? 14 : 11" class="empty-cell">
+                            <div class="empty-state">
+                                <span class="empty-icon"><app-icon name="inbox" [size]="24" /></span>
+                                <strong>ჩანაწერები არ მოიძებნა</strong>
+                                <span>შეცვალეთ პერიოდი ან ფილტრები.</span>
+                            </div>
+                        </td>
+                    </tr>
+                }
             </tbody>
         </table>
     </div>
-</div>
+</section>
 
-<!-- მობილური ხედი -->
+<!-- Mobile list -->
 <div class="mobile-records">
-    <div *ngFor="let r of records()" class="card record-card" tabindex="0" (click)="openRecord(r)"
-        (keydown.enter)="openRecord(r)">
-        <div class="record-header">
-            <span class="record-date">{{r.date | date:'dd.MM.yyyy'}}</span>
-            <span class="note-flag labeled" [class.has-note]="hasNote(r)">
-                <ng-container *ngIf="hasNote(r); else crossIcon"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="M5 12.5l4.5 4.5L19 7.5"/></svg></ng-container>
-                შენიშვნა
-            </span>
-            <span class="badge" [ngClass]="reviewStatusClass(r)">{{reviewStatusLabel(r)}}</span>
-            <span class="badge badge-blue">{{r.concreteVolume}} მ³</span>
+    @if (isLoading && records().length === 0) {
+        <div class="card loading-row"><span class="spinner"></span> იტვირთება...</div>
+    }
+    @if (records().length === 0 && !isLoading && hasLoaded) {
+        <div class="card empty-state">
+            <span class="empty-icon"><app-icon name="inbox" [size]="24" /></span>
+            <strong>ჩანაწერები არ მოიძებნა</strong>
+            <span>შეცვალეთ პერიოდი ან ფილტრები.</span>
         </div>
-        
-        <div class="record-body">
-            <!-- ძირითადი ინფორმაცია -->
-            <div class="record-section">
-                <div class="info-row"><span>სახ. ნომერი:</span> <strong>{{r.plateNumber}}</strong></div>
-                <div class="info-row"><span>პომპის ტიპი:</span> <strong>{{r.pumpType || '—'}}</strong></div>
-                <div class="info-row"><span>მანძილი:</span> <strong>{{distanceRangeLabel(r)}}</strong></div>
-                <div class="info-row" *ngIf="canViewDetails()"><span>კომპანია:</span> <strong>{{r.companyName}}</strong></div>
-                <div class="info-row" *ngIf="canViewDetails()"><span>ლოკაცია:</span> <strong>{{r.addressName}}</strong></div>
-                <div class="info-row" *ngIf="canViewDetails()"><span>ოპერატორი:</span> <strong>{{r.operatorFirstName}} {{r.operatorLastName}}</strong></div>
-                <div class="info-row"><span>სტატუსი:</span> <strong>{{reviewStatusLabel(r)}}</strong></div>
-                <div class="info-row" *ngIf="canViewDetails() && r.reviewedByCheckerGmail"><span>შემმოწმებელი:</span> <strong>{{r.reviewedByCheckerGmail}}</strong></div>
+    }
+    @for (r of records(); track r.id) {
+        <button type="button" class="record-card" (click)="openRecord(r)">
+            <div class="record-top">
+                <strong class="record-date">{{ r.date | date:'dd.MM.yyyy' }}</strong>
+                <span class="badge badge-dot" [ngClass]="reviewStatusClass(r)">{{ reviewStatusLabel(r) }}</span>
             </div>
-
-            <!-- ოპერაციები -->
-            <div class="record-section">
-                <div class="ops-grid">
-                    <div class="op-stat">
-                        <span class="op-label">დამატებითი დგომა</span>
-                        <span class="op-val">{{r.additionalStanding}}</span>
-                    </div>
-                    <div class="op-stat">
-                        <span class="op-label">დაშლა/აწყობა</span>
-                        <span class="op-val">{{r.dismantleAssemble}}</span>
-                    </div>
-                    <div class="op-stat highlight">
-                        <span class="op-label">მოცდენა</span>
-                        <span class="op-val">{{r.isIdle ? 'კი' : 'არა'}}</span>
-                    </div>
-                </div>
+            @if (canViewDetails()) {
+                <div class="record-company">{{ r.companyName }}</div>
+                <div class="record-sub">{{ r.addressName }}</div>
+            }
+            <div class="record-meta">
+                <span class="mono">{{ r.plateNumber }}</span>
+                @if (r.pumpType) { <span>{{ r.pumpType }}</span> }
+                @if (canViewDetails()) { <span>{{ r.operatorFirstName }} {{ r.operatorLastName }}</span> }
             </div>
-        </div>
-    </div>
+            <div class="record-bottom">
+                <span class="record-volume">{{ r.concreteVolume }} <small>მ³</small></span>
+                <span class="record-tags">
+                    @if (r.isIdle) { <span class="badge badge-yellow">მოცდენა</span> }
+                    @if (r.isDaily) { <span class="badge badge-blue">დღიური</span> }
+                    @if (r.additionalStanding) { <span class="badge badge-gray">დგომა {{ r.additionalStanding }}</span> }
+                    @if (r.dismantleAssemble) { <span class="badge badge-gray">დ/ა {{ r.dismantleAssemble }}</span> }
+                    @if (hasNote(r)) { <span class="badge badge-blue"><app-icon name="note" [size]="11" /> შენიშვნა</span> }
+                </span>
+                <app-icon name="chevron-right" class="chev" />
+            </div>
+        </button>
+    }
 </div>
 
-<ng-template #crossIcon><svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/></svg></ng-template>
-
-<app-record-details *ngIf="selectedRecord() as r" [record]="r" [showOperatorDetails]="canViewDetails()"
-    (closed)="closeRecord()">
-</app-record-details>
+@if (selectedRecord(); as r) {
+    <app-record-details [record]="r" [showOperatorDetails]="canViewDetails()" [canModify]="canModify(r)"
+        [busy]="isDeleting()" (closed)="closeRecord()" (edit)="editRecord(r)" (remove)="deleteRecord(r)">
+    </app-record-details>
+}

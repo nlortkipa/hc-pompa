@@ -1,94 +1,210 @@
 <div class="section-header">
     <div>
-        <div class="section-title">კომპანიები და მისამართები</div>
-        <p class="section-subtitle">კომპანიის არჩევის შემდეგ მართეთ მისი სამუშაო ლოკაციები.</p>
+        <h1 class="section-title">კომპანიები</h1>
+        <p class="section-subtitle">აირჩიეთ კომპანია და მართეთ მისი სამუშაო ლოკაციები.</p>
     </div>
-</div>
-
-<div class="card import-card">
-    <div class="import-copy">
-        <div class="card-title">Excel-იდან ავტომატური დამატება</div>
-        <p>პირველ სვეტში უნდა იყოს კომპანია, მეორეში — მისამართი. ატვირთვა მთლიანად ჩაანაცვლებს მიმდინარე კატალოგს.</p>
-    </div>
-
-    <div class="import-controls">
-        <label class="file-picker">
-            <input type="file" accept=".xlsx,.xlsm" (change)="onExcelSelected($event)">
-            <span>{{ selectedExcelFile()?.name || 'Excel ფაილის არჩევა' }}</span>
-        </label>
-        <button class="btn btn-primary" (click)="importExcel()" [disabled]="!selectedExcelFile() || isImporting()">
-            {{ isImporting() ? 'იტვირთება...' : 'კატალოგის ჩანაცვლება' }}
+    <div class="section-actions">
+        <button class="btn btn-secondary" (click)="openImport()">
+            <app-icon name="upload" /> Excel იმპორტი
+        </button>
+        <button class="btn btn-primary" (click)="newCompany()">
+            <app-icon name="plus" /> ახალი კომპანია
         </button>
     </div>
-
-    <div class="import-message success" *ngIf="importResult() as result">
-        კატალოგი ჩანაცვლდა: {{ result.createdCompanies + result.existingCompanies }} კომპანია,
-        {{ result.createdAddresses + result.existingAddresses }} მისამართი და
-        {{ result.uniquePairs }} კავშირი.
-        <span *ngIf="result.duplicateRowsSkipped">
-            გამოტოვებულია {{ result.duplicateRowsSkipped }} დუბლირებული სტრიქონი.
-        </span>
-    </div>
-    <div class="import-message error" *ngIf="importError() as error">{{ error }}</div>
 </div>
 
-<div class="management-grid">
-    <!-- Companies List -->
-    <div class="card list-card">
-        <div class="card-title">კომპანიები</div>
-        
-        <div class="form-inline mb-4">
-            <input type="text" [(ngModel)]="companyForm.name" (ngModelChange)="filterCompanies()" placeholder="კომპანიის სახელი" class="form-control">
-            <button class="btn btn-primary" (click)="saveCompany()" [disabled]="isLoading || !companyForm.name.trim()">
-                {{ isEditingCompany ? 'შეცვლა' : 'დამატება' }}
-            </button>
-            <button *ngIf="isEditingCompany" class="btn btn-secondary compact-btn" (click)="cancelCompanyEdit()">×</button>
+<div class="split" [class.has-selection]="selectedCompanyId() !== null">
+    <!-- Companies (source list) -->
+    <section class="card list-card pane pane--companies">
+        <div class="list-toolbar">
+            <label class="search-field">
+                <app-icon name="search" [size]="14" />
+                <input type="search" placeholder="კომპანიის ძებნა" [ngModel]="companySearch()"
+                    (ngModelChange)="companySearch.set($event)" aria-label="კომპანიის ძებნა">
+            </label>
+            <span class="pill">{{ filteredCompanies().length }}</span>
         </div>
 
-        <div class="item-list">
-            <div *ngFor="let c of filteredCompanies()" 
-                 class="item-row" 
-                 [class.active]="selectedCompanyId === c.id"
-                 (click)="selectCompany(c.id)">
-                <span class="item-name">{{c.name}}</span>
-                <div class="item-actions">
-                    <button class="icon-btn" title="შეცვლა" (click)="$event.stopPropagation(); editCompany(c)">✎</button>
-                    <button class="icon-btn text-danger" title="წაშლა" (click)="$event.stopPropagation(); deleteCompany(c.id)">×</button>
+        <div class="pane-scroll">
+            @for (c of filteredCompanies(); track c.id) {
+                <div class="list-row company-row" [class.active]="selectedCompanyId() === c.id" tabindex="0"
+                    (click)="selectCompany(c.id)" (keydown.enter)="selectCompany(c.id)">
+                    <span class="row-icon"><app-icon name="building" [size]="15" /></span>
+                    <div class="row-main"><strong>{{ c.name }}</strong></div>
+                    <div class="row-actions">
+                        <button class="icon-btn" title="სახელის შეცვლა" aria-label="სახელის შეცვლა"
+                            (click)="$event.stopPropagation(); editCompany(c)">
+                            <app-icon name="pencil" [size]="14" />
+                        </button>
+                        <button class="icon-btn danger" title="წაშლა" aria-label="წაშლა"
+                            (click)="$event.stopPropagation(); deleteCompany(c)">
+                            <app-icon name="trash" [size]="14" />
+                        </button>
+                    </div>
+                    <app-icon name="chevron-right" [size]="14" class="row-chevron" />
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Addresses List -->
-    <div class="card list-card" *ngIf="selectedCompanyId">
-        <div class="card-title">მისამართები (ლოკაციები)</div>
-        
-        <div class="form-inline mb-4">
-            <input type="text" [(ngModel)]="addressForm.name" (ngModelChange)="filterAddresses()" placeholder="მისამართი" class="form-control">
-            <button class="btn btn-primary" (click)="saveAddress()" [disabled]="isLoading || !addressForm.name.trim()">
-                {{ isEditingAddress ? 'შეცვლა' : 'დამატება' }}
-            </button>
-            <button *ngIf="isEditingAddress" class="btn btn-secondary compact-btn" (click)="cancelAddressEdit()">×</button>
-        </div>
-
-        <div class="item-list">
-            <div *ngFor="let a of filteredAddresses()" class="item-row no-hover">
-                <span class="item-name">{{a.name}}</span>
-                <div class="item-actions">
-                    <button class="icon-btn" title="შეცვლა" (click)="editAddress(a)">✎</button>
-                    <button class="icon-btn text-danger" title="წაშლა" (click)="deleteAddress(a.id)">×</button>
+            } @empty {
+                <div class="empty-state">
+                    <span class="empty-icon"><app-icon name="building" [size]="22" /></span>
+                    @if (companySearch()) {
+                        <strong>„{{ companySearch() }}“ ვერ მოიძებნა</strong>
+                        <button class="btn btn-sm btn-primary" (click)="newCompany()"><app-icon name="plus" [size]="13" /> დამატება</button>
+                    } @else {
+                        <strong>კომპანიები ჯერ არ არის</strong>
+                    }
                 </div>
-            </div>
-            <div *ngIf="filteredAddresses().length === 0" class="empty-msg">
-                მისამართები არ არის დამატებული
-            </div>
+            }
         </div>
-    </div>
+    </section>
 
-    <div class="card empty-card" *ngIf="!selectedCompanyId">
-        <div class="empty-state">
-            <span class="empty-icon">▦</span>
-            <p>აირჩიეთ კომპანია მისამართების სამართავად</p>
-        </div>
-    </div>
+    <!-- Addresses (detail) -->
+    <section class="card list-card pane pane--detail">
+        @if (selectedCompany(); as company) {
+            <header class="detail-header">
+                <button class="icon-btn back-btn" (click)="clearSelection()" aria-label="უკან">
+                    <app-icon name="chevron-left" [size]="18" />
+                </button>
+                <div class="detail-title">
+                    <small>მისამართები</small>
+                    <strong>{{ company.name }}</strong>
+                </div>
+                <button class="btn btn-sm btn-primary" (click)="newAddress()">
+                    <app-icon name="plus" [size]="13" /> მისამართი
+                </button>
+            </header>
+
+            <div class="list-toolbar">
+                <label class="search-field">
+                    <app-icon name="search" [size]="14" />
+                    <input type="search" placeholder="მისამართის ძებნა" [ngModel]="addressSearch()"
+                        (ngModelChange)="addressSearch.set($event)" aria-label="მისამართის ძებნა">
+                </label>
+                <span class="pill">{{ filteredAddresses().length }}</span>
+            </div>
+
+            <div class="pane-scroll">
+                @for (a of filteredAddresses(); track a.id) {
+                    <div class="list-row">
+                        <span class="row-icon row-icon--pin"><app-icon name="pin" [size]="15" /></span>
+                        <div class="row-main"><strong class="wrap">{{ a.name }}</strong></div>
+                        <div class="row-actions">
+                            <button class="icon-btn" title="რედაქტირება" aria-label="რედაქტირება" (click)="editAddress(a)">
+                                <app-icon name="pencil" [size]="14" />
+                            </button>
+                            <button class="icon-btn danger" title="წაშლა" aria-label="წაშლა" (click)="deleteAddress(a)">
+                                <app-icon name="trash" [size]="14" />
+                            </button>
+                        </div>
+                    </div>
+                } @empty {
+                    <div class="empty-state">
+                        <span class="empty-icon"><app-icon name="pin" [size]="22" /></span>
+                        <strong>{{ addressSearch() ? 'მისამართი ვერ მოიძებნა' : 'მისამართები არ არის დამატებული' }}</strong>
+                        <button class="btn btn-sm btn-secondary" (click)="newAddress()"><app-icon name="plus" [size]="13" /> დამატება</button>
+                    </div>
+                }
+            </div>
+        } @else {
+            <div class="empty-state placeholder">
+                <span class="empty-icon"><app-icon name="pin" [size]="24" /></span>
+                <strong>აირჩიეთ კომპანია</strong>
+                <span>მარცხნივ სიიდან აირჩიეთ კომპანია მისამართების სანახავად.</span>
+            </div>
+        }
+    </section>
 </div>
+
+<!-- Create / rename sheet -->
+@if (sheet; as s) {
+    <div class="sheet-backdrop" (click)="closeSheet()">
+        <form class="sheet sheet--sm" role="dialog" aria-modal="true" (click)="$event.stopPropagation()"
+            (ngSubmit)="saveSheet()" novalidate>
+            <header class="sheet-header">
+                <h2>
+                    @if (s.kind === 'company') { {{ s.id ? 'კომპანიის რედაქტირება' : 'ახალი კომპანია' }} }
+                    @else { {{ s.id ? 'მისამართის რედაქტირება' : 'ახალი მისამართი' }} }
+                </h2>
+                <button type="button" class="icon-btn" (click)="closeSheet()" aria-label="დახურვა">
+                    <app-icon name="xmark" [size]="15" [stroke]="2.2" />
+                </button>
+            </header>
+            <div class="sheet-body">
+                @if (s.kind === 'address') {
+                    <p class="sheet-context"><app-icon name="building" [size]="13" /> {{ selectedCompany()?.name }}</p>
+                }
+                <div class="form-group">
+                    <label for="sheet-name">{{ s.kind === 'company' ? 'კომპანიის სახელი' : 'მისამართი' }}</label>
+                    <input id="sheet-name" name="name" type="text" [(ngModel)]="s.name" autocomplete="off" autofocus
+                        [class.field-error]="sheetError" (ngModelChange)="sheetError = ''">
+                    @if (sheetError) { <div class="field-error-msg"><app-icon name="alert" [size]="13" /> {{ sheetError }}</div> }
+                </div>
+            </div>
+            <footer class="sheet-footer">
+                <button type="button" class="btn btn-secondary" (click)="closeSheet()">გაუქმება</button>
+                <button type="submit" class="btn btn-primary" [disabled]="isSaving || !s.name.trim()">
+                    @if (isSaving) { <span class="spinner"></span> }
+                    {{ s.id ? 'შენახვა' : 'დამატება' }}
+                </button>
+            </footer>
+        </form>
+    </div>
+}
+
+<!-- Excel import sheet -->
+@if (showImport) {
+    <div class="sheet-backdrop" (click)="closeImport()">
+        <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="import-title" (click)="$event.stopPropagation()">
+            <header class="sheet-header">
+                <h2 id="import-title">Excel-იდან იმპორტი</h2>
+                <button type="button" class="icon-btn" (click)="closeImport()" aria-label="დახურვა">
+                    <app-icon name="xmark" [size]="15" [stroke]="2.2" />
+                </button>
+            </header>
+            <div class="sheet-body">
+                <p class="import-help">
+                    პირველ სვეტში — <b>კომპანია</b>, მეორეში — <b>მისამართი</b>.
+                    ატვირთვა მთლიანად ჩაანაცვლებს მიმდინარე კატალოგს.
+                </p>
+
+                <label class="dropzone" [class.dragging]="isDragging" [class.has-file]="selectedExcelFile()"
+                    (dragover)="onDragOver($event)" (dragleave)="isDragging = false" (drop)="onDrop($event)">
+                    <input type="file" accept=".xlsx,.xlsm" (change)="onExcelSelected($event)">
+                    @if (selectedExcelFile(); as f) {
+                        <span class="file-badge"><app-icon name="table" [size]="22" /></span>
+                        <strong>{{ f.name }}</strong>
+                        <small>{{ formatSize(f.size) }} · დააჭირეთ შესაცვლელად</small>
+                    } @else {
+                        <span class="file-badge"><app-icon name="upload" [size]="22" /></span>
+                        <strong>ჩააგდეთ ფაილი აქ</strong>
+                        <small>ან დააჭირეთ ასარჩევად · .xlsx, .xlsm</small>
+                    }
+                </label>
+
+                @if (importResult(); as result) {
+                    <div class="import-message success">
+                        <app-icon name="check-circle" [size]="16" />
+                        <span>
+                            კატალოგი ჩანაცვლდა: {{ result.createdCompanies + result.existingCompanies }} კომპანია,
+                            {{ result.createdAddresses + result.existingAddresses }} მისამართი,
+                            {{ result.uniquePairs }} კავშირი.
+                            @if (result.duplicateRowsSkipped) {
+                                გამოტოვებულია {{ result.duplicateRowsSkipped }} დუბლირებული სტრიქონი.
+                            }
+                        </span>
+                    </div>
+                }
+                @if (importError(); as error) {
+                    <div class="import-message error"><app-icon name="alert" [size]="16" /> <span>{{ error }}</span></div>
+                }
+            </div>
+            <footer class="sheet-footer">
+                <button type="button" class="btn btn-secondary" (click)="closeImport()" [disabled]="isImporting()">
+                    {{ importResult() ? 'დახურვა' : 'გაუქმება' }}
+                </button>
+                <button type="button" class="btn btn-danger" (click)="importExcel()" [disabled]="!selectedExcelFile() || isImporting()">
+                    @if (isImporting()) { <span class="spinner"></span> იტვირთება... } @else { კატალოგის ჩანაცვლება }
+                </button>
+            </footer>
+        </div>
+    </div>
+}

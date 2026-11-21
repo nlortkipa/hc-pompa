@@ -73,6 +73,14 @@ namespace Service.Services
             return code.Code == model.Code;
         }
 
+        public async Task SendMessageAsync(string phoneNumber, string message)
+        {
+            if (_sendSms)
+                await SendSmsAsync(phoneNumber, message);
+            else
+                Console.WriteLine($"[SMS DEV] {phoneNumber} -> {message}");
+        }
+
         private async Task SendSmsAsync(string phoneNumber, string code)
         {
             if (string.IsNullOrWhiteSpace(_smsKey))

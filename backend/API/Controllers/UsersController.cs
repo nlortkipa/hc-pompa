@@ -11,7 +11,7 @@ namespace API.Controllers
     [Authorize(Roles = "Admin,Accountant")]
     [ApiController]
     [Route("api/[controller]")]
-    public class UsersController(IUserService userService) : ControllerBase
+    public class UsersController(IUserService userService, ISmsCodeService smsService, Microsoft.Extensions.Configuration.IConfiguration configuration) : ControllerBase
     {
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserDTO>>> GetAll()
@@ -90,6 +90,40 @@ namespace API.Controllers
             {
                 return BadRequest(ex.Message);
             }
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost("{id}/send-link")]
+        public async Task<ActionResult> SendLink(int id)
+        {
+            var user = await userService.GetByIdAsync(id);
+            if (user == null) return NotFound();
+            if (string.IsNullOrWhiteSpace(user.PhoneNumber)) return BadRequest("მომხმარებელს ტელეფონი არ აქვს.");
+
+            var siteUrl = GetSiteUrl();
+            if (siteUrl == null) return BadRequest("საიტის მისამართი ვერ განისაზღვრა.");
+
+            try
+            {
+                await smsService.SendMessageAsync(user.PhoneNumber, $"პომპის საიტის ბმული: {siteUrl}");
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(502, ex.Message);
+            }
+        }
+
+        private string? GetSiteUrl()
+        {
+            var configuredUrl = configuration["SiteUrl"];
+            if (!string.IsNullOrWhiteSpace(configuredUrl)) return configuredUrl.TrimEnd('/');
+
+            var productionHost = Environment.GetEnvironmentVariable("VERCEL_PROJECT_PRODUCTION_URL");
+            if (!string.IsNullOrWhiteSpace(productionHost)) return $"https://{productionHost.TrimEnd('/')}";
+
+            var origin = Request.Headers.Origin.ToString();
+            return string.IsNullOrWhiteSpace(origin) ? null : origin.TrimEnd('/');
         }
 
         private int? GetCurrentUserId()

@@ -10,6 +10,12 @@ namespace Dal.Interfaces
     {
         Task<PumpOperationReviewRequest?> GetByTokenAsync(string token);
         Task<IEnumerable<PumpOperationReviewRequest>> GetByPumpOperationIdAsync(int pumpOperationId);
-        Task<bool> TrySetFirstDecisionAsync(int pumpOperationId, string decision, string checkerEmail, DateTime reviewedAt);
+        Task<IEnumerable<PumpOperationReviewRequest>> GetByCheckerUserIdAsync(int checkerUserId);
+        /// <summary>
+        /// Sets the decision if the operation is still pending and the token still belongs to it.
+        /// When <paramref name="expected"/> is given, it also requires the editable fields to still
+        /// equal that snapshot, so a decision never applies to data the checker did not see.
+        /// </summary>
+        Task<bool> TrySetFirstDecisionAsync(int pumpOperationId, string token, string decision, string reviewerLabel, DateTime reviewedAt, PumpOperation? expected = null);
     }
 }

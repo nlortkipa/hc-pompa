@@ -1,7 +1,8 @@
-import { Component, NgZone, OnInit, ChangeDetectorRef, effect, signal, computed } from '@angular/core';
+import { Component, DestroyRef, ElementRef, inject, HostListener, NgZone, OnInit, ChangeDetectorRef, effect, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
+import { forkJoin } from 'rxjs';
 import { CompanyModel } from '../../../models/company-model';
 import { AddressModel } from '../../../models/address-model';
 import { CompanyService } from '../../../services/company-service';
@@ -10,7 +11,10 @@ import { PumpOperationService } from '../../../services/pump-operation-service';
 import { PumpOperationModel } from '../../../models/pump-operation';
 import { Plate } from '../../../models/plate-model';
 import { ProfileService } from '../../../services/profile-service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Icon } from '../../icon/icon';
+import { UiService } from '../../../services/ui.service';
 
 interface Operator { id: number; name: string; phone: string; active: boolean; }
 interface Pump { id: number; plate: string; type: string; }
@@ -29,6 +33,7 @@ interface WizardState {
   pumpPlate: string; pumpType: string;
   concreteVolume: number | null;
   additionalStanding: number | null; isIdle: boolean; dismantleAssemble: number | null;
+  isDaily: boolean;
   note: string;
 }
 
@@ -49,7 +54,7 @@ type DropdownName = 'company' | 'address' | 'plate';
 @Component({
   selector: 'app-pompa-wizard',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, Icon],
   templateUrl: './new.html',
   styleUrls: ['./new.scss'],
 })
@@ -102,7 +107,11 @@ export class New implements OnInit {
 
   wiz: WizardState = this.defaultWiz();
   isLoading = false;
+  /** Id of the pending operation being edited (from ?edit=), or null when creating. */
+  editId = signal<number | null>(null);
+  isLoadingRecord = signal(false);
   readonly NOTE_MAX_LENGTH = 500;
+  private destroyRef = inject(DestroyRef);
 
   readonly opItems: OpItem[] = [
     { key: 'additionalStanding', label: 'დამატებითი დგომა', unit: 'ცალი' },
@@ -112,8 +121,8 @@ export class New implements OnInit {
   /* ── INLINE ERRORS ── */
   errors: Record<string, string> = {};
 
-  toast = { msg: '', visible: false };
-  private toastTimer: any;
+  readonly concretePresets = [5, 7, 9, 10, 12];
+  private readonly finePointer = typeof window !== 'undefined' && window.matchMedia?.('(pointer: fine)').matches;
 
   constructor(
     public companyService: CompanyService,
@@ -121,8 +130,11 @@ export class New implements OnInit {
     private pumpOperationService: PumpOperationService,
     private profileService: ProfileService,
     private router: Router,
+    private route: ActivatedRoute,
     private zone: NgZone,
     private cdr: ChangeDetectorRef,
+    private ui: UiService,
+    private host: ElementRef<HTMLElement>,
   ) {
     effect(() => {
       const profile = this.profileService.profile();
@@ -134,22 +146,157 @@ export class New implements OnInit {
 
   ngOnInit(): void {
     this.resetWizard();
+    this.focusStep();
+
+    // Query-param subscription (not a snapshot) so switching between edit and the plain
+    // "new" link re-initialises the wizard even though the component is reused.
+    this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
+      const editId = Number(params.get('edit'));
+      if (Number.isInteger(editId) && editId > 0) {
+        this.startEdit(editId);
+      } else {
+        this.editId.set(null);
+        this.resetWizard();
+        this.loadPlates();
+      }
+    });
+  }
+
+  private loadPlates(): void {
     this.plateService.getPlates().subscribe(res => {
       this.plates.set(res);
     });
   }
 
+  private startEdit(id: number): void {
+    this.editId.set(id);
+    this.resetWizard();
+    this.isLoadingRecord.set(true);
+
+    forkJoin({ record: this.pumpOperationService.getById(id), plates: this.plateService.getPlates() })
+      .pipe(finalize(() => {
+        this.isLoadingRecord.set(false);
+        this.cdr.detectChanges();
+      }))
+      .subscribe({
+        next: ({ record, plates }) => {
+          this.plates.set(plates);
+          if ((record.reviewStatus || 'Pending') !== 'Pending') {
+            this.ui.toast('შემოწმებული ჩანაწერის რედაქტირება შეუძლებელია', 'error');
+            this.router.navigate(['/console/history']);
+            return;
+          }
+          this.prefill(record);
+        },
+        error: (err) => {
+          console.error('ჩანაწერის ჩატვირთვა ვერ მოხერხდა:', err);
+          this.ui.toast('ჩანაწერის ჩატვირთვა ვერ მოხერხდა', 'error');
+          this.router.navigate(['/console/history']);
+        }
+      });
+  }
+
+  private prefill(record: PumpOperationModel): void {
+    const plate = this.plates().find(p => p.number.toLowerCase() === record.plateNumber.toLowerCase());
+    // 0 means "not entered" in the wizard, which uses null for empty quantity inputs.
+    const qty = (value: number | null | undefined) => (value ? value : null);
+
+    this.wiz = {
+      ...this.defaultWiz(),
+      // Go straight to the summary; the user steps back to whatever they want to change.
+      step: 7,
+      date: String(record.date).slice(0, 10),
+      companyId: record.companyId,
+      addressId: record.addressId,
+      pumpId: plate?.id ?? null,
+      pumpPlate: plate?.number ?? record.plateNumber,
+      pumpType: plate?.type ?? record.pumpType,
+      isIdle: record.isIdle,
+      isDaily: record.isDaily,
+      concreteVolume: record.isIdle ? null : record.concreteVolume,
+      additionalStanding: qty(record.additionalStanding),
+      dismantleAssemble: qty(record.dismantleAssemble),
+      note: record.note ?? '',
+    };
+    this.companyService.getAddresses(record.companyId);
+  }
+
+  cancelEdit(): void {
+    this.router.navigate(['/console/history']);
+  }
+
   private defaultWiz(): WizardState {
     return {
       step: 0,
-      date: new Date().toISOString().split('T')[0],
+      date: this.toLocalIsoDate(new Date()),
       companyId: null, addressId: null,
       pumpId: null,
       pumpPlate: '', pumpType: '',
       concreteVolume: null,
       additionalStanding: null, isIdle: false, dismantleAssemble: null,
+      isDaily: false,
       note: '',
     };
+  }
+
+  /** YYYY-MM-DD in the user's local timezone (toISOString() would use UTC). */
+  private toLocalIsoDate(d: Date): string {
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
+
+  private parseLocalDate(value: string): Date {
+    const [y, m, d] = value.split('-').map(Number);
+    return new Date(y, m - 1, d);
+  }
+
+  get todayIso(): string {
+    return this.toLocalIsoDate(new Date());
+  }
+
+  get monthStartIso(): string {
+    const d = new Date();
+    return this.toLocalIsoDate(new Date(d.getFullYear(), d.getMonth(), 1));
+  }
+
+  get formattedDate(): string {
+    if (!this.wiz.date) return '';
+    const d = this.parseLocalDate(this.wiz.date);
+    const months = ['იანვარი', 'თებერვალი', 'მარტი', 'აპრილი', 'მაისი', 'ივნისი',
+      'ივლისი', 'აგვისტო', 'სექტემბერი', 'ოქტომბერი', 'ნოემბერი', 'დეკემბერი'];
+    return `${d.getDate()} ${months[d.getMonth()]}, ${d.getFullYear()}`;
+  }
+
+  /** Enter advances the wizard (except inside the note field). */
+  @HostListener('keydown.enter', ['$event'])
+  onEnter(event: Event): void {
+    const target = event.target as HTMLElement;
+    if (target.tagName === 'TEXTAREA' || target.tagName === 'BUTTON') return;
+    if (target.classList.contains('dropdown-search')) {
+      event.preventDefault();
+      this.pickFirstMatch();
+      return;
+    }
+    event.preventDefault();
+    if (this.isLastStep) this.wizSubmit();
+    else this.wizNext();
+  }
+
+  private pickFirstMatch(): void {
+    const step = this.wiz.step;
+    if (step === 1 && this.filteredCompanies()[0]) this.selectCompany(this.filteredCompanies()[0].id);
+    else if (step === 2 && this.filteredAddresses[0]) this.selectAddress(this.filteredAddresses[0].id);
+    else if (step === 3 && this.filteredPlates()[0]) this.selectPlate(this.filteredPlates()[0].number);
+  }
+
+  /** On desktop, put the caret in the first field of the new step. */
+  private focusStep(): void {
+    if (!this.finePointer) return;
+    setTimeout(() => {
+      const el = this.host.nativeElement.querySelector<HTMLElement>(
+        '.wizard-content input:not([type=checkbox]), .wizard-content .dropdown-trigger, .wizard-content textarea'
+      );
+      el?.focus();
+    });
   }
 
   resetWizard(): void {
@@ -182,6 +329,25 @@ export class New implements OnInit {
 
   get currentStepLabel(): string {
     return this.ALL_STEPS.find(step => step.id === this.wiz.step)?.label ?? '';
+  }
+
+  private readonly STEP_TITLES: Record<number, string> = {
+    0: 'როდის შესრულდა ოპერაცია?',
+    1: 'აირჩიეთ კომპანია',
+    2: 'აირჩიეთ მისამართი',
+    3: 'აირჩიეთ პომპა',
+    4: 'იყო მოცდენა?',
+    5: 'ბეტონის მოცულობა',
+    6: 'დამატებითი ოპერაციები',
+    7: 'გადახედეთ და შეინახეთ',
+  };
+
+  get stepTitle(): string {
+    return this.STEP_TITLES[this.wiz.step] ?? this.currentStepLabel;
+  }
+
+  stepOp(key: OpItem['key'], delta: number): void {
+    this.wiz[key] = Math.max(0, (this.wiz[key] ?? 0) + delta) || null;
   }
 
   get isLastStep(): boolean {
@@ -228,6 +394,7 @@ export class New implements OnInit {
 
   openDropdown(name: DropdownName): void {
     this.openPicker.set(name);
+    setTimeout(() => this.host.nativeElement.querySelector<HTMLElement>('.dropdown-search')?.focus());
   }
 
   closeDropdown(): void {
@@ -242,8 +409,8 @@ export class New implements OnInit {
     const plate = this.plates().find(p => p.number === this.wiz.pumpPlate);
     this.wiz.pumpId = plate?.id ?? null;
     this.wiz.pumpType = plate?.type ?? '';
-    if (plate?.isStationary) {
-      this.wiz.additionalStanding = null;
+    if (plate && !plate.isStationary) {
+      this.wiz.dismantleAssemble = null;
     }
     this.plateSearch.set('');
     this.clearError('pumpPlate');
@@ -255,8 +422,8 @@ export class New implements OnInit {
 
   get visibleOpItems(): OpItem[] {
     return this.selectedPlate?.isStationary
-      ? this.opItems.filter(op => op.key === 'dismantleAssemble')
-      : this.opItems;
+      ? this.opItems
+      : this.opItems.filter(op => op.key === 'additionalStanding');
   }
 
   onIdleChange(): void {
@@ -281,10 +448,10 @@ export class New implements OnInit {
   get reviewOps(): { label: string; val: number | string; unit: string }[] {
     const operations: { label: string; val: number | string; unit: string }[] = [];
 
-    if (!this.selectedPlate?.isStationary && (this.wiz.additionalStanding ?? 0) > 0) {
+    if ((this.wiz.additionalStanding ?? 0) > 0) {
       operations.push({ label: 'დამატებითი დგომა', val: this.wiz.additionalStanding!, unit: 'ცალი' });
     }
-    if ((this.wiz.dismantleAssemble ?? 0) > 0) {
+    if (this.selectedPlate?.isStationary && (this.wiz.dismantleAssemble ?? 0) > 0) {
       operations.push({ label: 'დაშლა და აწყობა', val: this.wiz.dismantleAssemble!, unit: 'ცალი' });
     }
 
@@ -321,7 +488,7 @@ export class New implements OnInit {
       if (!this.wiz.date) {
         this.errors['date'] = 'თარიღი სავალდებულოა';
       } else {
-        const selected = new Date(this.wiz.date);
+        const selected = this.parseLocalDate(this.wiz.date);
         const today = new Date();
         if (selected > today) {
           this.errors['date'] = 'თარიღი არ შეიძლება იყოს მომავალში';
@@ -361,6 +528,7 @@ export class New implements OnInit {
     const nextStep = this.steps[this.currentStepPosition + 1];
     if (nextStep) {
       this.wiz.step = nextStep.id;
+      this.focusStep();
     }
   }
 
@@ -370,6 +538,7 @@ export class New implements OnInit {
     const previousStep = this.steps[this.currentStepPosition - 1];
     if (previousStep) {
       this.wiz.step = previousStep.id;
+      this.focusStep();
     }
   }
 
@@ -391,12 +560,18 @@ export class New implements OnInit {
       additionalStanding: this.wiz.additionalStanding ?? 0,
       dismantleAssemble: this.wiz.dismantleAssemble ?? 0,
       isIdle: this.wiz.isIdle,
+      isDaily: this.wiz.isDaily,
       plateNumber: this.wiz.pumpPlate,
       pumpType: this.wiz.pumpType,
       note: this.wiz.note.trim() || null
     };
 
-    this.pumpOperationService.create(model)
+    const editId = this.editId();
+    const request$ = editId === null
+      ? this.pumpOperationService.create(model)
+      : this.pumpOperationService.update(editId, model);
+
+    request$
       .pipe(finalize(() => {
         this.isLoading = false;
         this.cdr.detectChanges();
@@ -404,22 +579,28 @@ export class New implements OnInit {
       .subscribe({
         next: (res: any) => {
           this.zone.run(() => {
-            this.showToast('✔ ჩანაწერი შენახულია!');
-            setTimeout(() => this.resetWizard(), 900);
+            if (editId !== null) {
+              this.ui.toast('ცვლილებები შენახულია');
+              this.router.navigate(['/console/history']);
+              return;
+            }
+            this.ui.toast('ჩანაწერი შენახულია');
+            this.resetWizard();
+            this.focusStep();
           });
         },
         error: (err: any) => {
           this.zone.run(() => {
             console.error('ოპერაციის შენახვა ვერ მოხერხდა:', err);
-            this.showToast('❌ შენახვა ვერ მოხერხდა');
+            if (editId !== null && (err?.status === 409 || err?.status === 404)) {
+              this.ui.toast('ჩანაწერი უკვე შემოწმებულია ან წაშლილია', 'error');
+              this.router.navigate(['/console/history']);
+              return;
+            }
+            this.ui.toast('შენახვა ვერ მოხერხდა. სცადეთ თავიდან.', 'error');
           });
         }
       });
   }
 
-  showToast(msg: string): void {
-    clearTimeout(this.toastTimer);
-    this.toast = { msg, visible: true };
-    this.toastTimer = setTimeout(() => (this.toast.visible = false), 2800);
-  }
 }

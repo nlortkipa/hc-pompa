@@ -1,79 +1,146 @@
 <div class="section-header">
     <div>
-        <div class="section-title">სანომრე ნიშნები</div>
-        <p class="section-subtitle">თითოეულ ნომერს მიაბით შემმოწმებლის ელფოსტა, რომ ოპერაციის დადასტურების ბმული სწორ მისამართზე წავიდეს.</p>
+        <h1 class="section-title">პომპები</h1>
+        <p class="section-subtitle">სანომრე ნიშნები და შემმოწმებლები — რეპორტი შემმოწმებელს საიტზე გამოუჩნდება, ელფოსტის ქონის შემთხვევაში ბმულიც გაეგზავნება.</p>
+    </div>
+    <div class="section-actions">
+        <button class="btn btn-primary" (click)="openCreate()">
+            <app-icon name="plus" /> ახალი პომპა
+        </button>
     </div>
 </div>
 
-<div class="management-grid single-col">
-    <div class="card list-card">
-        <div class="form-inline mb-4">
-            <div class="form-group compact-group number-group">
-                <label>ნომერი</label>
-                <input type="text" [(ngModel)]="plateForm.number" placeholder="სანომრე ნიშანი" class="form-control"
-                    [class.field-error]="errors['number']">
-                <div class="field-error-msg" *ngIf="errors['number']">{{errors['number']}}</div>
-            </div>
-            <div class="form-group compact-group type-group">
-                <label>პომპის ტიპი</label>
-                <input type="text" [(ngModel)]="plateForm.type" placeholder="პომპის ტიპი"
-                    class="form-control" [class.field-error]="errors['type']">
-                <div class="field-error-msg" *ngIf="errors['type']">{{errors['type']}}</div>
-            </div>
-            <div class="form-group compact-group stationary-group">
-                <label>სტაციონარი</label>
-                <label class="stationary-control" title="სტაციონარი">
-                    <input type="checkbox" [(ngModel)]="plateForm.isStationary" aria-label="სტაციონარი">
-                </label>
-            </div>
-            <div class="form-group compact-group checker-emails-group">
-                <label>შემმოწმებლების ელფოსტები</label>
-                <div class="checker-email-row"
-                    *ngFor="let email of plateForm.checkerEmails; let i = index; trackBy: trackCheckerEmail">
-                    <input type="email" [(ngModel)]="plateForm.checkerEmails[i]" placeholder="ელფოსტა"
-                        class="form-control" [class.field-error]="errors['checkerEmails']">
-                    <button type="button" class="icon-btn remove-email" title="ელფოსტის წაშლა"
-                        (click)="removeCheckerEmail(i)">×</button>
-                </div>
-                <button type="button" class="add-email-btn" [disabled]="!canAddCheckerEmail"
-                    [attr.title]="canAddCheckerEmail ? null : 'ჯერ შეავსეთ სწორი ელფოსტა'"
-                    (click)="addCheckerEmail()">+ ელფოსტის დამატება</button>
-                <div class="field-error-msg" *ngIf="errors['checkerEmails']">{{errors['checkerEmails']}}</div>
-            </div>
-            <div class="form-group compact-group action-group">
-                <label>მოქმედება</label>
-                <div class="form-actions">
-                    <button class="btn btn-primary" (click)="savePlate()" [disabled]="isLoading">
-                        {{ isEditing ? 'განახლება' : 'დამატება' }}
-                    </button>
-                    <button *ngIf="isEditing" class="btn btn-secondary compact-btn" title="გაუქმება"
-                        (click)="cancelEdit()">×</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="list-toolbar">
+<section class="card list-card plates-card">
+    <div class="list-toolbar">
+        <label class="search-field">
+            <app-icon name="search" [size]="14" />
             <input type="search" [ngModel]="plateSearch()" (ngModelChange)="plateSearch.set($event); filterPlates()"
-                placeholder="ძებნა ნომრით, ტიპით ან ელფოსტით">
-            <span class="pill">{{ filteredPlates().length }} ნომერი</span>
-        </div>
-
-        <div class="item-list">
-            <div *ngFor="let p of filteredPlates()" class="item-row no-hover">
-                <div class="plate-info">
-                    <span class="item-name">{{p.number}}</span>
-                    <span class="pump-type">ტიპი: {{p.type || 'არ არის მითითებული'}}</span>
-                    <span *ngIf="p.isStationary" class="stationary-badge">სტაციონარი</span>
-                    <span class="checker-gmail">{{p.checkerEmails.length ? p.checkerEmails.join(', ') : 'ელფოსტა არ არის მითითებული'}}</span>
-                </div>
-                <div class="item-actions">
-                    <button class="icon-btn" title="შეცვლა" (click)="editPlate(p)">✎</button>
-                    <button class="icon-btn text-danger" title="წაშლა" (click)="deletePlate(p.id)">×</button>
-                </div>
-            </div>
-            <div *ngIf="filteredPlates().length === 0" class="empty-msg">
-                ნომერი ვერ მოიძებნა
-            </div>
-        </div>
+                placeholder="ნომერი, ტიპი ან შემმოწმებელი" aria-label="ძებნა">
+        </label>
+        <span class="toolbar-spacer"></span>
+        <span class="pill">{{ filteredPlates().length }} პომპა</span>
     </div>
-</div>
+
+    @for (p of filteredPlates(); track p.id) {
+        <div class="list-row plate-row">
+            <span class="plate-icon" [class.stationary]="p.isStationary"><app-icon name="truck" [size]="16" /></span>
+            <div class="row-main">
+                <div class="plate-line">
+                    <strong class="mono plate-number">{{ p.number }}</strong>
+                    @if (p.type) { <span class="badge badge-gray">{{ p.type }}</span> }
+                    @if (p.isStationary) { <span class="badge badge-blue">სტაციონარი</span> }
+                </div>
+                <small class="emails" [class.missing]="!p.checkers.length" [title]="checkerNames(p)">
+                    <app-icon name="people" [size]="12" />
+                    {{ p.checkers.length ? checkerNames(p) : 'შემმოწმებელი არ არის მითითებული' }}
+                </small>
+            </div>
+            <div class="row-actions">
+                <button class="icon-btn" title="რედაქტირება" aria-label="რედაქტირება" (click)="editPlate(p)">
+                    <app-icon name="pencil" [size]="15" />
+                </button>
+                <button class="icon-btn danger" title="წაშლა" aria-label="წაშლა" (click)="deletePlate(p)">
+                    <app-icon name="trash" [size]="15" />
+                </button>
+            </div>
+        </div>
+    } @empty {
+        @if (isLoading && !hasLoaded) {
+            <div class="loading-row"><span class="spinner"></span> იტვირთება...</div>
+        } @else {
+            <div class="empty-state">
+                <span class="empty-icon"><app-icon name="truck" [size]="24" /></span>
+                <strong>{{ plates().length ? 'პომპა ვერ მოიძებნა' : 'პომპები ჯერ არ არის' }}</strong>
+                @if (!plates().length) {
+                    <button class="btn btn-primary btn-sm" (click)="openCreate()"><app-icon name="plus" [size]="13" /> დამატება</button>
+                }
+            </div>
+        }
+    }
+</section>
+
+@if (showForm) {
+    <div class="sheet-backdrop" (click)="cancelEdit()">
+        <form class="sheet" role="dialog" aria-modal="true" aria-labelledby="plate-sheet-title"
+            (click)="$event.stopPropagation()" (ngSubmit)="savePlate()" novalidate>
+            <header class="sheet-header">
+                <h2 id="plate-sheet-title">{{ isEditing ? 'პომპის რედაქტირება' : 'ახალი პომპა' }}</h2>
+                <button type="button" class="icon-btn" (click)="cancelEdit()" aria-label="დახურვა">
+                    <app-icon name="xmark" [size]="15" [stroke]="2.2" />
+                </button>
+            </header>
+
+            <div class="sheet-body">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="p-number">სანომრე ნიშანი</label>
+                        <input id="p-number" name="number" type="text" class="mono" [(ngModel)]="plateForm.number"
+                            placeholder="AA-123-BB" autocomplete="off" autofocus [class.field-error]="errors['number']">
+                        @if (errors['number']) { <div class="field-error-msg">{{ errors['number'] }}</div> }
+                    </div>
+                    <div class="form-group">
+                        <label for="p-type">პომპის ტიპი</label>
+                        <input id="p-type" name="type" type="text" [(ngModel)]="plateForm.type" placeholder="მაგ: 42მ"
+                            autocomplete="off" [class.field-error]="errors['type']">
+                        @if (errors['type']) { <div class="field-error-msg">{{ errors['type'] }}</div> }
+                    </div>
+                </div>
+
+                <label class="toggle-row">
+                    <span>
+                        <strong>სტაციონარი</strong>
+                        <small>სტაციონარულ პომპაზე „დამატებითი დგომა“ არ ითვლება.</small>
+                    </span>
+                    <span class="switch">
+                        <input type="checkbox" name="isStationary" [(ngModel)]="plateForm.isStationary" aria-label="სტაციონარი">
+                        <span class="switch-track"></span>
+                    </span>
+                </label>
+
+                <div class="form-group emails-group">
+                    <label>შემმოწმებლები</label>
+                    @if (plateForm.checkerUserIds.length) {
+                        <div class="email-list" [class.field-error]="errors['checkers']">
+                            @for (userId of plateForm.checkerUserIds; track userId) {
+                                <div class="email-row checker-row">
+                                    <app-icon name="people" [size]="14" />
+                                    @if (checkerUser(userId); as u) {
+                                        <span class="checker-copy">
+                                            <strong>{{ fullName(u) }}</strong>
+                                            @if (u.email) {
+                                                <small>{{ u.email }}</small>
+                                            } @else {
+                                                <small class="missing">ელფოსტა არ აქვს — მხოლოდ საიტზე ნახავს</small>
+                                            }
+                                        </span>
+                                    } @else {
+                                        <span class="checker-copy"><strong>#{{ userId }}</strong></span>
+                                    }
+                                    <button type="button" class="icon-btn danger" title="წაშლა" aria-label="შემმოწმებლის წაშლა"
+                                        (click)="removeChecker(userId)">
+                                        <app-icon name="xmark" [size]="13" [stroke]="2.2" />
+                                    </button>
+                                </div>
+                            }
+                        </div>
+                    }
+                    <div class="add-checker" [class.field-error]="errors['checkers'] && !plateForm.checkerUserIds.length">
+                        <app-searchable-select [options]="checkerOptions" [value]="null" [query]="checkerQuery"
+                            [showAll]="false" [floating]="true"
+                            [placeholder]="checkerOptions.length ? 'მოძებნეთ და დაამატეთ შემმოწმებელი' : 'ყველა მომხმარებელი დამატებულია'"
+                            (queryChange)="checkerQuery = $event" (valueChange)="onCheckerPicked($event)" />
+                    </div>
+                    @if (errors['checkers']) { <div class="field-error-msg">{{ errors['checkers'] }}</div> }
+                </div>
+            </div>
+
+            <footer class="sheet-footer">
+                <button type="button" class="btn btn-secondary" (click)="cancelEdit()">გაუქმება</button>
+                <button type="submit" class="btn btn-primary" [disabled]="isSaving">
+                    @if (isSaving) { <span class="spinner"></span> }
+                    {{ isEditing ? 'შენახვა' : 'დამატება' }}
+                </button>
+            </footer>
+        </form>
+    </div>
+}

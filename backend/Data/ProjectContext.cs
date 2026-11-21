@@ -18,7 +18,7 @@ namespace Data
         public DbSet<CompanyAddress> CompanyAddresses { get; set; }
         public DbSet<PumpOperation> PumpOperations { get; set; }
         public DbSet<Plate> Plates { get; set; }
-        public DbSet<PlateCheckerEmail> PlateCheckerEmails { get; set; }
+        public DbSet<PlateChecker> PlateCheckers { get; set; }
         public DbSet<PumpOperationReviewRequest> PumpOperationReviewRequests { get; set; }
 
         public ProjectContext()
@@ -42,7 +42,7 @@ namespace Data
             modelBuilder.ApplyConfiguration(new CompanyAddressConfiguration());
             modelBuilder.ApplyConfiguration(new PumpOperationConfiguration());
             modelBuilder.ApplyConfiguration(new PlateConfiguration());
-            modelBuilder.ApplyConfiguration(new PlateCheckerEmailConfiguration());
+            modelBuilder.ApplyConfiguration(new PlateCheckerConfiguration());
             modelBuilder.ApplyConfiguration(new PumpOperationReviewRequestConfiguration());
 
             // seeding

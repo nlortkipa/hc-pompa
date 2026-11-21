@@ -191,7 +191,7 @@ namespace Data.PostgresMigrations.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Data.Entities.PlateCheckerEmail", b =>
+            modelBuilder.Entity("Data.Entities.PlateChecker", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -199,20 +199,20 @@ namespace Data.PostgresMigrations.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(120)
-                        .HasColumnType("character varying(120)");
-
                     b.Property<int>("PlateId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PlateId", "Email")
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("PlateId", "UserId")
                         .IsUnique();
 
-                    b.ToTable("PlateCheckerEmails", (string)null);
+                    b.ToTable("PlateCheckers", (string)null);
                 });
 
             modelBuilder.Entity("Data.Entities.PumpOperation", b =>
@@ -244,6 +244,9 @@ namespace Data.PostgresMigrations.Migrations
                     b.Property<string>("DistanceRange")
                         .HasMaxLength(10)
                         .HasColumnType("character varying(10)");
+
+                    b.Property<bool>("IsDaily")
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsIdle")
                         .HasColumnType("boolean");
@@ -297,9 +300,11 @@ namespace Data.PostgresMigrations.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CheckerGmail")
-                        .IsRequired()
                         .HasMaxLength(120)
                         .HasColumnType("character varying(120)");
+
+                    b.Property<int?>("CheckerUserId")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -321,6 +326,8 @@ namespace Data.PostgresMigrations.Migrations
                         .HasColumnType("character varying(64)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CheckerUserId");
 
                     b.HasIndex("PumpOperationId");
 
@@ -370,6 +377,10 @@ namespace Data.PostgresMigrations.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
@@ -640,15 +651,23 @@ namespace Data.PostgresMigrations.Migrations
                     b.Navigation("Company");
                 });
 
-            modelBuilder.Entity("Data.Entities.PlateCheckerEmail", b =>
+            modelBuilder.Entity("Data.Entities.PlateChecker", b =>
                 {
                     b.HasOne("Data.Entities.Plate", "Plate")
-                        .WithMany("CheckerEmails")
+                        .WithMany("Checkers")
                         .HasForeignKey("PlateId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Data.Entities.User", "User")
+                        .WithMany("CheckedPlates")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Plate");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Data.Entities.PumpOperation", b =>
@@ -680,11 +699,18 @@ namespace Data.PostgresMigrations.Migrations
 
             modelBuilder.Entity("Data.Entities.PumpOperationReviewRequest", b =>
                 {
+                    b.HasOne("Data.Entities.User", "CheckerUser")
+                        .WithMany("ReviewRequests")
+                        .HasForeignKey("CheckerUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("Data.Entities.PumpOperation", "PumpOperation")
                         .WithMany("ReviewRequests")
                         .HasForeignKey("PumpOperationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("CheckerUser");
 
                     b.Navigation("PumpOperation");
                 });
@@ -716,7 +742,7 @@ namespace Data.PostgresMigrations.Migrations
 
             modelBuilder.Entity("Data.Entities.Plate", b =>
                 {
-                    b.Navigation("CheckerEmails");
+                    b.Navigation("Checkers");
                 });
 
             modelBuilder.Entity("Data.Entities.PumpOperation", b =>
@@ -726,7 +752,11 @@ namespace Data.PostgresMigrations.Migrations
 
             modelBuilder.Entity("Data.Entities.User", b =>
                 {
+                    b.Navigation("CheckedPlates");
+
                     b.Navigation("PumpOperations");
+
+                    b.Navigation("ReviewRequests");
 
                     b.Navigation("SmsCodes");
                 });

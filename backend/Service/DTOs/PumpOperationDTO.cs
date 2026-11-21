@@ -18,6 +18,7 @@ namespace Service.DTOs
         public decimal ConcreteVolume { get; set; }
         public int AdditionalStanding { get; set; }
         public bool IsIdle { get; set; }
+        public bool IsDaily { get; set; }
         public int DismantleAssemble { get; set; }
         public string PlateNumber { get; set; } = null!;
         public string PumpType { get; set; } = null!;
@@ -36,8 +37,16 @@ namespace Service.DTOs
         public decimal ConcreteVolume { get; set; }
         public int AdditionalStanding { get; set; }
         public bool IsIdle { get; set; }
+        public bool IsDaily { get; set; }
         public int DismantleAssemble { get; set; }
         public string PlateNumber { get; set; } = null!;
         public string? Note { get; set; }
+    }
+
+    public class PumpOperationUpdateResult
+    {
+        public PumpOperationDto Operation { get; set; } = null!;
+        /// <summary>Requests created for checkers that were not on the operation before (e.g. plate changed).</summary>
+        public List<PumpOperationReviewRequestLinkDto> AddedReviewRequests { get; set; } = new();
     }
 }

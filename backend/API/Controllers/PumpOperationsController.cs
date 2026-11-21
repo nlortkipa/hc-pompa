@@ -48,6 +48,7 @@ namespace API.Controllers
             "დამატებითი დგომა",
             "დაშლა/აწყობა",
             "მოცდენა",
+            "დღიური",
             "შენიშვნა"
         ];
 
@@ -73,13 +74,83 @@ namespace API.Controllers
                 return BadRequest(ex.Message);
             }
 
-            var reviewRequests = await service.GetReviewRequestsForOperationAsync(result.Id);
+            await SendReviewRequestEmailsAsync(result, await service.GetReviewRequestsForOperationAsync(result.Id));
+
+            return Ok(result);
+        }
+
+        /// <summary>Edits the caller's own operation while it is still pending. Checkers get fresh review links.</summary>
+        [Authorize(Roles = "Admin,User")]
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult<PumpOperationDto>> Update(int id, CreatePumpOperationDto dto)
+        {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!int.TryParse(userIdStr, out var userId))
+            {
+                return Unauthorized();
+            }
+
+            PumpOperationUpdateResult? result;
+            try
+            {
+                result = await service.UpdateAsync(id, dto, userId);
+            }
+            catch (Service.Exceptions.ConflictException ex)
+            {
+                return Conflict(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+            if (result == null) return NotFound();
+
+            // Existing checkers keep their link and see the edit live; only checkers newly
+            // added by a plate change need an email.
+            await SendReviewRequestEmailsAsync(result.Operation, result.AddedReviewRequests, warnIfNoChecker: false);
+
+            return Ok(result.Operation);
+        }
+
+        /// <summary>Deletes the caller's own operation while it is still pending.</summary>
+        [Authorize(Roles = "Admin,User")]
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!int.TryParse(userIdStr, out var userId))
+            {
+                return Unauthorized();
+            }
+
+            try
+            {
+                return await service.DeleteAsync(id, userId) ? NoContent() : NotFound();
+            }
+            catch (Service.Exceptions.ConflictException ex)
+            {
+                return Conflict(ex.Message);
+            }
+        }
+
+        private async Task SendReviewRequestEmailsAsync(
+            PumpOperationDto result,
+            IEnumerable<PumpOperationReviewRequestLinkDto> reviewRequests,
+            bool warnIfNoChecker = true)
+        {
             var reviewBaseUrl = GetReviewBaseUrl();
             var hasCheckerRequest = false;
 
             foreach (var reviewRequest in reviewRequests)
             {
                 hasCheckerRequest = true;
+                if (string.IsNullOrWhiteSpace(reviewRequest.CheckerGmail))
+                {
+                    // Checker has no email: they will see the request in the app after signing in.
+                    continue;
+                }
+
                 var reviewUrl = $"{reviewBaseUrl}/{reviewRequest.Token}";
                 try
                 {
@@ -103,11 +174,23 @@ namespace API.Controllers
                 }
             }
 
-            if (!hasCheckerRequest)
+            if (!hasCheckerRequest && warnIfNoChecker)
             {
-                logger.LogWarning("Pump operation {PumpOperationId} was submitted, but no checker Gmail is configured.", result.Id);
+                logger.LogWarning("Pump operation {PumpOperationId} was submitted, but no checker is configured.", result.Id);
+            }
+        }
+
+        /// <summary>Review requests assigned to the signed-in user (pending first).</summary>
+        [HttpGet("reviews/mine")]
+        public async Task<ActionResult<IEnumerable<PumpOperationReviewDto>>> GetMyReviews()
+        {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!int.TryParse(userIdStr, out var userId))
+            {
+                return Unauthorized();
             }
 
+            var result = await service.GetReviewsForCheckerAsync(userId);
             return Ok(result);
         }
 
@@ -123,22 +206,32 @@ namespace API.Controllers
 
         [AllowAnonymous]
         [HttpPost("review/{token}/accept")]
-        public async Task<ActionResult<PumpOperationReviewDto>> AcceptReview(string token)
+        public async Task<ActionResult<PumpOperationReviewDto>> AcceptReview(string token, [FromQuery] string? version)
         {
-            var result = await service.SubmitReviewDecisionAsync(token, "Accepted");
-            if (result == null) return NotFound();
-
-            return Ok(result);
+            return await SubmitDecisionAsync(token, "Accepted", version);
         }
 
         [AllowAnonymous]
         [HttpPost("review/{token}/reject")]
-        public async Task<ActionResult<PumpOperationReviewDto>> RejectReview(string token)
+        public async Task<ActionResult<PumpOperationReviewDto>> RejectReview(string token, [FromQuery] string? version)
         {
-            var result = await service.SubmitReviewDecisionAsync(token, "Rejected");
-            if (result == null) return NotFound();
+            return await SubmitDecisionAsync(token, "Rejected", version);
+        }
 
-            return Ok(result);
+        /// <summary>409 with the current data when the operation was edited after the checker loaded <paramref name="version"/>.</summary>
+        private async Task<ActionResult<PumpOperationReviewDto>> SubmitDecisionAsync(string token, string decision, string? version)
+        {
+            try
+            {
+                var result = await service.SubmitReviewDecisionAsync(token, decision, version);
+                if (result == null) return NotFound();
+
+                return Ok(result);
+            }
+            catch (Service.Exceptions.ReviewOutdatedException ex)
+            {
+                return Conflict(ex.Current);
+            }
         }
 
         [HttpGet]
@@ -485,6 +578,7 @@ namespace API.Controllers
             var totalAdditionalStanding = operations.Sum(x => x.AdditionalStanding);
             var totalDismantleAssemble = operations.Sum(x => x.DismantleAssemble);
             var totalIdleCount = operations.Count(x => x.IsIdle);
+            var totalDailyCount = operations.Count(x => x.IsDaily);
 
             var rows = new List<XElement>();
             var row = 1;
@@ -508,6 +602,7 @@ namespace API.Controllers
                     Cell(operation.AdditionalStanding, IntegerStyle),
                     Cell(operation.DismantleAssemble, IntegerStyle),
                     Cell(operation.IsIdle ? "კი" : "არა", TextStyle),
+                    Cell(operation.IsDaily ? "კი" : "არა", TextStyle),
                     Cell(operation.Note ?? "", TextStyle)
                 }, 24));
             }
@@ -528,6 +623,7 @@ namespace API.Controllers
                     Cell(0, IntegerStyle),
                     Cell(0, IntegerStyle),
                     Cell("არა", TextStyle),
+                    Cell("არა", TextStyle),
                     Cell("", TextStyle)
                 }, 24));
             }
@@ -546,17 +642,18 @@ namespace API.Controllers
                 Cell(totalAdditionalStanding, TotalIntegerStyle),
                 Cell(totalDismantleAssemble, TotalIntegerStyle),
                 Cell(totalIdleCount, TotalIntegerStyle),
+                Cell(totalDailyCount, TotalIntegerStyle),
                 Cell("", TotalTextStyle)
             }, 26));
 
             return new XDocument(
                 new XDeclaration("1.0", "UTF-8", "yes"),
                 new XElement(ns + "worksheet",
-                    new XElement(ns + "dimension", new XAttribute("ref", $"A1:M{GetExportEndRow(operations)}")),
+                    new XElement(ns + "dimension", new XAttribute("ref", $"A1:N{GetExportEndRow(operations)}")),
                     CreateSheetViews(ns),
                     CreateColumns(ns),
                     new XElement(ns + "sheetData", rows),
-                    new XElement(ns + "autoFilter", new XAttribute("ref", $"A1:M{GetDataEndRow(operations)}")),
+                    new XElement(ns + "autoFilter", new XAttribute("ref", $"A1:N{GetDataEndRow(operations)}")),
                     new XElement(ns + "pageMargins",
                         new XAttribute("left", "0.7"),
                         new XAttribute("right", "0.7"),
@@ -594,7 +691,7 @@ namespace API.Controllers
 
         private static XElement CreateColumns(XNamespace ns)
         {
-            var widths = new[] { 6, 13, 15, 24, 26, 30, 16, 22, 14, 20, 18, 14, 40 };
+            var widths = new[] { 6, 13, 15, 24, 26, 30, 16, 22, 14, 20, 18, 14, 12, 40 };
 
             return new XElement(ns + "cols",
                 widths.Select((width, index) =>

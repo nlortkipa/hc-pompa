@@ -1,0 +1,89 @@
+:host .section-header,
+.reviews-card {
+  max-width: 940px;
+}
+
+.review-row {
+  align-items: center;
+  gap: 12px;
+  min-height: 72px;
+}
+
+.review-link {
+  display: grid;
+  flex: 1;
+  gap: 3px;
+  min-width: 0;
+  padding: 8px 0;
+  color: inherit;
+  text-decoration: none;
+
+  &:hover .plate {
+    color: var(--primary);
+  }
+}
+
+.review-line {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.date {
+  font-size: 14px;
+}
+
+.plate {
+  font-size: 13px;
+}
+
+.note-flag {
+  display: inline-flex;
+  color: var(--text-tertiary);
+}
+
+.review-meta,
+.review-figures {
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 12.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.review-figures b {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.review-actions {
+  flex: none;
+  gap: 6px;
+  opacity: 1;
+
+  .reject {
+    color: var(--danger);
+  }
+}
+
+.reviewed-at {
+  flex: none;
+  color: var(--text-tertiary);
+  font-size: 12px;
+}
+
+@media (max-width: 640px) {
+  .review-row {
+    flex-wrap: wrap;
+  }
+
+  .review-actions {
+    width: 100%;
+    padding-bottom: 10px;
+
+    .btn {
+      flex: 1;
+    }
+  }
+}

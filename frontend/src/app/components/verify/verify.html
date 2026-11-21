@@ -1,40 +1,44 @@
 <main class="auth-container">
   <section class="auth-card">
-    <div class="auth-header">
-      <div class="auth-brand">
-        <span class="brand-mark">პ</span>
-        <span class="auth-logo">პომპა</span>
-      </div>
-      <p class="auth-kicker">სმს დადასტურება</p>
-      <h1>შეიყვანეთ 4-ნიშნა კოდი</h1>
-      <p class="auth-info">კოდი გაიგზავნა ნომერზე <strong>{{authService.smsCode()?.userNumber}}</strong></p>
-      <p class="auth-info">კოდი მოქმედებს 10 წუთის განმავლობაში.</p>
-    </div>
+    <header class="auth-header">
+      <span class="app-icon-lg" aria-hidden="true"><app-icon name="pump" [size]="42" [stroke]="1.7" /></span>
+      <h1>შეიყვანეთ კოდი</h1>
+      <p>4-ნიშნა კოდი გაიგზავნა ნომერზე<br><strong>{{ authService.smsCode()?.userNumber }}</strong></p>
+    </header>
 
     <div class="auth-body">
       <div class="otp-container" [class.otp-error]="showError()">
         <input type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="4" class="otp-input" #otpInput
-          (input)="onOtpInput($event, 0)" (keydown)="onKeyDown($event, 0)" (paste)="onPaste($event)">
-        <input type="text" inputmode="numeric" maxlength="1" class="otp-input" #otpInput
-          (input)="onOtpInput($event, 1)" (keydown)="onKeyDown($event, 1)">
-        <input type="text" inputmode="numeric" maxlength="1" class="otp-input" #otpInput
-          (input)="onOtpInput($event, 2)" (keydown)="onKeyDown($event, 2)">
-        <input type="text" inputmode="numeric" maxlength="1" class="otp-input" #otpInput
-          (input)="onOtpInput($event, 3)" (keydown)="onKeyDown($event, 3)">
+          aria-label="ციფრი 1" (input)="onOtpInput($event, 0)" (keydown)="onKeyDown($event, 0)" (paste)="onPaste($event)">
+        <input type="text" inputmode="numeric" maxlength="1" class="otp-input" #otpInput aria-label="ციფრი 2"
+          (input)="onOtpInput($event, 1)" (keydown)="onKeyDown($event, 1)" (paste)="onPaste($event)">
+        <input type="text" inputmode="numeric" maxlength="1" class="otp-input" #otpInput aria-label="ციფრი 3"
+          (input)="onOtpInput($event, 2)" (keydown)="onKeyDown($event, 2)" (paste)="onPaste($event)">
+        <input type="text" inputmode="numeric" maxlength="1" class="otp-input" #otpInput aria-label="ციფრი 4"
+          (input)="onOtpInput($event, 3)" (keydown)="onKeyDown($event, 3)" (paste)="onPaste($event)">
       </div>
 
-      <div class="field-error-msg text-center" *ngIf="showError()">
-        {{ error() }}
+      @if (showError()) {
+        <div class="field-error-msg otp-msg" role="alert">
+          <app-icon name="alert" [size]="13" /> {{ error() }}
+        </div>
+      }
+
+      <div class="timer" [class.timer--low]="secondsLeft() < 60">
+        <app-icon name="clock" [size]="14" />
+        კოდი მოქმედებს <strong>{{ timeLeftLabel }}</strong>
       </div>
 
-      <div class="auth-actions">
-        <button class="btn btn-primary w-full" (click)="submit()" [disabled]="isLoading()">
-          <span *ngIf="!isLoading()">შესვლა</span>
-          <span *ngIf="isLoading()">მოწმდება...</span>
-          <span class="button-icon" aria-hidden="true">→</span>
-        </button>
-        <button class="btn btn-secondary w-full" routerLink="/login">← უკან დაბრუნება</button>
-      </div>
+      <button class="btn btn-primary btn-lg" (click)="submit()" [disabled]="isLoading()">
+        @if (isLoading()) {
+          <span class="spinner"></span> მოწმდება...
+        } @else {
+          შესვლა <app-icon name="arrow-right" />
+        }
+      </button>
+      <button class="btn btn-plain" routerLink="/login">
+        <app-icon name="arrow-left" /> ნომრის შეცვლა
+      </button>
     </div>
   </section>
 </main>

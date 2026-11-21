@@ -13,3 +13,4 @@ frontend/android/app/build
 **/*.log
 .env*
 **/*.user
+.local-db

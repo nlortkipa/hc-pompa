@@ -1,50 +1,46 @@
 <main class="auth-container">
   <section class="auth-card">
-    <div class="auth-panel">
-      <div class="auth-mobile-brand">
-        <span class="brand-mark">პ</span>
-        <span>პომპა</span>
-      </div>
+    <header class="auth-header">
+      <span class="app-icon-lg" aria-hidden="true"><app-icon name="pump" [size]="42" [stroke]="1.7" /></span>
+      <h1>შესვლა {{ appName }}-ში</h1>
+      <p>შეიყვანეთ ტელეფონის ნომერი და გამოგიგზავნით სმს კოდს.</p>
+    </header>
 
-      <div class="auth-panel-header">
-        <p class="auth-kicker">შესვლა</p>
-        <h2>ტელეფონის ნომერი</h2>
-      </div>
-
-      <div class="auth-body">
-        <div class="form-group">
-          <label>ტელეფონის ნომერი</label>
-          <div class="input-wrapper">
-            <span class="input-prefix">+995</span>
-            <input type="tel" inputmode="tel" autocomplete="tel" placeholder="599 123 456"
-              [class.field-error]="showError()" [(ngModel)]="number" (ngModelChange)="showError.set(false)"
-              (keydown.enter)="submit()">
-          </div>
-          <div class="field-error-msg" *ngIf="showError()">
-            {{ error() }}
-          </div>
+    <form class="auth-body" (ngSubmit)="submit()" novalidate>
+      <div class="form-group">
+        <label for="phone">ტელეფონის ნომერი</label>
+        <div class="phone-field" [class.field-error]="showError()">
+          <span class="phone-prefix">
+            <span class="flag" aria-hidden="true">🇬🇪</span>+995
+          </span>
+          <input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="599 12 34 56"
+            autofocus [(ngModel)]="number" (ngModelChange)="showError.set(false)">
         </div>
-
-        <button class="btn btn-primary w-full" (click)="submit()" [disabled]="isLoading()">
-          <span *ngIf="!isLoading()">სმს კოდის გაგზავნა</span>
-          <span *ngIf="isLoading()">იგზავნება...</span>
-          <span class="button-icon" aria-hidden="true">→</span>
-        </button>
-
-        <aside class="android-download" *ngIf="!isNativeApp" aria-labelledby="android-download-title">
-          <div class="android-download-icon" aria-hidden="true">
-            <span></span>
+        @if (showError()) {
+          <div class="field-error-msg" role="alert">
+            <app-icon name="alert" [size]="13" /> {{ error() }}
           </div>
-          <div class="android-download-copy">
-            <p class="android-download-label">მობილური აპლიკაცია</p>
-            <h3 id="android-download-title">პომპა Android-ისთვის</h3>
-          </div>
-          <a class="android-download-action" href="/downloads/pompa-android.apk" download>
-            <span>ჩამოტვირთვა</span>
-            <span aria-hidden="true">↓</span>
-          </a>
-        </aside>
+        }
       </div>
-    </div>
+
+      <button class="btn btn-primary btn-lg" type="submit" [disabled]="isLoading()">
+        @if (isLoading()) {
+          <span class="spinner"></span> იგზავნება...
+        } @else {
+          კოდის გაგზავნა <app-icon name="arrow-right" />
+        }
+      </button>
+    </form>
+
+    @if (!isNativeApp) {
+      <a class="android-download" href="/downloads/android" download>
+        <span class="android-icon"><app-icon name="android" [size]="18" /></span>
+        <span class="android-copy">
+          <strong>პომპა Android-ისთვის</strong>
+          <small>ჩამოტვირთეთ მობილური აპლიკაცია</small>
+        </span>
+        <app-icon name="download" class="android-arrow" />
+      </a>
+    }
   </section>
 </main>

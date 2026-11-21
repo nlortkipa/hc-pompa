@@ -8,7 +8,8 @@ namespace Service.DTOs
         public int PumpOperationId { get; set; }
         public string Token { get; set; } = null!;
         public string Status { get; set; } = null!;
-        public string CheckerGmail { get; set; } = null!;
+        public int? CheckerUserId { get; set; }
+        public string? CheckerGmail { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? ReviewedAt { get; set; }
     }
@@ -16,10 +17,12 @@ namespace Service.DTOs
     public class PumpOperationReviewDto
     {
         public string Token { get; set; } = null!;
+        /// <summary>Hash of the operation's editable fields; changes whenever the operator edits it.</summary>
+        public string Version { get; set; } = null!;
         public string ReviewStatus { get; set; } = null!;
         public DateTime? ReviewedAt { get; set; }
         public string? ReviewedByCheckerGmail { get; set; }
-        public string CheckerGmail { get; set; } = null!;
+        public string? CheckerGmail { get; set; }
         public int PumpOperationId { get; set; }
         public DateTime Date { get; set; }
         public int OperatorId { get; set; }
@@ -32,6 +35,7 @@ namespace Service.DTOs
         public decimal ConcreteVolume { get; set; }
         public int AdditionalStanding { get; set; }
         public bool IsIdle { get; set; }
+        public bool IsDaily { get; set; }
         public int DismantleAssemble { get; set; }
         public string PlateNumber { get; set; } = null!;
         public string PumpType { get; set; } = null!;

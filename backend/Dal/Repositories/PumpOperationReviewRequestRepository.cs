@@ -23,7 +23,23 @@ namespace Dal.Repositories
                     .ThenInclude(p => p.Company)
                 .Include(r => r.PumpOperation)
                     .ThenInclude(p => p.Address)
+                .Include(r => r.CheckerUser)
                 .FirstOrDefaultAsync(r => r.Token == token);
+        }
+
+        public async Task<IEnumerable<PumpOperationReviewRequest>> GetByCheckerUserIdAsync(int checkerUserId)
+        {
+            return await _context.PumpOperationReviewRequests
+                .AsNoTracking()
+                .Include(r => r.PumpOperation)
+                    .ThenInclude(p => p.Operator)
+                .Include(r => r.PumpOperation)
+                    .ThenInclude(p => p.Company)
+                .Include(r => r.PumpOperation)
+                    .ThenInclude(p => p.Address)
+                .Include(r => r.CheckerUser)
+                .Where(r => r.CheckerUserId == checkerUserId)
+                .ToListAsync();
         }
 
         public async Task<IEnumerable<PumpOperationReviewRequest>> GetByPumpOperationIdAsync(int pumpOperationId)
@@ -36,18 +52,42 @@ namespace Dal.Repositories
 
         public async Task<bool> TrySetFirstDecisionAsync(
             int pumpOperationId,
+            string token,
             string decision,
-            string checkerEmail,
-            DateTime reviewedAt)
+            string reviewerLabel,
+            DateTime reviewedAt,
+            PumpOperation? expected = null)
         {
             await using var transaction = await _context.Database.BeginTransactionAsync();
 
-            var updatedOperations = await _context.PumpOperations
-                .Where(operation => operation.Id == pumpOperationId && operation.ReviewStatus == "Pending")
+            var query = _context.PumpOperations
+                // The token check rejects links of checkers removed from the operation by an edit.
+                .Where(operation => operation.Id == pumpOperationId
+                    && operation.ReviewStatus == "Pending"
+                    && operation.ReviewRequests.Any(request => request.Token == token));
+
+            if (expected != null)
+            {
+                query = query.Where(p =>
+                    p.Date == expected.Date
+                    && p.CompanyId == expected.CompanyId
+                    && p.AddressId == expected.AddressId
+                    && p.ConcreteVolume == expected.ConcreteVolume
+                    && p.AdditionalStanding == expected.AdditionalStanding
+                    && p.IsIdle == expected.IsIdle
+                    && p.IsDaily == expected.IsDaily
+                    && p.DismantleAssemble == expected.DismantleAssemble
+                    && p.PlateNumber == expected.PlateNumber
+                    && p.PumpType == expected.PumpType
+                    && p.DistanceRange == expected.DistanceRange
+                    && p.Note == expected.Note);
+            }
+
+            var updatedOperations = await query
                 .ExecuteUpdateAsync(setters => setters
                     .SetProperty(operation => operation.ReviewStatus, decision)
                     .SetProperty(operation => operation.ReviewedAt, reviewedAt)
-                    .SetProperty(operation => operation.ReviewedByCheckerGmail, checkerEmail));
+                    .SetProperty(operation => operation.ReviewedByCheckerGmail, reviewerLabel));
 
             if (updatedOperations == 0)
             {

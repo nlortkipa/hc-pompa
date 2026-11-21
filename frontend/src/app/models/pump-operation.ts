@@ -12,6 +12,7 @@ export interface PumpOperationModel {
     additionalStanding: number
     dismantleAssemble: number
     isIdle: boolean
+    isDaily: boolean
     plateNumber: string
     pumpType: string
     distanceRange?: '<100მ' | '> 100მ' | null
@@ -34,10 +35,12 @@ export interface PumpOperationFilter {
 
 export interface PumpOperationReviewModel {
     token: string
+    /** Changes whenever the operator edits the operation; sent back with a decision. */
+    version: string
     reviewStatus: 'Pending' | 'Accepted' | 'Rejected' | string
     reviewedAt?: Date | null
     reviewedByCheckerGmail?: string | null
-    checkerGmail: string
+    checkerGmail?: string | null
     pumpOperationId: number
     date: Date
     operatorId: number
@@ -51,6 +54,7 @@ export interface PumpOperationReviewModel {
     additionalStanding: number
     dismantleAssemble: number
     isIdle: boolean
+    isDaily: boolean
     plateNumber: string
     pumpType: string
     distanceRange?: '<100მ' | '> 100მ' | null

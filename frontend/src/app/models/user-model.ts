@@ -8,4 +8,5 @@ export interface UserModel {
     role: string
     username?: string | null
     avatarUrl?: string | null
+    email?: string | null
 }

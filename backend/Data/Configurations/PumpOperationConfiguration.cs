@@ -29,6 +29,8 @@ namespace Data.Configurations
                 .IsRequired();
             builder.Property(p => p.IsIdle)
                 .IsRequired();
+            builder.Property(p => p.IsDaily)
+                .IsRequired();
             builder.Property(p => p.DismantleAssemble)
                 .IsRequired();
             builder.Property(p => p.PlateNumber)

@@ -1,85 +1,95 @@
-<header id="topbar">
-  <div class="logo" aria-label="პომპა">
-    <span class="logo-icon">პ</span>
-    <span class="logo-copy">
-      <span>{{appName}}</span>
-      <small>ოპერაციების პანელი</small>
-    </span>
-  </div>
-
-  <div class="topbar-right">
-    <div class="role-pill" *ngIf="profile()?.role">{{ roleLabel(profile()?.role) }}</div>
-    <div class="user-chip">
-      <div class="avatar">
-        <img *ngIf="profile()?.avatarUrl; else headerInitials" [src]="profile()?.avatarUrl || ''" alt="" />
-        <ng-template #headerInitials>{{ initials(profile()) }}</ng-template>
-      </div>
-      <span id="user-name">{{ displayName(profile()) }}</span>
-    </div>
-    <button (click)="logout()" class="logout-btn" title="გასვლა" aria-label="გასვლა">
-      <span class="icon" aria-hidden="true">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-          stroke-linecap="round" stroke-linejoin="round">
-          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-          <polyline points="16 17 21 12 16 7"></polyline>
-          <line x1="21" y1="12" x2="9" y2="12"></line>
-        </svg>
+<div class="shell">
+  <!-- Sidebar (desktop / tablet) -->
+  <aside class="sidebar" aria-label="პანელის ნავიგაცია">
+    <div class="sidebar-brand">
+      <span class="app-mark" aria-hidden="true"><app-icon name="pump" [size]="23" [stroke]="2" /></span>
+      <span class="brand-copy">
+        <strong>{{ appName }}</strong>
+        <small>ოპერაციების პანელი</small>
       </span>
-    </button>
-  </div>
-</header>
+    </div>
 
-<div id="main">
-  <nav id="sidebar" aria-label="პანელის ნავიგაცია">
-    <div class="nav-section-label">მენიუ</div>
-    <a *ngIf="profile()?.role !== 'Accountant'" class="nav-item" routerLink="new" routerLinkActive="active">
-      <span class="nav-icon">+</span>
-      <span class="nav-label">ახალი ჩანაწერი</span>
-    </a>
-    <a class="nav-item" routerLink="history" routerLinkActive="active">
-      <span class="nav-icon">▤</span>
-      <span class="nav-label">რეპორტები</span>
-    </a>
-    <a *ngIf="profile()?.role === 'Admin'" class="nav-item" routerLink="users" routerLinkActive="active">
-      <span class="nav-icon">მ</span>
-      <span class="nav-label">მომხმარებლები</span>
-    </a>
-    <a *ngIf="profile()?.role === 'Admin'" class="nav-item" routerLink="companies" routerLinkActive="active">
-      <span class="nav-icon">▦</span>
-      <span class="nav-label">კომპანიები</span>
-    </a>
-    <a *ngIf="profile()?.role === 'Admin'" class="nav-item" routerLink="plates" routerLinkActive="active">
-      <span class="nav-icon">№</span>
-      <span class="nav-label">პომპები</span>
-    </a>
-  </nav>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">მენიუ</div>
+      @for (item of navItems(); track item.path; let i = $index) {
+        <a class="nav-item" [routerLink]="item.path" routerLinkActive="active" [attr.title]="item.label">
+          <app-icon [name]="item.icon" [size]="17" />
+          <span class="nav-label">{{ item.label }}</span>
+          @if (item.path === 'reviews' && pendingReviews()) {
+            <span class="nav-count" [attr.aria-label]="pendingReviews() + ' მოლოდინში'">{{ pendingReviews() }}</span>
+          }
+          <kbd class="nav-kbd">{{ modKey }}{{ i + 1 }}</kbd>
+        </a>
+      }
+    </nav>
 
-  <main id="content">
-    <router-outlet></router-outlet>
+    <div class="sidebar-footer">
+      @if (profile(); as p) {
+        <div class="account">
+          <div class="avatar">
+            @if (p.avatarUrl) {
+              <img [src]="p.avatarUrl" alt="" />
+            } @else {
+              {{ initials(p) }}
+            }
+          </div>
+          <div class="account-copy">
+            <strong>{{ displayName(p) }}</strong>
+            <small>{{ roleLabel(p.role) }}</small>
+          </div>
+          <button type="button" class="icon-btn" (click)="logout()" title="გასვლა" aria-label="გასვლა">
+            <app-icon name="logout" [size]="17" />
+          </button>
+        </div>
+      } @else {
+        <div class="account account--loading">
+          <div class="avatar skeleton"></div>
+          <div class="account-copy">
+            <span class="skeleton" style="height:10px;width:110px"></span>
+            <span class="skeleton" style="height:8px;width:70px"></span>
+          </div>
+        </div>
+      }
+    </div>
+  </aside>
+
+  <!-- Compact top bar (phones) -->
+  <header class="topbar">
+    <div class="topbar-brand">
+      <span class="app-mark app-mark--sm" aria-hidden="true"><app-icon name="pump" [size]="19" [stroke]="2.1" /></span>
+      <strong>{{ appName }}</strong>
+    </div>
+    <div class="topbar-right">
+      @if (profile(); as p) {
+        <span class="badge badge-gray">{{ roleLabel(p.role) }}</span>
+        <div class="avatar avatar--sm" [attr.title]="displayName(p)">
+          @if (p.avatarUrl) { <img [src]="p.avatarUrl" alt="" /> } @else { {{ initials(p) }} }
+        </div>
+      }
+      <button type="button" class="icon-btn" (click)="logout()" aria-label="გასვლა">
+        <app-icon name="logout" [size]="19" />
+      </button>
+    </div>
+  </header>
+
+  <main class="content">
+    <div class="content-inner">
+      <router-outlet></router-outlet>
+    </div>
   </main>
 
-  <nav id="mobile-nav" aria-label="მობილური ნავიგაცია">
-    <div class="mobile-nav-inner">
-      <a *ngIf="profile()?.role !== 'Accountant'" class="mnav" routerLink="new" routerLinkActive="active">
-        <div class="mnav-icon">+</div>
-        <span>ახალი</span>
+  <!-- Tab bar (phones) -->
+  <nav class="tabbar" aria-label="მობილური ნავიგაცია">
+    @for (item of navItems(); track item.path) {
+      <a class="tab" [routerLink]="item.path" routerLinkActive="active">
+        <span class="tab-icon">
+          <app-icon [name]="item.icon" [size]="22" [stroke]="1.6" />
+          @if (item.path === 'reviews' && pendingReviews()) {
+            <span class="tab-count">{{ pendingReviews() }}</span>
+          }
+        </span>
+        <span>{{ item.short }}</span>
       </a>
-      <a class="mnav" routerLink="history" routerLinkActive="active">
-        <div class="mnav-icon">▤</div>
-        <span>რეპორტები</span>
-      </a>
-      <a *ngIf="profile()?.role === 'Admin'" class="mnav" routerLink="users" routerLinkActive="active">
-        <div class="mnav-icon">მ</div>
-        <span>მომხმარებლები</span>
-      </a>
-      <a *ngIf="profile()?.role === 'Admin'" class="mnav" routerLink="companies" routerLinkActive="active">
-        <div class="mnav-icon">▦</div>
-        <span>კომპანიები</span>
-      </a>
-      <a *ngIf="profile()?.role === 'Admin'" class="mnav" routerLink="plates" routerLinkActive="active">
-        <div class="mnav-icon">№</div>
-        <span>პომპები</span>
-      </a>
-    </div>
+    }
   </nav>
 </div>
