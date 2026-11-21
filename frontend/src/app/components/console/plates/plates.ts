@@ -1,7 +1,7 @@
 import { Component, HostListener, OnInit, signal, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { PlateService } from '../../../services/plate-service';
+import { PlateService, PlateUpdateResult } from '../../../services/plate-service';
 import { Plate } from '../../../models/plate-model';
 import { UserModel } from '../../../models/user-model';
 import { UserService } from '../../../services/user-service';
@@ -166,10 +166,10 @@ export class Plates implements OnInit {
       : this.plateService.createPlate(this.plateForm.number, this.plateForm.type, this.plateForm.isStationary, this.plateForm.checkerUserIds);
 
     obs.pipe(finalize(() => (this.isSaving = false))).subscribe({
-      next: () => {
+      next: (res: any) => {
         this.loadPlates();
         this.cancelEdit();
-        this.ui.toast(wasEditing ? 'პომპა განახლდა' : 'პომპა დაემატა');
+        this.ui.toast(wasEditing ? this.updatedMessage(res as PlateUpdateResult | null) : 'პომპა დაემატა', 'success', 4000);
       },
       error: (err) => {
         if (err.status === 409) {
@@ -180,6 +180,17 @@ export class Plates implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  /** "Pump updated", plus which reports the change was carried over to. */
+  private updatedMessage(res: PlateUpdateResult | null): string {
+    if (!res) return 'პომპა განახლდა';
+    const parts: string[] = [];
+    if (res.renamedReports) parts.push(`ნომერი შეიცვალა ${res.renamedReports} რეპორტში`);
+    if (res.retypedReports) parts.push(`ტიპი შეიცვალა ${res.retypedReports} მოლოდინში რეპორტში`);
+    const reassigned = res.addedReviewRequestCount + res.removedReviewRequests;
+    if (reassigned) parts.push(`შემმოწმებლები განახლდა მოლოდინში რეპორტებზე`);
+    return parts.length ? `პომპა განახლდა · ${parts.join(' · ')}` : 'პომპა განახლდა';
   }
 
   async deletePlate(plate: Plate): Promise<void> {

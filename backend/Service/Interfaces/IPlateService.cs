@@ -12,7 +12,8 @@ namespace Service.Interfaces
         Task<IEnumerable<PlateDTO>> GetAllAsync();
         Task<PlateDTO> GetByIdAsync(int id);
         Task<PlateDTO> CreateAsync(PlateDTO dto);
-        Task UpdateAsync(int id, PlateDTO dto);
+        /// <summary>Updates the plate and carries the change over to reports that copy plate data.</summary>
+        Task<PlateUpdateResultDTO> UpdateAsync(int id, PlateDTO dto);
         Task DeleteAsync(int id);
     }
 }

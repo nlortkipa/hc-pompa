@@ -57,7 +57,7 @@ namespace Service.Services
             return _mapper.Map<PlateDTO>(await _plateRepository.GetByIdAsync(entity.Id) ?? entity);
         }
 
-        public async Task UpdateAsync(int id, PlateDTO dto)
+        public async Task<PlateUpdateResultDTO> UpdateAsync(int id, PlateDTO dto)
         {
             Normalize(dto);
             Validate(dto);
@@ -71,6 +71,9 @@ namespace Service.Services
             {
                 throw new ConflictException("სანომრე ნიშანი უკვე არსებობს");
             }
+
+            var previousNumber = entity.Number;
+            var previousType = entity.Type;
 
             _mapper.Map(dto, entity);
             var requestedUserIds = dto.CheckerUserIds.ToHashSet();
@@ -92,10 +95,33 @@ namespace Service.Services
                 entity.Checkers.Add(new PlateChecker
                 {
                     PlateId = entity.Id,
-                    UserId = userId
+                    UserId = userId,
+                    // Loaded so pending reports can be assigned to the new checker right away.
+                    User = await _userRepository.GetByIdAsync(userId) ?? throw new Exception("Checker not found")
                 });
             }
-            await _plateRepository.UpdateAsync(entity);
+
+            var propagation = await _plateRepository.UpdateAndPropagateAsync(entity, previousNumber, previousType);
+
+            return new PlateUpdateResultDTO
+            {
+                RenamedReports = propagation.RenamedReports,
+                RetypedReports = propagation.RetypedReports,
+                RemovedReviewRequests = propagation.RemovedReviewRequests,
+                AddedReviewRequests = propagation.AddedReviewRequests
+                    .Select(r => new PumpOperationReviewRequestLinkDto
+                    {
+                        Id = r.Id,
+                        PumpOperationId = r.PumpOperationId,
+                        Token = r.Token,
+                        Status = r.Status,
+                        CheckerUserId = r.CheckerUserId,
+                        CheckerGmail = r.CheckerGmail,
+                        CreatedAt = r.CreatedAt,
+                        ReviewedAt = r.ReviewedAt
+                    })
+                    .ToList()
+            };
         }
 
         public async Task DeleteAsync(int id)

@@ -21,4 +21,18 @@ namespace Service.DTOs
         public string LastName { get; set; } = null!;
         public string? Email { get; set; }
     }
+
+    public class PlateUpdateResultDTO
+    {
+        /// <summary>Reports (any status) whose plate number was renamed.</summary>
+        public int RenamedReports { get; set; }
+        /// <summary>Pending reports whose pump type was updated.</summary>
+        public int RetypedReports { get; set; }
+        /// <summary>Pending review requests removed because their checker left the plate.</summary>
+        public int RemovedReviewRequests { get; set; }
+        /// <summary>Pending review requests created for newly assigned checkers.</summary>
+        [System.Text.Json.Serialization.JsonIgnore]
+        public List<PumpOperationReviewRequestLinkDto> AddedReviewRequests { get; set; } = new();
+        public int AddedReviewRequestCount => AddedReviewRequests.Count;
+    }
 }

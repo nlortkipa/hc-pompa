@@ -11,7 +11,10 @@ using System.Linq;
 
 namespace Service.Services
 {
-    public class UserService(IMapper mapper, IUserRepository userRepository) : IUserService
+    public class UserService(
+        IMapper mapper,
+        IUserRepository userRepository,
+        IPumpOperationReviewRequestRepository reviewRequestRepository) : IUserService
     {
         private const string AdminRole = "Admin";
         private const int MaxUsernameLength = 75;
@@ -102,9 +105,16 @@ namespace Service.Services
                 throw new Service.Exceptions.ConflictException(message);
             }
 
+            var previousEmail = user.Email;
             mapper.Map(dto, user);
             user.Email = NormalizeEmail(dto.Email);
             await userRepository.UpdateAsync(user);
+
+            if (!string.Equals(previousEmail, user.Email, StringComparison.OrdinalIgnoreCase))
+            {
+                // Review requests keep a copy of the checker's address; keep pending ones current.
+                await reviewRequestRepository.UpdatePendingCheckerEmailAsync(user.Id, user.Email);
+            }
             
             return mapper.Map<UserDTO>(user);
         }

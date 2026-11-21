@@ -42,6 +42,13 @@ namespace Dal.Repositories
                 .ToListAsync();
         }
 
+        public async Task<int> UpdatePendingCheckerEmailAsync(int checkerUserId, string? email)
+        {
+            return await _context.PumpOperationReviewRequests
+                .Where(r => r.CheckerUserId == checkerUserId && r.PumpOperation.ReviewStatus == "Pending")
+                .ExecuteUpdateAsync(s => s.SetProperty(r => r.CheckerGmail, email));
+        }
+
         public async Task<IEnumerable<PumpOperationReviewRequest>> GetByPumpOperationIdAsync(int pumpOperationId)
         {
             return await _context.PumpOperationReviewRequests

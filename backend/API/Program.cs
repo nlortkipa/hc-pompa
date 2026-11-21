@@ -132,6 +132,8 @@ namespace API
             builder.Services.AddScoped<ICompanyService, CompanyService>();
             builder.Services.AddScoped<IPumpOperationService, PumpOperationService>();
             builder.Services.AddScoped<IPlateService, PlateService>();
+            builder.Services.AddHttpContextAccessor();
+            builder.Services.AddScoped<API.Services.ReviewEmailNotifier>();
 
             builder.Services.AddAutoMapper(cfg => { }, typeof(MappingProfile).Assembly);
 

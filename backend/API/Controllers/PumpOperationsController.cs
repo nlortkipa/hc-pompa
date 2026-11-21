@@ -20,9 +20,7 @@ namespace API.Controllers
     [Route("api/[controller]")]
     public class PumpOperationsController(
         IPumpOperationService service,
-        IEmailService emailService,
-        IConfiguration configuration,
-        ILogger<PumpOperationsController> logger) : ControllerBase
+        API.Services.ReviewEmailNotifier reviewEmails) : ControllerBase
     {
         private const uint DefaultStyle = 0;
         private const uint HeaderStyle = 1;
@@ -74,7 +72,7 @@ namespace API.Controllers
                 return BadRequest(ex.Message);
             }
 
-            await SendReviewRequestEmailsAsync(result, await service.GetReviewRequestsForOperationAsync(result.Id));
+            await reviewEmails.SendAsync(result, await service.GetReviewRequestsForOperationAsync(result.Id));
 
             return Ok(result);
         }
@@ -108,7 +106,7 @@ namespace API.Controllers
 
             // Existing checkers keep their link and see the edit live; only checkers newly
             // added by a plate change need an email.
-            await SendReviewRequestEmailsAsync(result.Operation, result.AddedReviewRequests, warnIfNoChecker: false);
+            await reviewEmails.SendAsync(result.Operation, result.AddedReviewRequests, warnIfNoChecker: false);
 
             return Ok(result.Operation);
         }
@@ -131,52 +129,6 @@ namespace API.Controllers
             catch (Service.Exceptions.ConflictException ex)
             {
                 return Conflict(ex.Message);
-            }
-        }
-
-        private async Task SendReviewRequestEmailsAsync(
-            PumpOperationDto result,
-            IEnumerable<PumpOperationReviewRequestLinkDto> reviewRequests,
-            bool warnIfNoChecker = true)
-        {
-            var reviewBaseUrl = GetReviewBaseUrl();
-            var hasCheckerRequest = false;
-
-            foreach (var reviewRequest in reviewRequests)
-            {
-                hasCheckerRequest = true;
-                if (string.IsNullOrWhiteSpace(reviewRequest.CheckerGmail))
-                {
-                    // Checker has no email: they will see the request in the app after signing in.
-                    continue;
-                }
-
-                var reviewUrl = $"{reviewBaseUrl}/{reviewRequest.Token}";
-                try
-                {
-                    await emailService.SendPumpOperationReviewRequestAsync(result, reviewRequest.CheckerGmail, reviewUrl);
-
-                    logger.LogInformation(
-                        "Pump operation {PumpOperationId} review email processed for checker {CheckerGmail}: {ReviewUrl}",
-                        result.Id,
-                        reviewRequest.CheckerGmail,
-                        reviewUrl);
-                }
-                catch (Exception ex)
-                {
-                    // The operation and review request are already persisted. An email-provider
-                    // outage must not report the successful save as a failed operation.
-                    logger.LogError(
-                        ex,
-                        "Pump operation {PumpOperationId} was saved, but the review email failed for checker {CheckerGmail}.",
-                        result.Id,
-                        reviewRequest.CheckerGmail);
-                }
-            }
-
-            if (!hasCheckerRequest && warnIfNoChecker)
-            {
-                logger.LogWarning("Pump operation {PumpOperationId} was submitted, but no checker is configured.", result.Id);
             }
         }
 
@@ -285,29 +237,6 @@ namespace API.Controllers
             var result = await service.GetByIdAsync(id, userId, role);
             if (result == null) return NotFound();
             return Ok(result);
-        }
-
-        private string GetReviewBaseUrl()
-        {
-            var configuredUrl = configuration["ReviewBaseUrl"];
-            if (!string.IsNullOrWhiteSpace(configuredUrl))
-            {
-                return configuredUrl.TrimEnd('/');
-            }
-
-            var productionHost = Environment.GetEnvironmentVariable("VERCEL_PROJECT_PRODUCTION_URL");
-            if (!string.IsNullOrWhiteSpace(productionHost))
-            {
-                return $"https://{productionHost.TrimEnd('/')}/review";
-            }
-
-            var origin = Request.Headers.Origin.ToString();
-            if (!string.IsNullOrWhiteSpace(origin))
-            {
-                return $"{origin.TrimEnd('/')}/review";
-            }
-
-            return "http://localhost:4200/review";
         }
 
         private static byte[] BuildPumpOperationsWorkbook(IReadOnlyList<PumpOperationDto> operations)
