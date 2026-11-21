@@ -6,6 +6,7 @@ WORKDIR /src
 COPY ["API/API.csproj", "API/"]
 COPY ["Dal/Dal.csproj", "Dal/"]
 COPY ["Data/Data.csproj", "Data/"]
+COPY ["Data.PostgresMigrations/Data.PostgresMigrations.csproj", "Data.PostgresMigrations/"]
 COPY ["Service/Service.csproj", "Service/"]
 
 RUN dotnet restore "API/API.csproj"

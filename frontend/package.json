@@ -7,6 +7,7 @@
     "build": "ng build",
     "android:sync": "npm run build && cap sync android",
     "android:apk": "npm run android:sync && cd android && gradlew.bat assembleDebug",
+    "android:apk:linux": "npm run android:sync && cd android && ./gradlew assembleDebug",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },

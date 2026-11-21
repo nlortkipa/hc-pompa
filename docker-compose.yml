@@ -1,0 +1,38 @@
+# Local development stack for Linux (or any OS with Docker).
+# Starts PostgreSQL + the .NET API. Run the Angular frontend separately with `npm start`.
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: pompa
+      POSTGRES_USER: pompa
+      POSTGRES_PASSWORD: pompa
+    ports:
+      - "5432:5432"
+    volumes:
+      - pompa-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pompa -d pompa"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      DATABASE_URL: Host=db;Port=5432;Database=pompa;Username=pompa;Password=pompa
+      JWT_KEY: ${JWT_KEY:-local-dev-jwt-key-change-me-0123456789abcdef}
+      # Keep data between restarts (Development defaults to wiping the DB on startup).
+      RecreateDatabaseOnStartup: "false"
+    ports:
+      - "5032:8080"
+
+volumes:
+  pompa-db:
