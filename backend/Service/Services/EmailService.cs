@@ -2,7 +2,6 @@ using Microsoft.Extensions.Configuration;
 using Service.DTOs;
 using Service.Interfaces;
 using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Mail;
 using System.Threading.Tasks;
@@ -86,53 +85,19 @@ namespace Service.Services
         {
             ReviewEmailKind.Updated => $"ჩანაწერი #{operation.Id} შეიცვალა",
             ReviewEmailKind.Deleted => $"ჩანაწერი #{operation.Id} წაიშალა",
-            _ => $"ჩანაწერი #{operation.Id} — შემოწმება"
+            _ => $"ჩანაწერი #{operation.Id} შეიქმნა"
         };
 
         private static string BuildReviewBody(ReviewEmailKind kind, PumpOperationDto operation, string reviewUrl)
         {
-            var operatorName = $"{operation.OperatorFirstName} {operation.OperatorLastName}".Trim();
-
-            var lines = new List<string>
+            var message = kind switch
             {
-                kind switch
-                {
-                    ReviewEmailKind.Updated => "ჩანაწერი შეიცვალა. გთხოვთ, შეამოწმოთ.",
-                    ReviewEmailKind.Deleted => "ჩანაწერი წაიშალა.",
-                    _ => "გთხოვთ, შეამოწმოთ ჩანაწერი."
-                },
-                "",
-                $"ჩანაწერის ნომერი: {operation.Id}",
-                $"თარიღი: {operation.Date:yyyy-MM-dd HH:mm}",
-                $"ოპერატორი: {operatorName}",
-                $"კომპანია: {operation.CompanyName}",
-                $"მისამართი: {operation.AddressName}",
-                $"პომპა: {operation.PlateNumber}"
+                ReviewEmailKind.Updated => $"ჩანაწერი #{operation.Id} შეიცვალა. გთხოვთ, შეამოწმოთ.",
+                ReviewEmailKind.Deleted => $"ჩანაწერი #{operation.Id} წაიშალა.",
+                _ => $"ჩანაწერი #{operation.Id} შეიქმნა. გთხოვთ, შეამოწმოთ."
             };
 
-            if (kind != ReviewEmailKind.Deleted)
-            {
-                lines.Add($"პომპის ტიპი: {operation.PumpType}");
-                lines.Add($"მანძილი: {GetDistanceRangeLabel(operation)}");
-                lines.Add($"ბეტონის მოცულობა: {operation.ConcreteVolume}");
-                lines.Add($"დღიური: {(operation.IsDaily ? "კი" : "არა")}");
-                lines.Add($"შენიშვნა: {(string.IsNullOrWhiteSpace(operation.Note) ? "—" : operation.Note)}");
-            }
-
-            lines.Add("");
-            lines.Add($"ბმული: {reviewUrl}");
-
-            return string.Join(Environment.NewLine, lines);
-        }
-
-        private static string GetDistanceRangeLabel(PumpOperationDto operation)
-        {
-            if (!string.Equals(operation.PumpType, "<60მ", StringComparison.Ordinal))
-            {
-                return "—";
-            }
-
-            return operation.DistanceRange ?? "60მ-მდე";
+            return string.Join(Environment.NewLine, message, "", reviewUrl);
         }
 
         private static string GetRequiredEnv(string name)
