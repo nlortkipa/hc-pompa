@@ -19,15 +19,13 @@ import { ReviewInboxService } from '../../services/review-inbox.service';
 })
 export class Review implements OnInit {
   operation = signal<PumpOperationReviewModel | null>(null);
-  isLoading = true;
-  isSubmitting = false;
-  pendingDecision: 'accept' | 'reject' | null = null;
-  isInvalidReview = false;
-  canRetry = false;
-  error = '';
-  message = '';
-  /** The operator edited the record while this page was open. */
-  edited = signal(false);
+  isLoading = signal(true);
+  isSubmitting = signal(false);
+  pendingDecision = signal<'accept' | 'reject' | null>(null);
+  isInvalidReview = signal(false);
+  canRetry = signal(false);
+  error = signal('');
+  message = signal('');
   private token = '';
   private isRefreshing = false;
   private destroyRef = inject(DestroyRef);
@@ -45,8 +43,8 @@ export class Review implements OnInit {
     this.embedded = !!this.route.snapshot.data['embedded'];
     this.token = this.route.snapshot.paramMap.get('token') || '';
     if (!/^[a-f0-9]{32}$/i.test(this.token)) {
-      this.isInvalidReview = true;
-      this.isLoading = false;
+      this.isInvalidReview.set(true);
+      this.isLoading.set(false);
       return;
     }
 
@@ -57,7 +55,7 @@ export class Review implements OnInit {
   /** Silent background refresh: picks up edits/deletion by the operator or another checker's decision. */
   private refreshLive(): void {
     const current = this.operation();
-    if (!current || current.reviewStatus !== 'Pending' || this.isSubmitting || this.isRefreshing) return;
+    if (!current || current.reviewStatus !== 'Pending' || this.isSubmitting() || this.isRefreshing) return;
 
     this.isRefreshing = true;
     this.pumpOperationService.getReview(this.token)
@@ -66,7 +64,7 @@ export class Review implements OnInit {
         next: (data) => this.applyLiveUpdate(data),
         error: (error: HttpErrorResponse) => {
           if (error.status === 404) {
-            this.isInvalidReview = true;
+            this.isInvalidReview.set(true);
             this.operation.set(null);
             this.ui.toast('ოპერატორმა ჩანაწერი წაშალა', 'info');
           }
@@ -78,12 +76,12 @@ export class Review implements OnInit {
   private applyLiveUpdate(data: PumpOperationReviewModel): void {
     const previous = this.operation();
     // Ignore a response that raced with a decision made on this page.
-    if (this.isSubmitting || !previous || previous.reviewStatus !== 'Pending') return;
+    if (this.isSubmitting() || !previous || previous.reviewStatus !== 'Pending') return;
 
     this.operation.set(data);
     this.syncInbox(data);
     if (data.reviewStatus === 'Pending' && data.version !== previous.version) {
-      this.markEdited();
+      this.ui.toast('ოპერატორმა ჩანაწერი შეცვალა', 'info', 4000);
     }
   }
 
@@ -92,30 +90,25 @@ export class Review implements OnInit {
     if (this.embedded) this.inbox.update(data);
   }
 
-  private markEdited(): void {
-    this.edited.set(true);
-    this.ui.toast('ოპერატორმა ჩანაწერი შეცვალა', 'info', 4000);
-  }
-
   loadReview(): void {
-    this.isLoading = true;
-    this.isInvalidReview = false;
-    this.canRetry = false;
-    this.error = '';
+    this.isLoading.set(true);
+    this.isInvalidReview.set(false);
+    this.canRetry.set(false);
+    this.error.set('');
     this.operation.set(null);
 
     this.pumpOperationService.getReview(this.token)
-      .pipe(finalize(() => this.isLoading = false))
+      .pipe(finalize(() => this.isLoading.set(false))
       .subscribe({
         next: (data) => this.operation.set(data),
         error: (error: HttpErrorResponse) => {
           if (error.status === 400 || error.status === 404) {
-            this.isInvalidReview = true;
+            this.isInvalidReview.set(true));
             return;
           }
 
-          this.canRetry = true;
-          this.error = 'მონაცემების ჩატვირთვა ვერ მოხერხდა. გთხოვთ, სცადოთ თავიდან.';
+          this.canRetry.set(true);
+          this.error.set('მონაცემების ჩატვირთვა ვერ მოხერხდა. გთხოვთ, სცადოთ თავიდან.');
         }
       });
   }
@@ -147,45 +140,43 @@ export class Review implements OnInit {
   }
 
   private submitDecision(decision: 'accept' | 'reject'): void {
-    if (this.isSubmitting || this.operation()?.reviewStatus !== 'Pending') return;
+    if (this.isSubmitting() || this.operation()?.reviewStatus !== 'Pending') return;
 
-    this.isSubmitting = true;
-    this.pendingDecision = decision;
-    this.message = '';
-    this.error = '';
+    this.isSubmitting.set(true);
+    this.pendingDecision.set(decision);
+    this.message.set('');
+    this.error.set('');
 
     const version = this.operation()?.version;
     const request = decision === 'accept'
       ? this.pumpOperationService.acceptReview(this.token, version)
       : this.pumpOperationService.rejectReview(this.token, version);
 
-    request.pipe(finalize(() => { this.isSubmitting = false; this.pendingDecision = null; }))
+    request.pipe(finalize(() => { this.isSubmitting.set(false); this.pendingDecision.set(null); }))
       .subscribe({
         next: (data) => {
           this.operation.set(data);
           this.syncInbox(data);
-          this.edited.set(false);
-          this.message = decision === 'accept'
+          this.message.set(decision === 'accept'
             ? 'ჩანაწერი დადასტურდა.'
-            : 'ჩანაწერი უარყოფილია.';
+            : 'ჩანაწერი უარყოფილია.');
         },
         error: (error: HttpErrorResponse) => {
           if (error.status === 409 && error.error?.token) {
             // Edited after we loaded it: show the new data and let the checker decide again.
             this.operation.set(error.error as PumpOperationReviewModel);
             this.syncInbox(error.error as PumpOperationReviewModel);
-            this.edited.set(true);
             this.ui.toast('ჩანაწერი შეიცვალა. გადახედეთ და გადაწყვიტეთ ხელახლა.', 'error', 5000);
             return;
           }
 
           if (error.status === 400 || error.status === 404) {
-            this.isInvalidReview = true;
+            this.isInvalidReview.set(true);
             this.operation.set(null);
             return;
           }
 
-          this.error = 'გადაწყვეტილების შენახვა ვერ მოხერხდა.';
+          this.error.set('გადაწყვეტილების შენახვა ვერ მოხერხდა.');
         }
       });
   }

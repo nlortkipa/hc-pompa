@@ -14,7 +14,7 @@
 }
 
 <ng-template #content>
-    @if (isInvalidReview) {
+    @if (isInvalidReview()) {
       <div class="invalid-review">
         <div class="empty-icon"><app-icon name="x-circle" [size]="24" /></div>
         <h1>შემოწმების ბმული არ მუშაობს</h1>
@@ -37,29 +37,22 @@
         }
       </header>
 
-      @if (isLoading) {
+      @if (isLoading()) {
         <div class="loading-row"><span class="spinner"></span> იტვირთება...</div>
       }
 
-      @if (error) {
-        <div class="notice notice-error">
+      @if (error()) {
+        <div class="notice notice-error()">
           <app-icon name="alert" />
-          <span>{{ error }}</span>
-          @if (canRetry) {
+          <span>{{ error() }}</span>
+          @if (canRetry()) {
             <button class="btn btn-sm btn-secondary" type="button" (click)="loadReview()">თავიდან ცდა</button>
           }
         </div>
       }
 
-      @if (edited() && operation()?.reviewStatus === 'Pending') {
-        <div class="notice notice-info" role="status">
-          <app-icon name="pencil" />
-          <span>ოპერატორმა ჩანაწერი შეცვალა. ქვემოთ ნაჩვენებია განახლებული მონაცემები.</span>
-        </div>
-      }
-
-      @if (message) {
-        <div class="notice notice-success"><app-icon name="check-circle" /> <span>{{ message }}</span></div>
+      @if (message()) {
+        <div class="notice notice-success"><app-icon name="check-circle" /> <span>{{ message() }}</span></div>
       }
 
       @if (operation(); as op) {
@@ -112,12 +105,12 @@
 
         @if (op.reviewStatus === 'Pending') {
           <div class="review-actions">
-            <button class="btn btn-secondary btn-lg reject" type="button" (click)="reject()" [disabled]="isSubmitting">
-              @if (pendingDecision === 'reject') { <span class="spinner"></span> } @else { <app-icon name="xmark" /> }
+            <button class="btn btn-secondary btn-lg reject" type="button" (click)="reject()" [disabled]="isSubmitting()">
+              @if (pendingDecision() === 'reject') { <span class="spinner"></span> } @else { <app-icon name="xmark" /> }
               უარყოფა
             </button>
-            <button class="btn btn-primary btn-lg" type="button" (click)="accept()" [disabled]="isSubmitting">
-              @if (pendingDecision === 'accept') { <span class="spinner"></span> } @else { <app-icon name="check" /> }
+            <button class="btn btn-primary btn-lg" type="button" (click)="accept()" [disabled]="isSubmitting()">
+              @if (pendingDecision() === 'accept') { <span class="spinner"></span> } @else { <app-icon name="check" /> }
               დადასტურება
             </button>
           </div>
