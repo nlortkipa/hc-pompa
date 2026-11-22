@@ -56,6 +56,11 @@ export const routes: Routes = [
                 component: Reviews
             },
             {
+                path: 'reviews/:token',
+                component: Review,
+                data: { embedded: true }
+            },
+            {
                 path: 'users',
                 component: Users
             },

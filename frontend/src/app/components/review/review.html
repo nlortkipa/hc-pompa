@@ -1,11 +1,29 @@
-<main class="standalone-shell">
-  <section class="auth-card review-card">
+@if (embedded) {
+  <a class="back-link" routerLink="/console/reviews">
+    <app-icon name="chevron-left" [size]="15" /> შემოწმება
+  </a>
+  <section class="card review-card review-card--embedded">
+    <ng-container *ngTemplateOutlet="content" />
+  </section>
+} @else {
+  <main class="standalone-shell">
+    <section class="auth-card review-card">
+      <ng-container *ngTemplateOutlet="content" />
+    </section>
+  </main>
+}
+
+<ng-template #content>
     @if (isInvalidReview) {
       <div class="invalid-review">
         <div class="empty-icon"><app-icon name="x-circle" [size]="24" /></div>
         <h1>შემოწმების ბმული არ მუშაობს</h1>
         <p>ბმული არასწორია ან ჩანაწერი აღარ არსებობს.</p>
-        <a class="btn btn-primary btn-lg" routerLink="/login">მთავარ გვერდზე</a>
+        @if (embedded) {
+          <a class="btn btn-primary btn-lg" routerLink="/console/reviews">შემოწმების სიაში</a>
+        } @else {
+          <a class="btn btn-primary btn-lg" routerLink="/login">მთავარ გვერდზე</a>
+        }
       </div>
     } @else {
       <header class="review-top">
@@ -115,5 +133,4 @@
         }
       }
     }
-  </section>
-</main>
+</ng-template>

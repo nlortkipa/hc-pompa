@@ -8,6 +8,7 @@ import { PumpOperationService } from '../../services/pump-operation-service';
 import { UiService } from '../../services/ui.service';
 import { Icon } from '../icon/icon';
 import { livePoll } from '../../services/live-poll';
+import { ReviewInboxService } from '../../services/review-inbox.service';
 
 @Component({
   selector: 'app-review',
@@ -30,6 +31,9 @@ export class Review implements OnInit {
   private token = '';
   private isRefreshing = false;
   private destroyRef = inject(DestroyRef);
+  private inbox = inject(ReviewInboxService);
+  /** Opened from inside the console (sidebar/header around it) rather than from an email link. */
+  embedded = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -38,6 +42,7 @@ export class Review implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.embedded = !!this.route.snapshot.data['embedded'];
     this.token = this.route.snapshot.paramMap.get('token') || '';
     if (!/^[a-f0-9]{32}$/i.test(this.token)) {
       this.isInvalidReview = true;
@@ -76,9 +81,15 @@ export class Review implements OnInit {
     if (this.isSubmitting || !previous || previous.reviewStatus !== 'Pending') return;
 
     this.operation.set(data);
+    this.syncInbox(data);
     if (data.reviewStatus === 'Pending' && data.version !== previous.version) {
       this.markEdited();
     }
+  }
+
+  /** Keep the console's pending badge and list in step with what this page shows. */
+  private syncInbox(data: PumpOperationReviewModel): void {
+    if (this.embedded) this.inbox.update(data);
   }
 
   private markEdited(): void {
@@ -152,6 +163,7 @@ export class Review implements OnInit {
       .subscribe({
         next: (data) => {
           this.operation.set(data);
+          this.syncInbox(data);
           this.edited.set(false);
           this.message = decision === 'accept'
             ? 'ჩანაწერი დადასტურდა.'
@@ -161,6 +173,7 @@ export class Review implements OnInit {
           if (error.status === 409 && error.error?.token) {
             // Edited after we loaded it: show the new data and let the checker decide again.
             this.operation.set(error.error as PumpOperationReviewModel);
+            this.syncInbox(error.error as PumpOperationReviewModel);
             this.edited.set(true);
             this.ui.toast('ჩანაწერი შეიცვალა. გადახედეთ და გადაწყვიტეთ ხელახლა.', 'error', 5000);
             return;
