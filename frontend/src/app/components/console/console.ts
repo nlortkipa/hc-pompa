@@ -1,12 +1,17 @@
-import { Component, HostListener, computed, inject } from '@angular/core';
+import { Component, DestroyRef, HostListener, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProfileService } from '../../services/profile-service';
-import { Router, RouterOutlet, RouterLinkActive, RouterLinkWithHref } from '@angular/router';
+import { NavigationEnd, Router, RouterOutlet, RouterLinkActive, RouterLinkWithHref } from '@angular/router';
 import { APP_NAME } from '../../globals';
 import { UserModel } from '../../models/user-model';
 import { Icon } from '../icon/icon';
 import { UiService } from '../../services/ui.service';
 import { ReviewInboxService } from '../../services/review-inbox.service';
+import { filter } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
+/** How often the review inbox is re-fetched while the tab is visible. */
+const INBOX_POLL_MS = 30_000;
 
 interface NavItem {
   path: string;
@@ -41,6 +46,8 @@ export class Console {
   private profileService = inject(ProfileService);
   private ui = inject(UiService);
   private reviewInbox = inject(ReviewInboxService);
+  private destroyRef = inject(DestroyRef);
+  private pollTimer: ReturnType<typeof setInterval> | null = null;
   profile = this.profileService.profile;
   pendingReviews = this.reviewInbox.pendingCount;
 
@@ -65,9 +72,42 @@ export class Console {
     }
 
     this.profileService.getProfile(token).subscribe({
-      next: () => this.loadReviewInbox(),
+      next: () => {
+        this.loadReviewInbox();
+        this.startInboxSync();
+      },
       error: () => this.signOut(),
     });
+  }
+
+  ngOnDestroy() {
+    if (this.pollTimer) clearInterval(this.pollTimer);
+  }
+
+  /**
+   * Review requests are created by other users (or by plate checker changes),
+   * so keep the inbox fresh: poll while visible, and re-fetch on navigation
+   * and when the tab regains focus.
+   */
+  private startInboxSync() {
+    this.pollTimer = setInterval(() => {
+      if (document.visibilityState === 'visible') this.syncInbox();
+    }, INBOX_POLL_MS);
+
+    this.router.events.pipe(
+      filter(e => e instanceof NavigationEnd),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe(() => this.syncInbox());
+  }
+
+  @HostListener('document:visibilitychange')
+  onVisibilityChange(): void {
+    if (document.visibilityState === 'visible' && this.pollTimer) this.syncInbox();
+  }
+
+  private syncInbox() {
+    if (!localStorage.getItem('token')) return;
+    this.reviewInbox.refresh().subscribe({ error: () => {} });
   }
 
   /** Checkers see their pending reports right after signing in. */

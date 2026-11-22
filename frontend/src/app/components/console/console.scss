@@ -359,7 +359,7 @@
     text-decoration: none;
     transition: color 140ms;
 
-    span {
+    > span:not(.tab-icon) {
       max-width: 100%;
       overflow: hidden;
       text-overflow: ellipsis;

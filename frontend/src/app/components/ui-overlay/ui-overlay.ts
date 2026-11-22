@@ -42,6 +42,10 @@ import { Icon } from '../icon/icon';
       display: grid; gap: 8px; justify-items: center; width: max-content; max-width: calc(100vw - 32px);
       transform: translateX(-50%); pointer-events: none;
     }
+    /* Phones: sit above the bottom tab bar so it stays tappable. */
+    @media (max-width: 768px) {
+      .toast-stack { bottom: calc(84px + env(safe-area-inset-bottom)); }
+    }
     .toast-item {
       display: flex; align-items: center; gap: 10px; padding: 10px 16px 10px 12px;
       background: var(--material-thick); color: var(--text);
