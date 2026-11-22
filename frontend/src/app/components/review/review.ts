@@ -23,6 +23,8 @@ export class Review implements OnInit {
   isSubmitting = signal(false);
   pendingDecision = signal<'accept' | 'reject' | null>(null);
   isInvalidReview = signal(false);
+  /** The link was valid but the operator deleted the report. */
+  isDeleted = signal(false);
   canRetry = signal(false);
   error = signal('');
   message = signal('');
@@ -64,7 +66,7 @@ export class Review implements OnInit {
         next: (data) => this.applyLiveUpdate(data),
         error: (error: HttpErrorResponse) => {
           if (error.status === 404) {
-            this.isInvalidReview.set(true);
+            this.isDeleted.set(true);
             this.operation.set(null);
             this.ui.toast('ოპერატორმა ჩანაწერი წაშალა', 'info');
           }
@@ -93,17 +95,22 @@ export class Review implements OnInit {
   loadReview(): void {
     this.isLoading.set(true);
     this.isInvalidReview.set(false);
+    this.isDeleted.set(false);
     this.canRetry.set(false);
     this.error.set('');
     this.operation.set(null);
 
     this.pumpOperationService.getReview(this.token)
-      .pipe(finalize(() => this.isLoading.set(false))
+      .pipe(finalize(() => this.isLoading.set(false)))
       .subscribe({
         next: (data) => this.operation.set(data),
         error: (error: HttpErrorResponse) => {
-          if (error.status === 400 || error.status === 404) {
-            this.isInvalidReview.set(true));
+          if (error.status === 404) {
+            this.isDeleted.set(true);
+            return;
+          }
+          if (error.status === 400) {
+            this.isInvalidReview.set(true);
             return;
           }
 
@@ -170,7 +177,12 @@ export class Review implements OnInit {
             return;
           }
 
-          if (error.status === 400 || error.status === 404) {
+          if (error.status === 404) {
+            this.isDeleted.set(true);
+            this.operation.set(null);
+            return;
+          }
+          if (error.status === 400) {
             this.isInvalidReview.set(true);
             this.operation.set(null);
             return;

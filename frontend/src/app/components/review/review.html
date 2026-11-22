@@ -14,7 +14,18 @@
 }
 
 <ng-template #content>
-    @if (isInvalidReview()) {
+    @if (isDeleted()) {
+      <div class="invalid-review">
+        <div class="empty-icon"><app-icon name="trash" [size]="24" /></div>
+        <h1>ჩანაწერი წაშლილია</h1>
+        <p>ოპერატორმა ეს ჩანაწერი წაშალა, ამიტომ მისი შემოწმება აღარ არის საჭირო.</p>
+        @if (embedded) {
+          <a class="btn btn-primary btn-lg" routerLink="/console/reviews">შემოწმების სიაში</a>
+        } @else {
+          <a class="btn btn-primary btn-lg" routerLink="/login">მთავარ გვერდზე</a>
+        }
+      </div>
+    } @else if (isInvalidReview()) {
       <div class="invalid-review">
         <div class="empty-icon"><app-icon name="x-circle" [size]="24" /></div>
         <h1>შემოწმების ბმული არ მუშაობს</h1>
@@ -42,7 +53,7 @@
       }
 
       @if (error()) {
-        <div class="notice notice-error()">
+        <div class="notice notice-error">
           <app-icon name="alert" />
           <span>{{ error() }}</span>
           @if (canRetry()) {
