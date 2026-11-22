@@ -48,5 +48,15 @@ namespace Service.DTOs
         public PumpOperationDto Operation { get; set; } = null!;
         /// <summary>Requests created for checkers that were not on the operation before (e.g. plate changed).</summary>
         public List<PumpOperationReviewRequestLinkDto> AddedReviewRequests { get; set; } = new();
+        /// <summary>Requests of checkers that were already on the operation and still are.</summary>
+        public List<PumpOperationReviewRequestLinkDto> KeptReviewRequests { get; set; } = new();
+    }
+
+    public class PumpOperationDeleteResult
+    {
+        /// <summary>The operation as it was just before deletion.</summary>
+        public PumpOperationDto Operation { get; set; } = null!;
+        /// <summary>Review requests the operation had; they are gone from the database now.</summary>
+        public List<PumpOperationReviewRequestLinkDto> ReviewRequests { get; set; } = new();
     }
 }

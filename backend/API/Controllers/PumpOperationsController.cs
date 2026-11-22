@@ -104,9 +104,10 @@ namespace API.Controllers
 
             if (result == null) return NotFound();
 
-            // Existing checkers keep their link and see the edit live; only checkers newly
-            // added by a plate change need an email.
-            await reviewEmails.SendAsync(result.Operation, result.AddedReviewRequests, warnIfNoChecker: false);
+            // Checkers who stay on the operation keep their link and are told it changed; checkers
+            // newly added by a plate change get a first review request. Removed checkers get nothing.
+            await reviewEmails.SendAsync(result.Operation, result.KeptReviewRequests, ReviewEmailKind.Updated, warnIfNoChecker: false);
+            await reviewEmails.SendAsync(result.Operation, result.AddedReviewRequests, ReviewEmailKind.Created, warnIfNoChecker: false);
 
             return Ok(result.Operation);
         }
@@ -122,14 +123,21 @@ namespace API.Controllers
                 return Unauthorized();
             }
 
+            PumpOperationDeleteResult? result;
             try
             {
-                return await service.DeleteAsync(id, userId) ? NoContent() : NotFound();
+                result = await service.DeleteAsync(id, userId);
             }
             catch (Service.Exceptions.ConflictException ex)
             {
                 return Conflict(ex.Message);
             }
+
+            if (result == null) return NotFound();
+
+            await reviewEmails.SendAsync(result.Operation, result.ReviewRequests, ReviewEmailKind.Deleted, warnIfNoChecker: false);
+
+            return NoContent();
         }
 
         /// <summary>Review requests assigned to the signed-in user (pending first).</summary>

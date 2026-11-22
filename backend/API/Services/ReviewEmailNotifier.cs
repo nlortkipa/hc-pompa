@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 namespace API.Services
 {
     /// <summary>Mails review links to checkers. A failed email never fails the request that saved the data.</summary>
+    /// <remarks>Only checkers with an email address on their review request are mailed.</remarks>
     public class ReviewEmailNotifier(
         IEmailService emailService,
         IConfiguration configuration,
@@ -19,6 +20,7 @@ namespace API.Services
         public async Task SendAsync(
             PumpOperationDto operation,
             IEnumerable<PumpOperationReviewRequestLinkDto> reviewRequests,
+            ReviewEmailKind kind = ReviewEmailKind.Created,
             bool warnIfNoChecker = true)
         {
             var reviewBaseUrl = GetReviewBaseUrl();
@@ -36,11 +38,12 @@ namespace API.Services
                 var reviewUrl = $"{reviewBaseUrl}/{reviewRequest.Token}";
                 try
                 {
-                    await emailService.SendPumpOperationReviewRequestAsync(operation, reviewRequest.CheckerGmail, reviewUrl);
+                    await emailService.SendPumpOperationReviewEmailAsync(kind, operation, reviewRequest.CheckerGmail, reviewUrl);
 
                     logger.LogInformation(
-                        "Pump operation {PumpOperationId} review email processed for checker {CheckerGmail}: {ReviewUrl}",
+                        "Pump operation {PumpOperationId} {EmailKind} review email processed for checker {CheckerGmail}: {ReviewUrl}",
                         operation.Id,
+                        kind,
                         reviewRequest.CheckerGmail,
                         reviewUrl);
                 }
@@ -50,8 +53,9 @@ namespace API.Services
                     // outage must not report the successful save as a failed operation.
                     logger.LogError(
                         ex,
-                        "Pump operation {PumpOperationId} was saved, but the review email failed for checker {CheckerGmail}.",
+                        "Pump operation {PumpOperationId} was saved, but the {EmailKind} review email failed for checker {CheckerGmail}.",
                         operation.Id,
+                        kind,
                         reviewRequest.CheckerGmail);
                 }
             }

@@ -15,7 +15,7 @@ namespace Service.Interfaces
         /// </summary>
         Task<PumpOperationUpdateResult?> UpdateAsync(int id, CreatePumpOperationDto dto, int operatorId);
         /// <summary>Deletes the caller's own pending operation. False when not found / not owned; throws ConflictException when no longer pending.</summary>
-        Task<bool> DeleteAsync(int id, int operatorId);
+        Task<PumpOperationDeleteResult?> DeleteAsync(int id, int operatorId);
         Task<IEnumerable<PumpOperationDto>> GetAllAsync(int userId, string role, PumpOperationFilterDto? filter = null);
         Task<PumpOperationDto?> GetByIdAsync(int id, int userId, string role);
         Task<IEnumerable<PumpOperationReviewRequestLinkDto>> GetReviewRequestsForOperationAsync(int pumpOperationId);

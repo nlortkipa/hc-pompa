@@ -65,25 +65,38 @@ namespace Service.Services
                 throw new ConflictException(NotPendingMessage);
             }
 
+            var addedIds = updated.Value.AddedRequests.Select(r => r.Id).ToHashSet();
+            var kept = (await reviewRequestRepository.GetByPumpOperationIdAsync(id))
+                .Where(r => !addedIds.Contains(r.Id))
+                .Select(MapLinkDto)
+                .ToList();
+
             return new PumpOperationUpdateResult
             {
                 Operation = mapper.Map<PumpOperationDto>(updated.Value.Operation),
-                AddedReviewRequests = updated.Value.AddedRequests.Select(MapLinkDto).ToList()
+                AddedReviewRequests = updated.Value.AddedRequests.Select(MapLinkDto).ToList(),
+                KeptReviewRequests = kept
             };
         }
 
-        public async Task<bool> DeleteAsync(int id, int operatorId)
+        public async Task<PumpOperationDeleteResult?> DeleteAsync(int id, int operatorId)
         {
             var existing = await repository.GetByIdAsync(id);
-            if (existing == null || existing.OperatorId != operatorId) return false;
+            if (existing == null || existing.OperatorId != operatorId) return null;
             EnsurePending(existing);
+
+            // Read before deleting: the requests are cascade-deleted with the operation.
+            var operation = mapper.Map<PumpOperationDto>(existing);
+            var requests = (await reviewRequestRepository.GetByPumpOperationIdAsync(id))
+                .Select(MapLinkDto)
+                .ToList();
 
             if (!await repository.TryDeletePendingAsync(id, operatorId))
             {
                 throw new ConflictException(NotPendingMessage);
             }
 
-            return true;
+            return new PumpOperationDeleteResult { Operation = operation, ReviewRequests = requests };
         }
 
         private static void EnsurePending(PumpOperation operation)

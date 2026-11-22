@@ -2,6 +2,7 @@ using Microsoft.Extensions.Configuration;
 using Service.DTOs;
 using Service.Interfaces;
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Mail;
 using System.Threading.Tasks;
@@ -17,10 +18,10 @@ namespace Service.Services
             _sendEmail = !bool.TryParse(configuration["Email:SendEmail"], out var sendEmail) || sendEmail;
         }
 
-        public async Task SendPumpOperationReviewRequestAsync(PumpOperationDto operation, string checkerEmail, string reviewUrl)
+        public async Task SendPumpOperationReviewEmailAsync(ReviewEmailKind kind, PumpOperationDto operation, string checkerEmail, string reviewUrl)
         {
-            var subject = $"Pump operation #{operation.Id} review request";
-            var body = BuildReviewBody(operation, reviewUrl);
+            var subject = BuildReviewSubject(kind, operation);
+            var body = BuildReviewBody(kind, operation, reviewUrl);
 
             if (!_sendEmail)
             {
@@ -49,7 +50,9 @@ namespace Service.Services
                     : new MailAddress(fromEmail, fromName),
                 Subject = subject,
                 Body = body,
-                IsBodyHtml = false
+                IsBodyHtml = false,
+                SubjectEncoding = System.Text.Encoding.UTF8,
+                BodyEncoding = System.Text.Encoding.UTF8
             };
             message.To.Add(to);
 
@@ -79,28 +82,47 @@ namespace Service.Services
             }
         }
 
-        private static string BuildReviewBody(PumpOperationDto operation, string reviewUrl)
+        private static string BuildReviewSubject(ReviewEmailKind kind, PumpOperationDto operation) => kind switch
+        {
+            ReviewEmailKind.Updated => $"ჩანაწერი #{operation.Id} შეიცვალა",
+            ReviewEmailKind.Deleted => $"ჩანაწერი #{operation.Id} წაიშალა",
+            _ => $"ჩანაწერი #{operation.Id} — შემოწმება"
+        };
+
+        private static string BuildReviewBody(ReviewEmailKind kind, PumpOperationDto operation, string reviewUrl)
         {
             var operatorName = $"{operation.OperatorFirstName} {operation.OperatorLastName}".Trim();
 
-            return string.Join(Environment.NewLine, new[]
+            var lines = new List<string>
             {
-                "A pump operation is ready for checker review.",
+                kind switch
+                {
+                    ReviewEmailKind.Updated => "ჩანაწერი შეიცვალა. გთხოვთ, შეამოწმოთ.",
+                    ReviewEmailKind.Deleted => "ჩანაწერი წაიშალა.",
+                    _ => "გთხოვთ, შეამოწმოთ ჩანაწერი."
+                },
                 "",
-                $"Operation ID: {operation.Id}",
-                $"Date: {operation.Date:yyyy-MM-dd HH:mm}",
-                $"Operator: {operatorName}",
-                $"Company: {operation.CompanyName}",
-                $"Address: {operation.AddressName}",
-                $"Plate: {operation.PlateNumber}",
-                $"Pump type: {operation.PumpType}",
-                $"Distance range: {GetDistanceRangeLabel(operation)}",
-                $"Concrete volume: {operation.ConcreteVolume}",
-                $"Daily: {(operation.IsDaily ? "Yes" : "No")}",
-                $"Note: {(string.IsNullOrWhiteSpace(operation.Note) ? "—" : operation.Note)}",
-                "",
-                $"Review link: {reviewUrl}"
-            });
+                $"ჩანაწერის ნომერი: {operation.Id}",
+                $"თარიღი: {operation.Date:yyyy-MM-dd HH:mm}",
+                $"ოპერატორი: {operatorName}",
+                $"კომპანია: {operation.CompanyName}",
+                $"მისამართი: {operation.AddressName}",
+                $"პომპა: {operation.PlateNumber}"
+            };
+
+            if (kind != ReviewEmailKind.Deleted)
+            {
+                lines.Add($"პომპის ტიპი: {operation.PumpType}");
+                lines.Add($"მანძილი: {GetDistanceRangeLabel(operation)}");
+                lines.Add($"ბეტონის მოცულობა: {operation.ConcreteVolume}");
+                lines.Add($"დღიური: {(operation.IsDaily ? "კი" : "არა")}");
+                lines.Add($"შენიშვნა: {(string.IsNullOrWhiteSpace(operation.Note) ? "—" : operation.Note)}");
+            }
+
+            lines.Add("");
+            lines.Add($"ბმული: {reviewUrl}");
+
+            return string.Join(Environment.NewLine, lines);
         }
 
         private static string GetDistanceRangeLabel(PumpOperationDto operation)
