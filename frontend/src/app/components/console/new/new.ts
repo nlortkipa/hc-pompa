@@ -145,6 +145,7 @@ export class New implements OnInit {
   }
 
   ngOnInit(): void {
+    this.companyService.getCompanies();
     this.resetWizard();
     this.focusStep();
 

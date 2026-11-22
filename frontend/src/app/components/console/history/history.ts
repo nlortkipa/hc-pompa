@@ -118,6 +118,7 @@ export class History implements OnInit {
   }
 
   ngOnInit(): void {
+    this.companyService.getCompanies();
     this.loadRecords();
   }
 
